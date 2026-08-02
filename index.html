@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Site Lab</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #111827, #312e81);
+      color: white;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 600px;
+      padding: 40px 28px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.1);
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    h1 {
+      margin-bottom: 18px;
+      font-size: 48px;
+    }
+
+    p {
+      margin-bottom: 28px;
+      color: #d1d5db;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    button {
+      padding: 15px 24px;
+      border: none;
+      border-radius: 14px;
+      background: white;
+      color: #111827;
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+    #message {
+      margin-top: 20px;
+      color: #86efac;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <h1>Site Lab 🚀</h1>
+
+    <p>
+      Мій перший сайт, створений із телефона та опублікований через GitHub і Vercel.
+    </p>
+
+    <button onclick="checkSite()">Перевірити сайт</button>
+
+    <div id="message"></div>
+  </main>
+
+  <script>
+    function checkSite() {
+      document.getElementById("message").textContent =
+        "Усе працює! Перший сайт запущено.";
+    }
+  </script>
+</body>
+</html>
