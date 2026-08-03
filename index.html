@@ -3,85 +3,316 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Site Lab</title>
+  <meta name="description" content="HabitTeen — простір для розвитку, корисних звичок і кращого розуміння себе.">
+  <title>HabitTeen — розвивайся у своєму ритмі</title>
 
   <style>
+    :root {
+      color-scheme: dark;
+      --background: #070a12;
+      --surface: rgba(18, 23, 38, 0.72);
+      --surface-border: rgba(255, 255, 255, 0.09);
+      --text: #f6f7fb;
+      --muted: #a9afc3;
+      --accent: #8b7cff;
+      --accent-light: #b7adff;
+      --mint: #66e3c4;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #111827, #312e81);
-      color: white;
+    html {
+      scroll-behavior: smooth;
     }
 
-    .card {
-      width: 100%;
-      max-width: 600px;
-      padding: 40px 28px;
-      border-radius: 24px;
-      background: rgba(255, 255, 255, 0.1);
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      overflow-x: hidden;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 15%, rgba(139, 124, 255, 0.2), transparent 32rem),
+        radial-gradient(circle at 88% 82%, rgba(102, 227, 196, 0.12), transparent 30rem),
+        var(--background);
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: linear-gradient(to bottom, black, transparent 80%);
+      content: "";
+      pointer-events: none;
+    }
+
+    .page {
+      width: min(1120px, calc(100% - 40px));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 36px 0 44px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 11px;
+      color: #0b0c12;
+      background: linear-gradient(135deg, var(--accent-light), var(--mint));
+      box-shadow: 0 8px 30px rgba(139, 124, 255, 0.24);
+      font-size: 16px;
+    }
+
+    .hero {
+      display: grid;
+      min-height: 56vh;
+      padding: clamp(72px, 12vw, 132px) 0 clamp(64px, 10vw, 108px);
+      place-items: center;
       text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .hero-content {
+      max-width: 860px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+      padding: 8px 13px;
+      border: 1px solid rgba(183, 173, 255, 0.2);
+      border-radius: 999px;
+      color: var(--accent-light);
+      background: rgba(139, 124, 255, 0.08);
+      font-size: 13px;
+      font-weight: 650;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 14px var(--mint);
+      content: "";
     }
 
     h1 {
-      margin-bottom: 18px;
-      font-size: 48px;
+      font-size: clamp(64px, 11vw, 132px);
+      line-height: 0.9;
+      letter-spacing: -0.075em;
+      background: linear-gradient(110deg, #ffffff 20%, #c9c2ff 58%, #86edd3);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
     }
 
-    p {
-      margin-bottom: 28px;
-      color: #d1d5db;
-      font-size: 18px;
-      line-height: 1.6;
+    .subtitle {
+      max-width: 660px;
+      margin: 30px auto 0;
+      color: var(--muted);
+      font-size: clamp(18px, 2.3vw, 23px);
+      line-height: 1.55;
     }
 
-    button {
-      padding: 15px 24px;
-      border: none;
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 36px;
+      padding: 16px 22px;
       border-radius: 14px;
-      background: white;
-      color: #111827;
-      font-size: 17px;
-      font-weight: bold;
+      color: #0b0d13;
+      background: linear-gradient(135deg, #f5f3ff, #c8fff1);
+      box-shadow: 0 14px 40px rgba(102, 227, 196, 0.14);
+      font-size: 16px;
+      font-weight: 750;
+      text-decoration: none;
+      transition: transform 180ms ease, box-shadow 180ms ease;
     }
 
-    #message {
-      margin-top: 20px;
-      color: #86efac;
-      font-weight: bold;
+    .cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 50px rgba(139, 124, 255, 0.26);
+    }
+
+    .cta:focus-visible {
+      outline: 3px solid var(--accent-light);
+      outline-offset: 4px;
+    }
+
+    .cta-arrow {
+      font-size: 19px;
+      transition: transform 180ms ease;
+    }
+
+    .cta:hover .cta-arrow {
+      transform: translate(2px, -2px);
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .feature-card {
+      min-height: 220px;
+      padding: 28px;
+      border: 1px solid var(--surface-border);
+      border-radius: 22px;
+      background: var(--surface);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 24px 60px rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(14px);
+      transition: border-color 180ms ease, transform 180ms ease;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(183, 173, 255, 0.28);
+      transform: translateY(-4px);
+    }
+
+    .feature-number {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      margin-bottom: 48px;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 13px;
+      color: var(--accent-light);
+      background: rgba(255, 255, 255, 0.035);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .feature-card:nth-child(2) .feature-number {
+      color: var(--mint);
+    }
+
+    .feature-card h2 {
+      font-size: clamp(20px, 2vw, 24px);
+      line-height: 1.2;
+      letter-spacing: -0.035em;
+    }
+
+    footer {
+      padding-top: 38px;
+      color: #777e93;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        width: min(100% - 28px, 560px);
+        padding-top: 22px;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 72px 0 64px;
+      }
+
+      h1 {
+        font-size: clamp(58px, 19vw, 92px);
+      }
+
+      .subtitle {
+        margin-top: 24px;
+      }
+
+      .cta {
+        width: 100%;
+        max-width: 340px;
+      }
+
+      .features {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-card {
+        min-height: auto;
+        padding: 24px;
+      }
+
+      .feature-number {
+        margin-bottom: 34px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
-
 <body>
-  <main class="card">
-    <h1>Site Lab 🚀</h1>
+  <main class="page">
+    <a class="brand" href="#top" aria-label="HabitTeen — на початок сторінки">
+      <span class="brand-mark" aria-hidden="true">H</span>
+      HabitTeen
+    </a>
 
-    <p>
-      Мій перший сайт, створений із телефона та опублікований через GitHub і Vercel.
-    </p>
+    <section class="hero" id="top" aria-labelledby="main-title">
+      <div class="hero-content">
+        <p class="eyebrow">Твій рух уперед</p>
+        <h1 id="main-title">HabitTeen</h1>
+        <p class="subtitle">Простір для розвитку, корисних звичок і кращого розуміння себе</p>
+        <a class="cta" href="https://t.me/HabitTeen_bot" target="_blank" rel="noopener noreferrer">
+          Відкрити Telegram-бота
+          <span class="cta-arrow" aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </section>
 
-    <button onclick="checkSite()">Перевірити сайт</button>
+    <section class="features" aria-label="Можливості HabitTeen">
+      <article class="feature-card">
+        <span class="feature-number" aria-hidden="true">01</span>
+        <h2>Зрозумій себе</h2>
+      </article>
+      <article class="feature-card">
+        <span class="feature-number" aria-hidden="true">02</span>
+        <h2>Корисні практики</h2>
+      </article>
+      <article class="feature-card">
+        <span class="feature-number" aria-hidden="true">03</span>
+        <h2>Розвивай звички</h2>
+      </article>
+    </section>
 
-    <div id="message"></div>
+    <footer>HabitTeen · Маленькі кроки створюють великі зміни</footer>
   </main>
-
-  <script>
-    function checkSite() {
-      document.getElementById("message").textContent =
-        "Усе працює! Перший сайт запущено.";
-    }
-  </script>
 </body>
 </html>
