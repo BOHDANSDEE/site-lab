@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://site-lab-iota.vercel.app/</loc>
-  </url>
+  <url><loc>https://site-lab-iota.vercel.app/</loc></url>
+  <url><loc>https://site-lab-iota.vercel.app/statti/</loc></url>
+  <url><loc>https://site-lab-iota.vercel.app/lin/</loc></url>
+  <url><loc>https://site-lab-iota.vercel.app/apatiia/</loc></url>
+  <url><loc>https://site-lab-iota.vercel.app/prokrastynatsiia/</loc></url>
+  <url><loc>https://site-lab-iota.vercel.app/statti/yak-poboroty-lin/</loc></url>
+  <url><loc>https://site-lab-iota.vercel.app/statti/lin-chy-vtoma/</loc></url>
+  <url><loc>https://site-lab-iota.vercel.app/statti/apatiia-shcho-robyty/</loc></url>
+  <url><loc>https://site-lab-iota.vercel.app/statti/apatiia-chy-depresiia/</loc></url>
+  <url><loc>https://site-lab-iota.vercel.app/statti/yak-perestaty-vidkladaty-spravy/</loc></url>
+  <url><loc>https://site-lab-iota.vercel.app/statti/prychyny-prokrastynatsii/</loc></url>
+  <url><loc>https://site-lab-iota.vercel.app/psykholoham/</loc></url>
+  <url><loc>https://site-lab-iota.vercel.app/pro-sait/</loc></url>
+  <url><loc>https://site-lab-iota.vercel.app/bezpeka/</loc></url>
+  <url><loc>https://site-lab-iota.vercel.app/faq/</loc></url>
 </urlset>

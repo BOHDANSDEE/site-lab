@@ -1,98 +1,51 @@
-const barriers = [
-  ["Не знаю першого кроку", "Спробуй назвати найменшу видиму дію: відкрити файл, дістати потрібну річ або записати одне речення."],
-  ["Хочу зробити ідеально", "Дозволь собі чернетку. Перша версія не має бути остаточною — її завдання лише допомогти почати."],
-  ["Справа здається нудною", "Поєднай короткий відрізок справи з приємною умовою: зручним місцем, музикою без слів або маленькою перервою після."],
-  ["Постійно відволікаюся", "Прибери одну перешкоду на п’ять хвилин: вимкни сповіщення або поклади телефон трохи далі."],
-  ["Не бачу результату", "Обери результат, який можна помітити сьогодні: один абзац, одна відповідь або один прибраний предмет."],
-  ["Не маю енергії", "Зменш очікування й перевір, чи потрібні тобі вода, їжа, коротка перерва або відпочинок. Рух уперед не має ігнорувати твої сили."],
-  ["Завдання здається занадто великим", "Відокрем перші п’ять хвилин від усієї справи. Зараз не потрібно завершувати — лише підготувати початок."]
-];
+document.querySelectorAll('[data-current-year]').forEach((element)=>{element.textContent=new Date().getFullYear();});
 
-const options = document.querySelector("#barrier-options");
-const result = document.querySelector("#check-result");
+const botCtas=document.querySelectorAll('.bot-cta');
 
-barriers.forEach(([label, tip], index) => {
-  const option = document.createElement("label");
-  option.className = "option";
-  option.innerHTML = `<input type="radio" name="barrier" value="${index}"><span>${label}</span>`;
-  options.append(option);
-  option.querySelector("input").addEventListener("change", () => {
-    result.innerHTML = `<strong>Можна спробувати так:</strong>${tip}`;
-  });
-});
-
-const menuButton = document.querySelector(".menu-button");
-const navigation = document.querySelector(".nav");
-menuButton.addEventListener("click", () => {
-  const isOpen = menuButton.getAttribute("aria-expanded") === "true";
-  menuButton.setAttribute("aria-expanded", String(!isOpen));
-  navigation.classList.toggle("open", !isOpen);
-});
-navigation.addEventListener("click", (event) => {
-  if (event.target.matches("a")) {
-    navigation.classList.remove("open");
-    menuButton.setAttribute("aria-expanded", "false");
+const updateBotCta=(section,{label,title,text,button,className,status})=>{
+  if(!section)return;
+  section.classList.add(className);
+  const kicker=section.querySelector('.section-kicker');
+  const heading=section.querySelector('h2');
+  const description=section.querySelector('p:not(.section-kicker)');
+  const link=section.querySelector('a.button');
+  if(kicker)kicker.textContent=label;
+  if(heading)heading.textContent=title;
+  if(description)description.textContent=text;
+  if(link){
+    link.textContent=button;
+    const arrow=document.createElement('span');
+    arrow.setAttribute('aria-hidden','true');
+    arrow.textContent=' ↗';
+    link.append(arrow);
   }
-});
-
-const timerDisplay = document.querySelector("#timer");
-const timerToggle = document.querySelector("#timer-toggle");
-const timerReset = document.querySelector("#timer-reset");
-const timerNote = document.querySelector("#timer-note");
-let remaining = 300;
-let timerId = null;
-
-function renderTime() {
-  const minutes = Math.floor(remaining / 60).toString().padStart(2, "0");
-  const seconds = (remaining % 60).toString().padStart(2, "0");
-  timerDisplay.textContent = `${minutes}:${seconds}`;
-}
-
-function stopTimer(label = "Продовжити") {
-  window.clearInterval(timerId);
-  timerId = null;
-  timerToggle.textContent = label;
-}
-
-timerToggle.addEventListener("click", () => {
-  if (timerId) {
-    stopTimer();
-    timerNote.textContent = "Пауза. Повернися, коли будеш готовий.";
-    return;
+  if(status){
+    const statusLine=document.createElement('span');
+    statusLine.className='bot-status';
+    statusLine.textContent=status;
+    section.prepend(statusLine);
   }
-  if (remaining === 0) remaining = 300;
-  timerToggle.textContent = "Пауза";
-  timerNote.textContent = "Зосередься лише на наступній маленькій дії.";
-  timerId = window.setInterval(() => {
-    remaining -= 1;
-    renderTime();
-    if (remaining === 0) {
-      stopTimer("Ще 5 хвилин");
-      timerNote.textContent = "П’ять хвилин минули. Хочеш продовжити?";
-    }
-  }, 1000);
+};
+
+updateBotCta(botCtas[0],{
+  label:'Швидкий старт',
+  title:'Не знаєте, з чого почати?',
+  text:'Відповідайте на кілька коротких запитань у Telegram — бот допоможе побачити головну перешкоду й обрати один реалістичний крок.',
+  button:'Знайти перший крок',
+  className:'bot-cta-start'
 });
 
-timerReset.addEventListener("click", () => {
-  stopTimer("Почати 5 хвилин");
-  remaining = 300;
-  renderTime();
-  timerNote.textContent = "П’ять хвилин — це вже початок.";
+updateBotCta(botCtas[1],{
+  label:'Потрібна допомога?',
+  title:'Розберіть свою ситуацію крок за кроком',
+  text:'Натисніть кнопку, коротко опишіть, що відкладаєте або що не виходить. Бот допоможе структурувати ситуацію без осуду.',
+  button:'Розбір ситуації',
+  className:'bot-cta-help',
+  status:'● Telegram-помічник'
 });
 
-document.querySelector("#year").textContent = new Date().getFullYear();
-
-const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-if (reducedMotion || !("IntersectionObserver" in window)) {
-  document.querySelectorAll(".reveal").forEach((element) => element.classList.add("visible"));
-} else {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-  document.querySelectorAll(".reveal").forEach((element) => observer.observe(element));
+if(botCtas.length){
+  const style=document.createElement('style');
+  style.textContent='.bot-cta-start{border-style:dashed;background:linear-gradient(145deg,#eef9ff,#fff)}.bot-cta-start .button{box-shadow:none}.bot-cta-help{position:relative;overflow:hidden;border:2px solid #63bce6;background:linear-gradient(145deg,#d7f1ff 0%,#fff 70%);box-shadow:0 24px 60px rgba(13,111,168,.18)}.bot-cta-help:after{position:absolute;right:-76px;bottom:-92px;width:230px;height:230px;border:34px solid rgba(73,173,219,.11);border-radius:50%;content:""}.bot-cta-help>*{position:relative;z-index:1}.bot-status{display:inline-flex;margin-bottom:18px;padding:8px 12px;border:1px solid #9dd5ee;border-radius:999px;color:#075783;background:rgba(255,255,255,.86);font-size:.78rem;font-weight:900;letter-spacing:.02em}.bot-cta-help .button{min-width:210px}.bot-cta-help .section-kicker{margin-bottom:10px}@media(max-width:719px){.bot-cta-help .button{width:100%}}';
+  document.head.append(style);
 }
