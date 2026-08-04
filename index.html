@@ -1,87 +1,168 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Site Lab</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #111827, #312e81);
-      color: white;
-    }
-
-    .card {
-      width: 100%;
-      max-width: 600px;
-      padding: 40px 28px;
-      border-radius: 24px;
-      background: rgba(255, 255, 255, 0.1);
-      text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    h1 {
-      margin-bottom: 18px;
-      font-size: 48px;
-    }
-
-    p {
-      margin-bottom: 28px;
-      color: #d1d5db;
-      font-size: 18px;
-      line-height: 1.6;
-    }
-
-    button {
-      padding: 15px 24px;
-      border: none;
-      border-radius: 14px;
-      background: white;
-      color: #111827;
-      font-size: 17px;
-      font-weight: bold;
-    }
-
-    #message {
-      margin-top: 20px;
-      color: #86efac;
-      font-weight: bold;
-    }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Як побороти лінь і почати діяти | HabitTeen</title>
+  <meta name="description" content="Прості кроки, які допомагають зрозуміти причини ліні, знайти мотивацію, почати важливу справу та поступово розвивати самодисципліну.">
+  <link rel="canonical" href="https://site-lab.vercel.app/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="uk_UA">
+  <meta property="og:title" content="Як побороти лінь і почати діяти | HabitTeen">
+  <meta property="og:description" content="Проста система, щоб зрозуміти перешкоду й обрати наступний маленький крок.">
+  <meta property="og:url" content="https://site-lab.vercel.app/">
+  <meta property="og:site_name" content="HabitTeen">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Як побороти лінь і почати діяти | HabitTeen">
+  <meta name="twitter:description" content="Зрозумій, що заважає, і знайди наступний маленький крок без тиску на себе.">
+  <link rel="stylesheet" href="styles.css">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebSite","name":"HabitTeen","url":"https://site-lab.vercel.app/","description":"Інструмент самодопомоги, що допомагає структурувати проблему та знайти наступний маленький крок.","inLanguage":"uk"}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"Як побороти лінь?","acceptedAnswer":{"@type":"Answer","text":"Не звинувачуй себе: уточни, що саме заважає, зменш завдання до одного зрозумілого кроку й спробуй приділити йому п’ять хвилин."}},
+    {"@type":"Question","name":"Як змусити себе щось робити?","acceptedAnswer":{"@type":"Answer","text":"Замість тиску спробуй полегшити початок: підготуй усе потрібне, прибери одну перешкоду й домовся із собою лише про маленьку дію."}},
+    {"@type":"Question","name":"Де знайти мотивацію?","acceptedAnswer":{"@type":"Answer","text":"Спробуй сформулювати особистий сенс справи та помітити навіть невеликий результат. Іноді бажання продовжувати з’являється вже після першої дії."}},
+    {"@type":"Question","name":"Як почати складну справу?","acceptedAnswer":{"@type":"Answer","text":"Розділи її на частини й обери дію, яку можна завершити за кілька хвилин: відкрити документ, написати план або підготувати матеріали."}},
+    {"@type":"Question","name":"Як розвинути самодисципліну?","acceptedAnswer":{"@type":"Answer","text":"Обирай реалістичний повторюваний крок, спрощуй умови для старту та повертайся до практики після перерв без самокритики."}},
+    {"@type":"Question","name":"Як менше відволікатися на телефон?","acceptedAnswer":{"@type":"Answer","text":"Поклади телефон трохи далі, тимчасово вимкни повідомлення та визнач конкретний час, коли перевіриш їх знову."}},
+    {"@type":"Question","name":"Чи підходить HabitTeen дорослим?","acceptedAnswer":{"@type":"Answer","text":"Так. HabitTeen створений для підлітків, студентів і дорослих, яким важко починати справи або підтримувати рух до мети."}},
+    {"@type":"Question","name":"Чи замінює HabitTeen психолога?","acceptedAnswer":{"@type":"Answer","text":"Ні. HabitTeen є інструментом самодопомоги та розвитку і не замінює психолога, психотерапевта або лікаря."}},
+    {"@type":"Question","name":"Чи зберігає бот повідомлення?","acceptedAnswer":{"@type":"Answer","text":"Перед використанням ознайомся з актуальною інформацією про конфіденційність у Telegram-боті. Детальна політика сайту готується."}}
+  ]}
+  </script>
 </head>
-
 <body>
-  <main class="card">
-    <h1>Site Lab 🚀</h1>
+  <a class="skip-link" href="#content">Перейти до змісту</a>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="logo" href="#top" aria-label="HabitTeen — на початок">Habit<span>Teen</span></a>
+      <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-navigation">
+        <span class="menu-label">Меню</span><span class="menu-icon" aria-hidden="true"></span>
+      </button>
+      <nav class="nav" id="site-navigation" aria-label="Головна навігація">
+        <a href="#reasons">Чому немає сил</a><a href="#how">Як почати</a><a href="#principles">7 принципів</a><a href="#practice">Практика</a><a href="#faq">FAQ</a>
+      </nav>
+      <a class="button button-small header-cta" href="https://t.me/HabitTeen_bot" target="_blank" rel="noopener noreferrer">Відкрити бота <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
 
-    <p>
-      Мій перший сайт, створений із телефона та опублікований через GitHub і Vercel.
-    </p>
+  <main id="content">
+    <section class="hero shell" id="top">
+      <div class="hero-copy reveal">
+        <p class="eyebrow"><span></span> Простір для першого кроку</p>
+        <h1>Як побороти лінь і <em>почати діяти</em></h1>
+        <p class="lead">Проста система для тих, кому важко почати, знайти мотивацію або зробити перший крок без зайвого тиску на себе.</p>
+        <div class="button-row">
+          <a class="button" href="https://t.me/HabitTeen_bot" target="_blank" rel="noopener noreferrer">Розібрати проблему в Telegram <span aria-hidden="true">↗</span></a>
+          <a class="text-link" href="#self-check">Зрозуміти, що мені заважає <span aria-hidden="true">↓</span></a>
+        </div>
+      </div>
+      <div class="hero-art reveal" aria-label="Людина обирає маленький наступний крок" role="img">
+        <div class="sun"></div>
+        <div class="task-sheet"><b>Сьогодні</b><span></span><span></span><span class="selected">Один маленький крок ✓</span></div>
+        <div class="phone"><span></span><i></i><i></i><i></i></div>
+        <div class="person"><span class="head"></span><span class="body"></span><span class="leg one"></span><span class="leg two"></span></div>
+        <div class="steps"><span>почати</span><i></i><i></i><i></i></div>
+        <span class="spark spark-one">✦</span><span class="spark spark-two">●</span>
+      </div>
+    </section>
 
-    <button onclick="checkSite()">Перевірити сайт</button>
+    <section class="section shell" id="reasons">
+      <div class="section-heading reveal"><p class="kicker">Без ярликів і докорів</p><h2>Можливо, ти не ледачий — тобі просто важко почати</h2><p>За відчуттям «ліні» можуть стояти різні причини. Коли причина стає зрозумілішою, легше обрати реалістичний наступний крок.</p></div>
+      <div class="reason-grid">
+        <article class="reason-card reveal"><span>01</span><h3>Не знаю, з чого почати</h3><p>Коли немає чіткого першого кроку, навіть проста справа може здаватися заплутаною.</p></article>
+        <article class="reason-card reveal"><span>02</span><h3>Боюся зробити неправильно</h3><p>Очікування ідеального результату іноді не дає спробувати чернетковий варіант.</p></article>
+        <article class="reason-card reveal"><span>03</span><h3>Завдання здається надто великим</h3><p>Мозок бачить усю дистанцію одразу, хоча зараз потрібна лише перша маленька дія.</p></article>
+        <article class="reason-card reveal"><span>04</span><h3>Не бачу сенсу</h3><p>Чужа або нечітка мета рідко надихає. Допомагає знайти власне «навіщо».</p></article>
+        <article class="reason-card reveal"><span>05</span><h3>Не вистачає сил</h3><p>Перевантаження й недостатній відпочинок можуть зробити старт особливо складним.</p></article>
+        <article class="reason-card reveal"><span>06</span><h3>Телефон постійно відволікає</h3><p>Швидкі сповіщення перехоплюють увагу саме в момент, коли ти збирався почати.</p></article>
+      </div>
+    </section>
 
-    <div id="message"></div>
+    <section class="section soft-section" id="self-check">
+      <div class="shell check-layout">
+        <div class="section-heading sticky-copy reveal"><p class="kicker">Коротка самооцінка</p><h2>Що найбільше заважає тобі діяти?</h2><p>Обери один варіант. Відповідь обробляється лише на цій сторінці — ми її не збираємо, не зберігаємо й не надсилаємо.</p></div>
+        <div class="check-card reveal">
+          <fieldset id="barrier-options"><legend class="visually-hidden">Обери головну перешкоду</legend></fieldset>
+          <div class="check-result" id="check-result" role="status" aria-live="polite"><span>Підказка з’явиться тут після вибору.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell" id="how">
+      <div class="section-heading centered reveal"><p class="kicker">Як працює HabitTeen</p><h2>Від розмитої проблеми — до зрозумілої дії</h2></div>
+      <div class="steps-grid">
+        <article class="step-card reveal"><b>1</b><h3>Назви проблему</h3><p>Опиши, що саме ти відкладаєш або чого уникаєш.</p></article>
+        <article class="step-card reveal"><b>2</b><h3>Зрозумій причину</h3><p>Визнач, що насправді заважає почати.</p></article>
+        <article class="step-card reveal"><b>3</b><h3>Обери маленьку дію</h3><p>Знайди конкретний крок, який можна виконати за кілька хвилин.</p></article>
+      </div>
+      <div class="centered reveal"><a class="button" href="https://t.me/HabitTeen_bot" target="_blank" rel="noopener noreferrer">Розібрати свою ситуацію в боті <span aria-hidden="true">↗</span></a></div>
+    </section>
+
+    <section class="section principles-section" id="principles">
+      <div class="shell">
+        <div class="section-heading wide reveal"><p class="kicker">Орієнтири замість тиску</p><h2>Сім принципів, які допомагають перейти до дії</h2></div>
+        <div class="principles-list">
+          <article class="principle reveal"><b>01</b><div><h3>Почни з того, що залежить від тебе</h3><p>Не чекай ідеальних умов. Знайди одну дію, яку можеш зробити зараз.</p></div></article>
+          <article class="principle reveal"><b>02</b><div><h3>Зрозумій, навіщо тобі це</h3><p>Коли бачиш особистий сенс, починати стає легше.</p></div></article>
+          <article class="principle reveal"><b>03</b><div><h3>Обери одну головну справу</h3><p>Не намагайся одночасно змінити все.</p></div></article>
+          <article class="principle reveal"><b>04</b><div><h3>Зменш завдання</h3><p>Перетвори велику справу на маленьку конкретну дію.</p></div></article>
+          <article class="principle reveal"><b>05</b><div><h3>Прибери одну перешкоду</h3><p>Вимкни повідомлення, підготуй місце або відклади телефон.</p></div></article>
+          <article class="principle reveal"><b>06</b><div><h3>Звернися по допомогу</h3><p>Не обов’язково справлятися з усім самостійно.</p></div></article>
+          <article class="principle reveal"><b>07</b><div><h3>Відновлюй енергію</h3><p>Відпочинок, сон і перерви також є частиною руху вперед.</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell practice" id="practice">
+      <div class="practice-copy reveal"><p class="kicker">Практика п’яти хвилин</p><h2>Не потрібно закінчувати. Потрібно лише почати</h2><ol><li><b>Запиши справу.</b></li><li><b>Визнач найменшу можливу дію.</b></li><li><b>Запусти таймер на п’ять хвилин.</b></li><li><b>Після таймера виріши, чи хочеш продовжити.</b></li></ol></div>
+      <div class="timer-card reveal">
+        <label for="task-input">Що хочеш почати?</label>
+        <input id="task-input" type="text" maxlength="120" autocomplete="off" placeholder="Наприклад: відкрити конспект">
+        <p class="timer" id="timer" aria-live="polite">05:00</p>
+        <p class="timer-note" id="timer-note">П’ять хвилин — це вже початок.</p>
+        <div class="timer-actions"><button class="button" id="timer-toggle" type="button">Почати 5 хвилин</button><button class="button button-quiet" id="timer-reset" type="button">Скинути</button></div>
+      </div>
+    </section>
+
+    <section class="section motivation" id="motivation">
+      <div class="shell">
+        <div class="section-heading reveal"><p class="kicker">Рух перед натхненням</p><h2>Мотивація не завжди приходить першою</h2><p>Іноді спочатку з’являється маленька дія, потім перший результат, і лише після цього — бажання продовжувати.</p></div>
+        <div class="three-grid"><article class="mini-card reveal"><i>→</i><h3>Зроби дію меншою</h3><p>Не «вивчити тему», а прочитати перший абзац.</p></article><article class="mini-card reveal"><i>◇</i><h3>Зроби початок простішим</h3><p>Заздалегідь відкрий файл і підготуй потрібні речі.</p></article><article class="mini-card reveal"><i>✓</i><h3>Поміть навіть маленький результат</h3><p>Зроблене за п’ять хвилин теж варте уваги.</p></article></div>
+      </div>
+    </section>
+
+    <section class="section shell phone-section" id="phone">
+      <div class="phone-visual reveal" aria-hidden="true"><div class="big-phone"><span>режим фокусу</span><b>5:00</b><i>без сповіщень</i></div><span class="orbit">тиша для старту</span></div>
+      <div class="section-heading reveal"><p class="kicker">Менше шуму</p><h2>Телефон може забирати момент початку</h2><p>Не потрібно відмовлятися від телефона назавжди. Спробуй створити короткий проміжок, у якому першою буде важлива справа.</p><ul class="tips"><li>Прибрати телефон трохи далі</li><li>Вимкнути повідомлення на час роботи</li><li>Спочатку п’ять хвилин справи</li><li>Визначити конкретний час для перевірки повідомлень</li></ul></div>
+    </section>
+
+    <section class="section story-section">
+      <div class="shell story reveal"><p class="kicker">Історія HabitTeen</p><blockquote>«HabitTeen почався як експеримент підлітка, який хотів створити щось справді корисне. Після кількох невдалих ідей з’явився Telegram-бот, що допомагає структурувати проблеми, краще розуміти себе та знаходити наступний маленький крок».</blockquote></div>
+    </section>
+
+    <section class="section shell" id="faq">
+      <div class="faq-layout"><div class="section-heading sticky-copy reveal"><p class="kicker">Питання й відповіді</p><h2>Коротко про важливе</h2><p>Відповіді без магічних формул і зайвих обіцянок.</p></div><div class="faq-list">
+        <details><summary>Як побороти лінь?</summary><p>Не звинувачуй себе: уточни, що саме заважає, зменш завдання до одного зрозумілого кроку й спробуй приділити йому п’ять хвилин.</p></details>
+        <details><summary>Як змусити себе щось робити?</summary><p>Замість тиску спробуй полегшити початок: підготуй усе потрібне, прибери одну перешкоду й домовся із собою лише про маленьку дію.</p></details>
+        <details><summary>Де знайти мотивацію?</summary><p>Спробуй сформулювати особистий сенс справи та помітити навіть невеликий результат. Іноді бажання продовжувати з’являється вже після першої дії.</p></details>
+        <details><summary>Як почати складну справу?</summary><p>Розділи її на частини й обери дію, яку можна завершити за кілька хвилин: відкрити документ, написати план або підготувати матеріали.</p></details>
+        <details><summary>Як розвинути самодисципліну?</summary><p>Обирай реалістичний повторюваний крок, спрощуй умови для старту та повертайся до практики після перерв без самокритики.</p></details>
+        <details><summary>Як менше відволікатися на телефон?</summary><p>Поклади телефон трохи далі, тимчасово вимкни повідомлення та визнач конкретний час, коли перевіриш їх знову.</p></details>
+        <details><summary>Чи підходить HabitTeen дорослим?</summary><p>Так. HabitTeen створений для підлітків, студентів і дорослих, яким важко починати справи або підтримувати рух до мети.</p></details>
+        <details><summary>Чи замінює HabitTeen психолога?</summary><p>Ні. HabitTeen є інструментом самодопомоги та розвитку і не замінює психолога, психотерапевта або лікаря.</p></details>
+        <details><summary>Чи зберігає бот повідомлення?</summary><p>Перед використанням ознайомся з актуальною інформацією про конфіденційність у Telegram-боті. Детальна політика сайту готується.</p></details>
+      </div></div>
+    </section>
+
+    <section class="section shell"><div class="final-cta reveal"><p class="kicker">Твій наступний крок</p><h2>Не чекай ідеального настрою для початку</h2><p>Обери одну проблему, дай собі чесну відповідь і знайди один маленький крок.</p><a class="button" href="https://t.me/HabitTeen_bot" target="_blank" rel="noopener noreferrer">Почати з HabitTeen <span aria-hidden="true">↗</span></a></div></section>
+
+    <aside class="shell notice"><strong>Важливо</strong><p>HabitTeen є інструментом самодопомоги та розвитку і не замінює психолога, психотерапевта або лікаря. Якщо ти перебуваєш у небезпеці або переживаєш кризову ситуацію, звернися до близької людини, якій довіряєш, або до відповідних екстрених служб.</p></aside>
   </main>
 
-  <script>
-    function checkSite() {
-      document.getElementById("message").textContent =
-        "Усе працює! Перший сайт запущено.";
-    }
-  </script>
+  <footer class="footer"><div class="shell footer-grid"><div><a class="logo" href="#top">Habit<span>Teen</span></a><p>Допомагає зрозуміти перешкоду й знайти наступний маленький крок.</p></div><div><b>Навігація</b><a href="#reasons">Чому немає сил</a><a href="#how">Як почати</a><a href="#principles">7 принципів</a><a href="#practice">Практика</a><a href="#faq">FAQ</a></div><div><b>Зв’язок</b><a href="https://t.me/HabitTeen_bot" target="_blank" rel="noopener noreferrer">Telegram-бот ↗</a></div></div><div class="shell footer-bottom"><span>© <span id="year">2026</span> HabitTeen</span><span>Створено з бажанням допомагати людям робити перший крок</span></div></footer>
+  <script src="script.js" defer></script>
 </body>
 </html>
