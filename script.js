@@ -1,2 +1,1 @@
-const year = document.querySelector("[data-current-year]");
-if (year) year.textContent = new Date().getFullYear();
+document.querySelectorAll('[data-current-year]').forEach((element)=>{element.textContent=new Date().getFullYear();});
