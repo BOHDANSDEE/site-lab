@@ -10,5 +10,103 @@
       "destination": "/#faq",
       "permanent": true
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/statti/chomu-vazhko-pochaty-prostu-spravu/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/yak-diiaty-koly-nemaie-motyvatsii/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/yak-povernutysia-do-sprav-pislia-perervy/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/lin-i-son/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/yak-rozbyty-velyke-zavdannia/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/koly-vse-zdaietsia-zanadto-skladnym/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/samodystsyplina-bez-samokrytyky/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/seredovyshche-dlia-lehkoho-startu/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/apatiia-i-vyhorannia/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/yak-pidtrymaty-liudynu-z-apatiieiu/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/apatiia-pislia-stresu/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/yak-povernuty-interes-do-sprav/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/apatiia-i-son/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/apatiia-u-pidlitkiv/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/yak-hovoryty-z-likarem-pro-apatiiu/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/mali-dii-pry-nyzkii-energii/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/prokrastynatsiia-i-perfektsionizm/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/yak-ne-vidkladaty-navchannia/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/telefon-i-prokrastynatsiia/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/strakh-pomylky-i-vidkladannia/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/dedlainy-bez-nichnoho-avralu/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/metod-desiaty-khvylyn/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/yak-planuvaty-den-pry-prokrastynatsii/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/prokrastynatsiia-cherez-perevantazhennia/",
+      "destination": "/statti/article/index.html"
+    }
   ]
 }

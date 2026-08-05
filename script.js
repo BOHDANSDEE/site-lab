@@ -26,6 +26,17 @@ if (faqIntro) {
   faqIntro.textContent = 'Поширені запитання зібрані тут, у кінці головної сторінки, після основних матеріалів і важливої думки.';
 }
 
-import('/script-base.js').catch((error) => {
-  console.error('Не вдалося завантажити основний сценарій сайту.', error);
+document.querySelectorAll('a[href="/faq/"]').forEach((link) => { link.href = '/#faq'; });
+
+const loadScript = (src) => new Promise((resolve, reject) => {
+  const script = document.createElement('script');
+  script.src = src;
+  script.onload = resolve;
+  script.onerror = reject;
+  document.head.append(script);
 });
+
+loadScript('/articles-index.js')
+  .then(() => loadScript('/catalog-30.js'))
+  .then(() => import('/script-base.js'))
+  .catch((error) => { console.error('Не вдалося завантажити сценарії сайту.', error); });
