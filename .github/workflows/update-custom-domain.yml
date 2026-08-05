@@ -1,0 +1,55 @@
+name: Update custom domain URLs
+
+on:
+  push:
+    branches:
+      - seo/custom-domain
+
+permissions:
+  contents: write
+
+jobs:
+  replace-domain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: seo/custom-domain
+          fetch-depth: 0
+
+      - name: Replace production URLs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          old = "https://site-lab-iota.vercel.app"
+          new = "https://xn--k1ae9bxb.online"
+          allowed = {".html", ".xml", ".txt", ".json", ".js", ".css", ".md"}
+          changed = []
+
+          for path in Path(".").rglob("*"):
+              if not path.is_file() or ".git" in path.parts or path.suffix.lower() not in allowed:
+                  continue
+              try:
+                  text = path.read_text(encoding="utf-8")
+              except UnicodeDecodeError:
+                  continue
+              updated = text.replace(old, new)
+              if updated != text:
+                  path.write_text(updated, encoding="utf-8")
+                  changed.append(str(path))
+
+          print(f"Updated {len(changed)} files")
+          for item in changed:
+              print(item)
+          PY
+
+      - name: Remove one-time workflow and commit
+        run: |
+          rm -f .github/workflows/update-custom-domain.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "Update SEO URLs for lin.online"
+          git push origin seo/custom-domain
