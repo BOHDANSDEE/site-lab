@@ -1,0 +1,14 @@
+{
+  "redirects": [
+    {
+      "source": "/faq",
+      "destination": "/#faq",
+      "permanent": true
+    },
+    {
+      "source": "/faq/:path*",
+      "destination": "/#faq",
+      "permanent": true
+    }
+  ]
+}
