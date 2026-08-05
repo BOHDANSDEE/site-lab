@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://site-lab-iota.vercel.app/sitemap.xml
+Sitemap: https://xn--k1ae9bxb.online/sitemap.xml
