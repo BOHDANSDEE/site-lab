@@ -44,39 +44,51 @@
       "source": "/statti/prokrastynatsiia-cherez-perevantazhennia/",
       "destination": "/statti/prychyny-prokrastynatsii/",
       "permanent": true
+    },
+    {
+      "source": "/statti/lin-chy-vtoma/",
+      "destination": "/statti/prychyny-lini/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/chomu-vazhko-pochaty-prostu-spravu/",
+      "destination": "/statti/lin-chy-vyhorannia/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/yak-povernutysia-do-sprav-pislia-perervy/",
+      "destination": "/statti/yak-zmusyty-sebe-vchytysia/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/lin-i-son/",
+      "destination": "/statti/yak-zmusyty-sebe-prybyraty/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/yak-rozbyty-velyke-zavdannia/",
+      "destination": "/statti/lin-u-pidlitkiv/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/koly-vse-zdaietsia-zanadto-skladnym/",
+      "destination": "/statti/yak-vstaty-z-lizhka-vrantsi/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/samodystsyplina-bez-samokrytyky/",
+      "destination": "/statti/chomu-pislia-roboty-nichoho-ne-khochetsia/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/seredovyshche-dlia-lehkoho-startu/",
+      "destination": "/statti/yak-rozvynuty-samodystsyplinu/",
+      "permanent": true
     }
   ],
   "rewrites": [
     {
-      "source": "/statti/chomu-vazhko-pochaty-prostu-spravu/",
-      "destination": "/statti/article/index.html"
-    },
-    {
       "source": "/statti/yak-diiaty-koly-nemaie-motyvatsii/",
-      "destination": "/statti/article/index.html"
-    },
-    {
-      "source": "/statti/yak-povernutysia-do-sprav-pislia-perervy/",
-      "destination": "/statti/article/index.html"
-    },
-    {
-      "source": "/statti/lin-i-son/",
-      "destination": "/statti/article/index.html"
-    },
-    {
-      "source": "/statti/yak-rozbyty-velyke-zavdannia/",
-      "destination": "/statti/article/index.html"
-    },
-    {
-      "source": "/statti/koly-vse-zdaietsia-zanadto-skladnym/",
-      "destination": "/statti/article/index.html"
-    },
-    {
-      "source": "/statti/samodystsyplina-bez-samokrytyky/",
-      "destination": "/statti/article/index.html"
-    },
-    {
-      "source": "/statti/seredovyshche-dlia-lehkoho-startu/",
       "destination": "/statti/article/index.html"
     },
     {
@@ -141,6 +153,38 @@
     },
     {
       "source": "/statti/telefon-korotki-video-i-prokrastynatsiia/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/prychyny-lini/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/lin-chy-vyhorannia/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/yak-zmusyty-sebe-vchytysia/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/yak-zmusyty-sebe-prybyraty/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/lin-u-pidlitkiv/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/yak-vstaty-z-lizhka-vrantsi/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/chomu-pislia-roboty-nichoho-ne-khochetsia/",
+      "destination": "/statti/article/index.html"
+    },
+    {
+      "source": "/statti/yak-rozvynuty-samodystsyplinu/",
       "destination": "/statti/article/index.html"
     }
   ]

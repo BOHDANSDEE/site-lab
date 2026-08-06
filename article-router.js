@@ -1,6 +1,6 @@
 (() => {
   const slug = location.pathname.split('/').filter(Boolean).pop();
-  const richSlugs = new Set([
+  const procrastinationRichSlugs = new Set([
     'prokrastynatsiia-i-perfektsionizm',
     'akademichna-prokrastynatsiia',
     'prokrastynatsiia-i-tryvoha',
@@ -10,9 +10,24 @@
     'nichna-prokrastynatsiia',
     'telefon-korotki-video-i-prokrastynatsiia'
   ]);
+  const lazinessRichSlugs = new Set([
+    'prychyny-lini',
+    'lin-chy-vyhorannia',
+    'yak-diiaty-koly-nemaie-motyvatsii',
+    'yak-zmusyty-sebe-vchytysia',
+    'yak-zmusyty-sebe-prybyraty',
+    'lin-u-pidlitkiv',
+    'yak-vstaty-z-lizhka-vrantsi',
+    'chomu-pislia-roboty-nichoho-ne-khochetsia',
+    'yak-rozvynuty-samodystsyplinu'
+  ]);
 
   const script = document.createElement('script');
-  script.src = richSlugs.has(slug) ? '/article-page.js' : '/article-page-base.js';
+  script.src = lazinessRichSlugs.has(slug)
+    ? '/article-page-lazy.js'
+    : procrastinationRichSlugs.has(slug)
+      ? '/article-page.js'
+      : '/article-page-base.js';
   script.async = false;
   script.onerror = () => {
     const main = document.querySelector('#content');
