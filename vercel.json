@@ -9,6 +9,41 @@
       "source": "/faq/:path*",
       "destination": "/#faq",
       "permanent": true
+    },
+    {
+      "source": "/statti/yak-ne-vidkladaty-navchannia/",
+      "destination": "/statti/akademichna-prokrastynatsiia/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/telefon-i-prokrastynatsiia/",
+      "destination": "/statti/telefon-korotki-video-i-prokrastynatsiia/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/strakh-pomylky-i-vidkladannia/",
+      "destination": "/statti/prokrastynatsiia-i-tryvoha/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/dedlainy-bez-nichnoho-avralu/",
+      "destination": "/statti/chomu-vse-roblu-v-ostanniu-myt/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/metod-desiaty-khvylyn/",
+      "destination": "/statti/metod-pomodoro/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/yak-planuvaty-den-pry-prokrastynatsii/",
+      "destination": "/statti/chomu-vse-roblu-v-ostanniu-myt/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/prokrastynatsiia-cherez-perevantazhennia/",
+      "destination": "/statti/prychyny-prokrastynatsii/",
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -81,31 +116,31 @@
       "destination": "/statti/article/index.html"
     },
     {
-      "source": "/statti/yak-ne-vidkladaty-navchannia/",
+      "source": "/statti/akademichna-prokrastynatsiia/",
       "destination": "/statti/article/index.html"
     },
     {
-      "source": "/statti/telefon-i-prokrastynatsiia/",
+      "source": "/statti/prokrastynatsiia-i-tryvoha/",
       "destination": "/statti/article/index.html"
     },
     {
-      "source": "/statti/strakh-pomylky-i-vidkladannia/",
+      "source": "/statti/chomu-vse-roblu-v-ostanniu-myt/",
       "destination": "/statti/article/index.html"
     },
     {
-      "source": "/statti/dedlainy-bez-nichnoho-avralu/",
+      "source": "/statti/sduh-i-prokrastynatsiia/",
       "destination": "/statti/article/index.html"
     },
     {
-      "source": "/statti/metod-desiaty-khvylyn/",
+      "source": "/statti/metod-pomodoro/",
       "destination": "/statti/article/index.html"
     },
     {
-      "source": "/statti/yak-planuvaty-den-pry-prokrastynatsii/",
+      "source": "/statti/nichna-prokrastynatsiia/",
       "destination": "/statti/article/index.html"
     },
     {
-      "source": "/statti/prokrastynatsiia-cherez-perevantazhennia/",
+      "source": "/statti/telefon-korotki-video-i-prokrastynatsiia/",
       "destination": "/statti/article/index.html"
     }
   ]
