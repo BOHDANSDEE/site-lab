@@ -106,13 +106,13 @@ body {
 .article-table-readable th,
 .article-table-readable td {
   padding: 20px 22px;
-  font-size: 1rem;
+  font-size: 1.04rem;
   line-height: 1.55;
   overflow-wrap: break-word;
 }
 
 .article-table-readable th {
-  font-size: 1rem;
+  font-size: 1.04rem;
 }
 
 .article-table-readable th:first-child,
@@ -174,21 +174,21 @@ body {
   .article-table-readable td:first-child {
     display: block;
     width: 100%;
-    padding: 16px 18px;
+    padding: 17px 18px;
     border: 0;
-    font-size: 1rem;
+    font-size: 1.08rem;
     line-height: 1.5;
   }
 
   .article-table-readable td:first-child {
-    padding-bottom: 8px;
+    padding-bottom: 10px;
     color: #075783;
     background: #e7f6fd;
-    font-size: 1.05rem;
+    font-size: 1.12rem;
   }
 
   .article-table-readable td + td {
-    padding-top: 14px;
+    padding-top: 15px;
   }
 }
 
