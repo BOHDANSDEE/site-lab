@@ -15,6 +15,15 @@
     script.src = '/article-audience.js';
     script.defer = true;
     script.dataset.audienceCopyLoader = '';
+    script.onload = () => {
+      const removeGenericAudienceTag = () => {
+        document.querySelectorAll('[data-audience-tag]').forEach((tag) => tag.remove());
+      };
+      removeGenericAudienceTag();
+      const root = document.querySelector('#content') || document.body;
+      const observer = new MutationObserver(removeGenericAudienceTag);
+      observer.observe(root, { childList: true, subtree: true });
+    };
     document.head.append(script);
   }
 })();
