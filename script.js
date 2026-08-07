@@ -28,6 +28,21 @@ if (faqIntro) {
 
 document.querySelectorAll('a[href="/faq/"]').forEach((link) => { link.href = '/#faq'; });
 
+const pagePath = location.pathname.replace(/\/+$/, '') || '/';
+if (pagePath === '/statti/yak-poboroty-lin') {
+  document.querySelectorAll('.article-table tbody tr').forEach((row) => {
+    row.querySelectorAll('td').forEach((cell) => {
+      const text = cell.textContent.trim();
+      if (text === 'Зменшити завдання до дії на 5–10 хвилин') {
+        cell.textContent = 'Виберіть одне завдання й зробіть перший крок протягом 5–10 хвилин';
+      }
+      if (text === 'Тривалість, зміни сну, настрою, концентрації та функціонування') {
+        cell.textContent = 'Як довго це триває та чи змінилися сон, настрій, концентрація й повсякденне життя';
+      }
+    });
+  });
+}
+
 const loadScript = (src) => new Promise((resolve, reject) => {
   const script = document.createElement('script');
   script.src = src;
