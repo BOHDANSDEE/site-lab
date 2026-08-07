@@ -2,6 +2,22 @@
   const items = window.HABITTEEN_ARTICLE_INDEX || [];
   const path = location.pathname.replace(/\/+$/, '/') || '/';
 
+  const apathyOverrides = {
+    'apatiia-i-vyhorannia': {time: 11, desc: 'Як відрізнити загальний спад інтересу від виснаження, пов’язаного з роботою або навчанням, і зрозуміти, що перевірити далі.'},
+    'yak-pidtrymaty-liudynu-z-apatiieiu': {time: 11, desc: 'Як бути поруч без тиску, пропонувати конкретну допомогу, підтримувати контакт і помічати ситуації, коли потрібен фахівець.'},
+    'apatiia-pislia-stresu': {time: 11, desc: 'Чому після тривалого напруження може зникати енергія й інтерес та як повертати звичний ритм без різкого навантаження.'},
+    'yak-povernuty-interes-do-sprav': {time: 11, desc: 'Як повертатися до занять без очікування сильного бажання: маленькі спроби, контакт із людьми й перевірка того, що справді оживляє.'},
+    'apatiia-i-son': {time: 10, desc: 'Як сон і апатія можуть впливати одне на одного, що записувати протягом тижня та коли проблеми зі сном варто обговорити з лікарем.'},
+    'apatiia-u-pidlitkiv': {time: 12, desc: 'Як помічати тривалі зміни в активності, сні, навчанні й спілкуванні підлітка та говорити про це без ярликів і допиту.'},
+    'yak-hovoryty-z-likarem-pro-apatiiu': {time: 10, desc: 'Як підготуватися до консультації: описати тривалість, зміни сну й енергії, вплив на повсякденне життя та важливі запитання.'},
+    'mali-dii-pry-nyzkii-energii': {time: 10, desc: 'Що робити в день, коли сил дуже мало: базові потреби, дії на кілька хвилин, менше рішень і зрозуміла межа самодопомоги.'}
+  };
+
+  items.forEach((item) => {
+    const replacement = apathyOverrides[item.slug];
+    if (replacement) Object.assign(item, replacement);
+  });
+
   const makeCard = (item) => {
     const link = document.createElement('a');
     link.className = 'article-card';
