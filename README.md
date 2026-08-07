@@ -1,3 +1,2 @@
-# Site Lab
-
-Static site experiments and content pages.
+# site-lab
+Мої навчальні вебсайти
