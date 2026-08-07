@@ -46,11 +46,6 @@
       "permanent": true
     },
     {
-      "source": "/statti/lin-chy-vtoma/",
-      "destination": "/statti/prychyny-lini/",
-      "permanent": true
-    },
-    {
       "source": "/statti/chomu-vazhko-pochaty-prostu-spravu/",
       "destination": "/statti/lin-chy-vyhorannia/",
       "permanent": true
