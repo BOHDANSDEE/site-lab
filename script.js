@@ -29,6 +29,7 @@ if (faqIntro) {
 document.querySelectorAll('a[href="/faq/"]').forEach((link) => { link.href = '/#faq'; });
 
 const pagePath = location.pathname.replace(/\/+$/, '') || '/';
+
 if (pagePath === '/statti/yak-poboroty-lin') {
   document.querySelectorAll('.article-table tbody tr').forEach((row) => {
     row.querySelectorAll('td').forEach((cell) => {
@@ -41,6 +42,61 @@ if (pagePath === '/statti/yak-poboroty-lin') {
       }
     });
   });
+}
+
+const simplifyCausesTable = () => {
+  if (pagePath !== '/statti/prychyny-lini') return true;
+
+  const practiceTitle = document.querySelector('#practice-title');
+  const practiceSection = practiceTitle?.closest('section');
+  const table = practiceSection?.querySelector('.article-table');
+  if (!practiceSection || !table) return false;
+
+  practiceTitle.textContent = '8 причин: коротка шпаргалка';
+
+  const paragraphs = practiceSection.querySelectorAll(':scope > p');
+  if (paragraphs[0]) {
+    paragraphs[0].textContent = 'Не потрібно запам’ятовувати всі причини одразу. Знайдіть рядок, який найбільше схожий на вашу ситуацію, і перевірте один простий крок.';
+  }
+  if (paragraphs[1]) {
+    paragraphs[1].textContent = 'Якщо кілька причин підходять одночасно, почніть із базового: сон і відновлення, потім уточніть завдання та приберіть одне головне відволікання.';
+  }
+
+  const tocLink = document.querySelector('.article-toc a[href="#practice-title"]');
+  if (tocLink) tocLink.textContent = '8 причин: коротка шпаргалка';
+
+  const wrap = table.closest('.table-wrap');
+  if (wrap) wrap.setAttribute('aria-label', 'Вісім причин ліні та перший крок для кожної');
+
+  table.classList.add('article-table-compact');
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Причина</th>
+        <th>Що зробити зараз</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1. Втома або недосип</td><td>Дайте пріоритет сну й відновленню. Якщо виснаження тривале або сильне — зверніться до лікаря.</td></tr>
+      <tr><td>2. Завдання нечітке або завелике</td><td>Запишіть одну конкретну дію, яку можна виконати за 10–20 хвилин.</td></tr>
+      <tr><td>3. Результат надто далекий</td><td>Розбийте справу на короткий етап із видимим результатом.</td></tr>
+      <tr><td>4. Страх помилки</td><td>Зробіть чернетку без вимоги одразу отримати ідеальний результат.</td></tr>
+      <tr><td>5. Немає зрозумілого сенсу</td><td>Уточніть, навіщо це потрібно, який мінімум достатній або чи можна змінити домовленість.</td></tr>
+      <tr><td>6. Забагато рішень і перемикань</td><td>Оберіть одну головну справу й підготуйте все потрібне до початку.</td></tr>
+      <tr><td>7. Автоматичне уникнення</td><td>Приберіть одне головне відволікання на коротку робочу сесію.</td></tr>
+      <tr><td>8. Тривалий спад настрою або здоров’я</td><td>Не списуйте все на «лінь» — за тривалих змін зверніться по професійну оцінку.</td></tr>
+    </tbody>
+  `;
+
+  return true;
+};
+
+if (!simplifyCausesTable()) {
+  const causesObserver = new MutationObserver(() => {
+    if (simplifyCausesTable()) causesObserver.disconnect();
+  });
+  const articleRoot = document.querySelector('#content');
+  if (articleRoot) causesObserver.observe(articleRoot, { childList: true, subtree: true });
 }
 
 const loadScript = (src) => new Promise((resolve, reject) => {
