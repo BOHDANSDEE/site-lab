@@ -31,9 +31,9 @@
 
   const replacements = {
     'chomu-vazhko-pochaty-prostu-spravu': {
-      slug: 'lin-chy-vyhorannia',
-      title: 'Лінь чи вигорання: як відрізнити й відновитися',
-      desc: 'Чим ситуативне небажання діяти відрізняється від виснаження, цинізму щодо роботи та тривалого падіння ефективності.',
+      slug: 'prychyny-lini',
+      title: 'Чому виникає лінь: 8 причин і що з ними робити',
+      desc: 'Як відрізнити нестачу ресурсу, нечітку мету, страх помилки, відсутність сенсу та звичку до швидкої винагороди.',
       time: 12
     },
     'yak-diiaty-koly-nemaie-motyvatsii': {
@@ -80,28 +80,8 @@
     }
   };
 
-  const mapped = (window.HABITTEEN_ARTICLE_INDEX || []).map((item) => {
+  window.HABITTEEN_ARTICLE_INDEX = (window.HABITTEEN_ARTICLE_INDEX || []).map((item) => {
     const replacement = replacements[item.slug];
     return replacement ? Object.assign({}, item, replacement) : item;
   });
-
-  const causesArticle = {
-    slug: 'prychyny-lini',
-    cat: 'Лінь',
-    cat_slug: 'lin',
-    title: 'Чому виникає лінь: 8 причин і що з ними робити',
-    desc: 'Як відрізнити нестачу ресурсу, нечітку мету, страх помилки, відсутність сенсу та звичку до швидкої винагороди.',
-    time: 12
-  };
-
-  if (!mapped.some((item) => item.slug === causesArticle.slug)) {
-    const fatigueIndex = mapped.findIndex((item) => item.slug === 'lin-chy-vtoma');
-    if (fatigueIndex >= 0) {
-      mapped.splice(fatigueIndex + 1, 0, causesArticle);
-    } else {
-      mapped.push(causesArticle);
-    }
-  }
-
-  window.HABITTEEN_ARTICLE_INDEX = mapped;
 })();
