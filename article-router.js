@@ -46,4 +46,11 @@
     if (main) main.innerHTML = '<section class="page-hero shell"><h1>Не вдалося завантажити матеріал</h1><p class="page-intro">Спробуйте оновити сторінку або поверніться до бібліотеки.</p></section>';
   };
   document.head.append(script);
+
+  if (apathyRichSlugs.has(slug)) {
+    const seoScript = document.createElement('script');
+    seoScript.src = '/apathy-search-optimizations.js';
+    seoScript.async = false;
+    document.head.append(seoScript);
+  }
 })();
