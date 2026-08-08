@@ -84,6 +84,36 @@
       "source": "/statti/seredovyshche-dlia-lehkoho-startu/",
       "destination": "/statti/yak-rozvynuty-samodystsyplinu/",
       "permanent": true
+    },
+    {
+      "source": "/statti/apatiia-i-vyhorannia/",
+      "destination": "/statti/emotsiine-vyhorannia-symptomy/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/yak-pidtrymaty-liudynu-z-apatiieiu/",
+      "destination": "/statti/yak-dopomohty-liudyni-z-apatiieiu/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/yak-povernuty-interes-do-sprav/",
+      "destination": "/statti/nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/apatiia-i-son/",
+      "destination": "/statti/postiino-khochetsia-spaty-i-nemaie-syl/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/yak-hovoryty-z-likarem-pro-apatiiu/",
+      "destination": "/statti/postiina-vtoma-i-nemaie-syl/",
+      "permanent": true
+    },
+    {
+      "source": "/statti/mali-dii-pry-nyzkii-energii/",
+      "destination": "/statti/nemaie-syl-nichoho-robyty/",
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -92,11 +122,11 @@
       "destination": "/statti/article/index.html"
     },
     {
-      "source": "/statti/apatiia-i-vyhorannia/",
+      "source": "/statti/emotsiine-vyhorannia-symptomy/",
       "destination": "/statti/article/index.html"
     },
     {
-      "source": "/statti/yak-pidtrymaty-liudynu-z-apatiieiu/",
+      "source": "/statti/yak-dopomohty-liudyni-z-apatiieiu/",
       "destination": "/statti/article/index.html"
     },
     {
@@ -104,11 +134,11 @@
       "destination": "/statti/article/index.html"
     },
     {
-      "source": "/statti/yak-povernuty-interes-do-sprav/",
+      "source": "/statti/nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia/",
       "destination": "/statti/article/index.html"
     },
     {
-      "source": "/statti/apatiia-i-son/",
+      "source": "/statti/postiino-khochetsia-spaty-i-nemaie-syl/",
       "destination": "/statti/article/index.html"
     },
     {
@@ -116,11 +146,11 @@
       "destination": "/statti/article/index.html"
     },
     {
-      "source": "/statti/yak-hovoryty-z-likarem-pro-apatiiu/",
+      "source": "/statti/postiina-vtoma-i-nemaie-syl/",
       "destination": "/statti/article/index.html"
     },
     {
-      "source": "/statti/mali-dii-pry-nyzkii-energii/",
+      "source": "/statti/nemaie-syl-nichoho-robyty/",
       "destination": "/statti/article/index.html"
     },
     {
