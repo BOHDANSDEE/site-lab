@@ -39,6 +39,7 @@ const loadScript = (src) => new Promise((resolve, reject) => {
 loadScript('/articles-index.js')
   .then(() => loadScript('/article-topic-overrides.js'))
   .then(() => loadScript('/lazy-topic-overrides.js'))
+  .then(() => loadScript('/apathy-topic-overrides.js'))
   .then(() => loadScript('/phone-theme-update.js'))
   .then(() => loadScript('/catalog-30.js'))
   .then(() => import('/script-base.js'))
