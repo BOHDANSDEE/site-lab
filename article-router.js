@@ -21,17 +21,36 @@
     'chomu-pislia-roboty-nichoho-ne-khochetsia',
     'yak-rozvynuty-samodystsyplinu'
   ]);
+  const apathyRichSlugs = new Set([
+    'apatiia-i-vyhorannia',
+    'yak-pidtrymaty-liudynu-z-apatiieiu',
+    'apatiia-pislia-stresu',
+    'yak-povernuty-interes-do-sprav',
+    'apatiia-i-son',
+    'apatiia-u-pidlitkiv',
+    'yak-hovoryty-z-likarem-pro-apatiiu',
+    'mali-dii-pry-nyzkii-energii'
+  ]);
 
   const script = document.createElement('script');
   script.src = lazinessRichSlugs.has(slug)
     ? '/article-page-lazy.js'
-    : procrastinationRichSlugs.has(slug)
-      ? '/article-page.js'
-      : '/article-page-base.js';
+    : apathyRichSlugs.has(slug)
+      ? '/article-page-apathy.js'
+      : procrastinationRichSlugs.has(slug)
+        ? '/article-page.js'
+        : '/article-page-base.js';
   script.async = false;
   script.onerror = () => {
     const main = document.querySelector('#content');
     if (main) main.innerHTML = '<section class="page-hero shell"><h1>Не вдалося завантажити матеріал</h1><p class="page-intro">Спробуйте оновити сторінку або поверніться до бібліотеки.</p></section>';
   };
   document.head.append(script);
+
+  if (apathyRichSlugs.has(slug)) {
+    const seoScript = document.createElement('script');
+    seoScript.src = '/apathy-search-optimizations.js';
+    seoScript.async = false;
+    document.head.append(seoScript);
+  }
 })();
