@@ -20,16 +20,16 @@
   };
 
   const relatedIndex = {
-    'apatiia-shcho-robyty': { title: 'Апатія: що робити, коли нічого не хочеться', desc: 'Базові кроки, підтримка, маленька активність і межі самодопомоги.', time: 12 },
+    'apatiia-shcho-robyty': { title: 'Апатія: що робити, коли нічого не хочеться', desc: 'Базові кроки, оцінка стану, маленька активність і межі самодопомоги.', time: 12 },
     'apatiia-chy-depresiia': { title: 'Апатія чи депресія: у чому різниця', desc: 'Що може перетинатися, які ознаки важливо описати та чому потрібна фахова оцінка.', time: 11 },
     'emotsiine-vyhorannia-symptomy': { title: 'Емоційне вигорання: симптоми та чим відрізняється від апатії', desc: 'Робочий контекст, виснаження, дистанціювання та межі самодіагностики.', time: 12 },
-    'yak-dopomohty-liudyni-z-apatiieiu': { title: 'Як допомогти людині з апатією: підтримка без тиску', desc: 'Конкретна підтримка, повага до меж і ситуації, коли потрібен фахівець.', time: 11 },
+    'yak-dopomohty-liudyni-z-apatiieiu': { title: 'Як допомогти людині з апатією: підтримка без тиску', desc: 'Що можуть зробити близькі, де проходять межі відповідальності та коли потрібен фахівець.', time: 11 },
     'apatiia-pislia-stresu': { title: 'Апатія після стресу: чому нічого не хочеться і як відновлюватися', desc: 'Як повернути базові опори після напруженого періоду й оцінити динаміку стану.', time: 12 },
     'nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia': { title: 'Нічого не радує: як повернути інтерес до життя', desc: 'Короткі контакти зі старими й новими інтересами без вимоги негайної радості.', time: 11 },
     'postiino-khochetsia-spaty-i-nemaie-syl': { title: 'Постійно хочеться спати і немає сил: причини та що робити', desc: 'Як відрізнити сонливість від втоми та що перевірити у сні й самопочутті.', time: 12 },
-    'apatiia-u-pidlitkiv': { title: 'Апатія у підлітків: ознаки, причини та коли потрібна допомога', desc: 'Тривалі зміни, сон, навчальне навантаження, підтримка та ознаки безпеки.', time: 11 },
+    'apatiia-u-pidlitkiv': { title: 'Апатія у підлітків: ознаки, причини та коли потрібна допомога', desc: 'Тривалі зміни, сон, навчальне навантаження, функціонування та ознаки безпеки.', time: 11 },
     'postiina-vtoma-i-nemaie-syl': { title: 'Постійна втома і немає сил: причини та що перевірити', desc: 'Як описати тривалу втому, перевірити базові фактори й підготуватися до консультації.', time: 12 },
-    'nemaie-syl-nichoho-robyty': { title: 'Немає сил нічого робити: що робити, коли енергія на нулі', desc: 'Мінімум для слабкого дня, конкретна допомога та межа між самодопомогою й зверненням.', time: 11 }
+    'nemaie-syl-nichoho-robyty': { title: 'Немає сил нічого робити: що робити, коли енергія на нулі', desc: 'Мінімум для слабкого дня, делегування окремих задач і межа між самодопомогою й зверненням.', time: 11 }
   };
 
   const showNotFound = () => {
@@ -133,13 +133,21 @@
     document.head.append(ld);
   };
 
+  const renderWithToneOverrides = () => {
+    const toneScript = document.createElement('script');
+    toneScript.src = '/apathy-tone-overrides.js';
+    toneScript.onload = render;
+    toneScript.onerror = render;
+    document.head.append(toneScript);
+  };
+
   if (!main) return;
   if (window.HABITTEEN_APATHY_ARTICLES) {
-    render();
+    renderWithToneOverrides();
   } else {
     const dataScript = document.createElement('script');
     dataScript.src = '/apathy-rich-content.js';
-    dataScript.onload = render;
+    dataScript.onload = renderWithToneOverrides;
     dataScript.onerror = showNotFound;
     document.head.append(dataScript);
   }
