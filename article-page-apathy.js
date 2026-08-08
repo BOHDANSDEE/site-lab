@@ -20,16 +20,26 @@
   };
 
   const relatedIndex = {
-    'apatiia-shcho-robyty': { title: 'Апатія: що робити, коли нічого не хочеться', desc: 'Базові кроки, оцінка стану, маленька активність і межі самодопомоги.', time: 12 },
-    'apatiia-chy-depresiia': { title: 'Апатія чи депресія: у чому різниця', desc: 'Що може перетинатися, які ознаки важливо описати та чому потрібна фахова оцінка.', time: 11 },
-    'emotsiine-vyhorannia-symptomy': { title: 'Емоційне вигорання: симптоми та чим відрізняється від апатії', desc: 'Робочий контекст, виснаження, дистанціювання та межі самодіагностики.', time: 12 },
-    'yak-dopomohty-liudyni-z-apatiieiu': { title: 'Як допомогти людині з апатією: підтримка без тиску', desc: 'Що можуть зробити близькі, де проходять межі відповідальності та коли потрібен фахівець.', time: 11 },
-    'apatiia-pislia-stresu': { title: 'Апатія після стресу: чому нічого не хочеться і як відновлюватися', desc: 'Як повернути базові опори після напруженого періоду й оцінити динаміку стану.', time: 12 },
-    'nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia': { title: 'Нічого не радує: як повернути інтерес до життя', desc: 'Короткі контакти зі старими й новими інтересами без вимоги негайної радості.', time: 11 },
-    'postiino-khochetsia-spaty-i-nemaie-syl': { title: 'Постійно хочеться спати і немає сил: причини та що робити', desc: 'Як відрізнити сонливість від втоми та що перевірити у сні й самопочутті.', time: 12 },
-    'apatiia-u-pidlitkiv': { title: 'Апатія у підлітків: ознаки, причини та коли потрібна допомога', desc: 'Тривалі зміни, сон, навчальне навантаження, функціонування та ознаки безпеки.', time: 11 },
-    'postiina-vtoma-i-nemaie-syl': { title: 'Постійна втома і немає сил: причини та що перевірити', desc: 'Як описати тривалу втому, перевірити базові фактори й підготуватися до консультації.', time: 12 },
-    'nemaie-syl-nichoho-robyty': { title: 'Немає сил нічого робити: що робити, коли енергія на нулі', desc: 'Мінімум для слабкого дня, делегування окремих задач і межа між самодопомогою й зверненням.', time: 11 }
+    'apatiia-shcho-robyty': { title: 'Апатія: що робити, коли нічого не хочеться', desc: 'Базові кроки, оцінка стану, маленька активність і межі самодопомоги.', time: 10 },
+    'apatiia-chy-depresiia': { title: 'Апатія чи депресія: у чому різниця', desc: 'Що може перетинатися, які ознаки важливо описати та чому потрібна фахова оцінка.', time: 10 },
+    'emotsiine-vyhorannia-symptomy': { title: 'Емоційне вигорання: симптоми та чим відрізняється від апатії', desc: 'Робочий контекст, виснаження, дистанціювання та межі самодіагностики.', time: 10 },
+    'yak-dopomohty-liudyni-z-apatiieiu': { title: 'Як допомогти людині з апатією: підтримка без тиску', desc: 'Що можуть зробити близькі, де проходять межі відповідальності та коли потрібен фахівець.', time: 10 },
+    'apatiia-pislia-stresu': { title: 'Апатія після стресу: чому нічого не хочеться і як відновлюватися', desc: 'Як повернути базові опори після напруженого періоду й оцінити динаміку стану.', time: 10 },
+    'nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia': { title: 'Нічого не радує: як повернути інтерес до життя', desc: 'Короткі контакти зі старими й новими інтересами без вимоги негайної радості.', time: 10 },
+    'postiino-khochetsia-spaty-i-nemaie-syl': { title: 'Постійно хочеться спати і немає сил: причини та що робити', desc: 'Як відрізнити сонливість від втоми та що перевірити у сні й самопочутті.', time: 10 },
+    'apatiia-u-pidlitkiv': { title: 'Апатія у підлітків: ознаки, причини та коли потрібна допомога', desc: 'Тривалі зміни, сон, навчальне навантаження, функціонування та ознаки безпеки.', time: 10 },
+    'postiina-vtoma-i-nemaie-syl': { title: 'Постійна втома і немає сил: причини та що перевірити', desc: 'Як описати тривалу втому, перевірити базові фактори й підготуватися до консультації.', time: 10 },
+    'nemaie-syl-nichoho-robyty': { title: 'Немає сил нічого робити: що робити, коли енергія на нулі', desc: 'Мінімум для слабкого дня, делегування окремих задач і межа між самодопомогою й зверненням.', time: 10 }
+  };
+
+  const redundantSections = {
+    'emotsiine-vyhorannia-symptomy': new Set(['Що люди зазвичай називають емоційним вигоранням']),
+    'yak-dopomohty-liudyni-z-apatiieiu': new Set(['Спочатку опишіть зміни, а не ставте ярлик', 'Не беріть на себе всі рішення людини']),
+    'apatiia-pislia-stresu': new Set(['Відновлення — це не ще один проєкт']),
+    'nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia': new Set(['Не перетворюйте повернення інтересу на продуктивність']),
+    'apatiia-u-pidlitkiv': new Set(['Як зменшити поріг повернення до справ']),
+    'postiina-vtoma-i-nemaie-syl': new Set(['Що можна зробити до консультації']),
+    'nemaie-syl-nichoho-robyty': new Set(['Не витрачайте залишок сил на самокритику'])
   };
 
   const showNotFound = () => {
@@ -58,7 +68,10 @@
     setMeta('meta[property="og:description"]', description);
     setMeta('meta[property="og:url"]', canonical);
 
-    const sections = (article.sections || []).map((section, position) => ({ ...section, id: slugify(section.heading, position) }));
+    const removed = redundantSections[slug] || new Set();
+    const sections = (article.sections || [])
+      .filter((section) => !removed.has(section.heading))
+      .map((section, position) => ({ ...section, id: slugify(section.heading, position) }));
     const tocHtml = sections.map((section) => `<a href="#${escapeHtml(section.id)}-title">${escapeHtml(section.heading)}</a>`).join('');
     const sectionsHtml = sections.map((section) => {
       const paragraphs = (section.paragraphs || []).map((p) => `<p>${escapeHtml(p)}</p>`).join('');
@@ -82,7 +95,7 @@
       <article class="article-page">
         <header class="article-header shell">
           <a class="back-link" href="/apatiia/">← Повернутися до розділу «Апатія»</a>
-          <div class="article-meta"><span>Апатія</span><span>${escapeHtml(article.time)} хв читання</span><span>Оновлено ${escapeHtml(article.updated)}</span></div>
+          <div class="article-meta"><span>Апатія</span><span>10 хв читання</span><span>Оновлено ${escapeHtml(article.updated)}</span></div>
           <h1>${escapeHtml(article.title)}</h1>
           <p class="article-lead">${escapeHtml(article.lead)}</p>
           <div class="article-byline"><strong>Автор:</strong> редакція «Лінь»</div>
@@ -102,12 +115,6 @@
 
           <div class="article-body">
             <p>${escapeHtml(article.intro)}</p>
-            <section class="bot-cta" aria-labelledby="bot-cta-top">
-              <p class="section-kicker">Практика до статті</p>
-              <h2 id="bot-cta-top">Розкладіть стан на конкретні спостереження</h2>
-              <p>У Telegram-боті можна коротко описати, що саме змінилося, відокремити факт від самокритики й обрати один доступний крок на сьогодні.</p>
-              <a class="button button-primary" href="https://t.me/HabitTeen_bot" target="_blank" rel="noopener noreferrer">Розібрати ситуацію в боті <span aria-hidden="true">↗</span></a>
-            </section>
             ${sectionsHtml}
             <section aria-labelledby="table-title"><h2 id="table-title">Що помічаєте → що робити</h2>${tableHtml}</section>
             <section aria-labelledby="practice-title"><h2 id="practice-title">Практичний план на найближчі дні</h2><ol class="check-list">${practiceHtml}</ol></section>
