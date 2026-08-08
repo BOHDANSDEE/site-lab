@@ -9,7 +9,7 @@
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
+    .replace(/\"/g, '&quot;')
     .replace(/'/g, '&#039;');
 
   const slugify = (value, position) => {
@@ -158,7 +158,7 @@
           headline: article.title,
           description,
           datePublished: '2026-08-07',
-          dateModified: '2026-08-07',
+          dateModified: '2026-08-08',
           inLanguage: 'uk',
           mainEntityOfPage: canonical,
           author: {'@type':'Organization', name:'Редакція «Лінь»'},
@@ -181,7 +181,7 @@
   };
 
   const dataScript = document.createElement('script');
-  dataScript.src = `/article-data/${slug}.js`;
+  dataScript.src = `/article-data/${slug}.js?v=${Date.now()}`;
   dataScript.onload = () => render(window.HABITTEEN_LONG_ARTICLE || null);
   dataScript.onerror = showNotFound;
   document.head.append(dataScript);
