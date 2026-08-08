@@ -42,5 +42,6 @@ loadScript('/articles-index.js')
   .then(() => loadScript('/apathy-topic-overrides.js'))
   .then(() => loadScript('/phone-theme-update.js'))
   .then(() => loadScript('/catalog-30.js'))
+  .then(() => loadScript('/article-deduplicate.js'))
   .then(() => import('/script-base.js'))
   .catch((error) => { console.error('Не вдалося завантажити сценарії сайту.', error); });
