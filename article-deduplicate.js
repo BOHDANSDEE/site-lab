@@ -30,12 +30,52 @@
     return true;
   };
 
+  const makeBotCta = (position) => {
+    const section = document.createElement('section');
+    section.className = `bot-cta article-bot-cta article-bot-cta-${position}`;
+
+    if (position === 'top') {
+      section.innerHTML = `
+        <p class="section-kicker">Практика</p>
+        <h2>Розібрати свою ситуацію в Telegram-боті</h2>
+        <p>Коротко опишіть, що відбувається, і визначте один конкретний крок.</p>
+        <a class="button button-primary" href="https://t.me/HabitTeen_bot" target="_blank" rel="noopener noreferrer">Відкрити Telegram-бота <span aria-hidden="true">↗</span></a>`;
+    } else {
+      section.innerHTML = `
+        <p class="section-kicker">Спробуйте на своїй ситуації</p>
+        <h2>Перейдіть від читання до конкретної дії</h2>
+        <p>Опишіть свою ситуацію в боті та сформулюйте наступний практичний крок.</p>
+        <a class="button button-primary" href="https://t.me/HabitTeen_bot" target="_blank" rel="noopener noreferrer">Відкрити Telegram-бота <span aria-hidden="true">↗</span></a>`;
+    }
+
+    return section;
+  };
+
+  const placeBotCtas = (body) => {
+    // Спочатку прибираємо всі старі промоблоки, щоб у кожній статті було рівно два.
+    body.querySelectorAll('.bot-cta').forEach((block) => block.remove());
+
+    const faq = body.querySelector('section[aria-labelledby="faq-title"], .article-faq');
+    const paragraphs = [...body.querySelectorAll('p')].filter((paragraph) => {
+      if (paragraph.closest('.article-faq, [aria-labelledby="faq-title"], .source-list, .note-box, .safety-box')) return false;
+      return paragraph.textContent.trim().length > 0;
+    });
+
+    // Перший CTA — після третього змістового абзацу. Якщо абзаців менше, після останнього доступного.
+    const anchor = paragraphs[Math.min(2, Math.max(0, paragraphs.length - 1))];
+    if (anchor) anchor.insertAdjacentElement('afterend', makeBotCta('top'));
+
+    // Другий CTA — безпосередньо перед FAQ.
+    if (faq) {
+      faq.before(makeBotCta('bottom'));
+    } else if (body.lastElementChild) {
+      body.append(makeBotCta('bottom'));
+    }
+  };
+
   const prune = () => {
     const body = document.querySelector('.article-body');
     if (!body) return false;
-
-    // Промоблоки всередині статей повторювали вступ або практичний висновок.
-    body.querySelectorAll(':scope > .bot-cta').forEach((block) => block.remove());
 
     // Однакові службові блоки, що повторювали зміст у багатьох матеріалах.
     removeSectionByHeading('Практика на сім днів');
@@ -55,7 +95,9 @@
       if (repeatedIntroStarts.some((start) => text.startsWith(start))) firstParagraph.remove();
     }
 
+    placeBotCtas(body);
     body.dataset.deduplicated = 'true';
+    body.dataset.botCtasPlaced = 'true';
     return true;
   };
 
