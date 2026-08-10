@@ -35,16 +35,16 @@
     appendMissing(document.querySelector('[data-article-grid]'), items);
     normalizeApathyTimes();
     const kicker = document.querySelector('.soft-band .section-kicker');
-    if (kicker) kicker.textContent = 'Усі 30 статей';
+    if (kicker) kicker.textContent = 'Усі 45 статей';
     document.querySelectorAll('.topic-link').forEach((link) => {
       const name = link.querySelector('h3')?.textContent.trim();
       const p = link.querySelector('p');
       if (!p) return;
-      if (name === 'Лінь') p.textContent = '10 статей про бар’єр старту, втому, мотивацію й реалістичні маленькі дії.';
-      if (name === 'Апатія') p.textContent = '10 статей про втрату інтересу, енергію, сонливість, вигорання, причини та межі самодопомоги.';
-      if (name === 'Прокрастинація') p.textContent = '10 статей про відкладання, страх помилки, перфекціонізм, телефон і планування.';
+      if (name === 'Лінь') p.textContent = '15 статей про бар’єр старту, втому, мотивацію, звички й реалістичні маленькі дії.';
+      if (name === 'Апатія') p.textContent = '15 статей про втрату інтересу, енергію, сонливість, вигорання, ізоляцію та межі самодопомоги.';
+      if (name === 'Прокрастинація') p.textContent = '15 статей про відкладання, страх помилки, перфекціонізм, увагу, пріоритети й завершення справ.';
     });
-    setMeta('meta[name="description"]', '30 матеріалів про лінь, апатію та прокрастинацію: пояснення, практичні кроки, межі самодопомоги й джерела.');
+    setMeta('meta[name="description"]', '45 матеріалів про лінь, апатію та прокрастинацію: пояснення, практичні кроки, межі самодопомоги й джерела.');
   }
 
   const category = path === '/lin/' ? 'Лінь' : path === '/apatiia/' ? 'Апатія' : path === '/prokrastynatsiia/' ? 'Прокрастинація' : '';
@@ -54,6 +54,6 @@
     if (category === 'Апатія') normalizeApathyTimes(grid || document);
     const section = grid?.closest('.section');
     const kicker = section?.querySelector('.section-kicker');
-    if (kicker) kicker.textContent = '10 матеріалів';
+    if (kicker) kicker.textContent = '15 матеріалів';
   }
 })();
