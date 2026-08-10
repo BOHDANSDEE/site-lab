@@ -6,6 +6,9 @@ on:
       - audit/pagespeed-20260810
   workflow_dispatch:
 
+env:
+  TARGET_ORIGIN: https://site-lab-git-perf-article-speed-20260810-sit-lab1.vercel.app
+
 jobs:
   lighthouse:
     runs-on: ubuntu-latest
@@ -25,14 +28,19 @@ jobs:
         shell: bash
         run: |
           python3 - <<'PY'
-          import re
+          import os, re, urllib.parse
           xml = open('sitemap.xml', encoding='utf-8').read()
-          urls = re.findall(r'<loc>(https://[^<]+/statti/[^<]+/)</loc>', xml)
-          assert len(urls) == 30, f'Expected 30 article URLs, got {len(urls)}'
+          production_urls = re.findall(r'<loc>(https://[^<]+/statti/[^<]+/)</loc>', xml)
+          assert len(production_urls) == 30, f'Expected 30 article URLs, got {len(production_urls)}'
+          origin = os.environ['TARGET_ORIGIN'].rstrip('/')
+          urls = []
+          for url in production_urls:
+              path = urllib.parse.urlparse(url).path
+              urls.append(origin + path)
           with open('article-urls.txt', 'w', encoding='utf-8') as f:
               for url in urls:
                   f.write(url + '\n')
-          print(f'Found {len(urls)} article URLs')
+          print(f'Found {len(urls)} article URLs for {origin}')
           PY
 
       - name: Run Lighthouse mobile audits
@@ -106,12 +114,14 @@ jobs:
           const sorted = [...ok].sort((a,b) => a.score - b.score);
           const average = ok.length ? Math.round(ok.reduce((s,r) => s + r.score, 0) / ok.length) : 0;
           const median = ok.length ? sorted[Math.floor(ok.length / 2)].score : 0;
+          const zeroCls = ok.filter((r) => Number.parseFloat(r.cls) === 0).length;
           const summary = [
-            '# Lighthouse mobile audit',
+            '# Lighthouse mobile audit — PR 17 Preview',
             '',
             `Tested: ${ok.length}/${rows.length}`,
             `Average performance score: ${average}`,
             `Median performance score: ${median}`,
+            `CLS 0 pages: ${zeroCls}/${ok.length}`,
             '',
             '## Lowest scores',
             ...sorted.slice(0, 10).map((r) => `- ${r.score} — ${r.url} — FCP ${r.fcp}, LCP ${r.lcp}, TBT ${r.tbt}, CLS ${r.cls}, SI ${r.si}`),
