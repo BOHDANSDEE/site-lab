@@ -2,32 +2,41 @@
   const articlePath = /^\/statti\/[^/]+\/?$/;
   if (!articlePath.test(location.pathname)) return;
 
-  const removeTocLinks = (labels) => {
-    const normalized = new Set(labels.map((label) => label.trim().toLocaleLowerCase('uk-UA')));
-    document.querySelectorAll('.article-toc a').forEach((link) => {
-      const text = link.textContent.trim().toLocaleLowerCase('uk-UA');
-      if (normalized.has(text)) link.remove();
+  const removableHeadings = new Set([
+    'Практика на сім днів',
+    'Як застосувати матеріал до своєї ситуації',
+    'Головне з матеріалу'
+  ].map((label) => label.toLocaleLowerCase('uk-UA')));
+
+  const repeatedIntroStarts = [
+    'Слово «лінь» часто приховує',
+    'Побутове слово «лінь» часто приховує',
+    'Прокрастинація часто допомагає короткочасно уникнути',
+    'Апатія описує зниження інтересу й активності'
+  ];
+
+  const removeRepeatedSections = (body) => {
+    const removedLabels = new Set();
+
+    body.querySelectorAll('h2').forEach((heading) => {
+      const label = heading.textContent.trim();
+      if (!removableHeadings.has(label.toLocaleLowerCase('uk-UA'))) return;
+
+      const section = heading.closest('section');
+      if (section && section.parentElement === body) {
+        section.remove();
+      } else {
+        const next = heading.nextElementSibling;
+        heading.remove();
+        if (next?.classList.contains('key-points')) next.remove();
+      }
+      removedLabels.add(label.toLocaleLowerCase('uk-UA'));
     });
-  };
 
-  const removeSectionByHeading = (headingText) => {
-    const wanted = headingText.trim().toLocaleLowerCase('uk-UA');
-    const heading = [...document.querySelectorAll('.article-body h2')]
-      .find((node) => node.textContent.trim().toLocaleLowerCase('uk-UA') === wanted);
-    if (!heading) return false;
-
-    const section = heading.closest('section');
-    if (section && section.parentElement?.classList.contains('article-body')) {
-      section.remove();
-      removeTocLinks([headingText]);
-      return true;
-    }
-
-    const next = heading.nextElementSibling;
-    heading.remove();
-    if (next?.classList.contains('key-points')) next.remove();
-    removeTocLinks([headingText]);
-    return true;
+    if (!removedLabels.size) return;
+    document.querySelectorAll('.article-toc a').forEach((link) => {
+      if (removedLabels.has(link.textContent.trim().toLocaleLowerCase('uk-UA'))) link.remove();
+    });
   };
 
   const makeBotCta = (position) => {
@@ -52,46 +61,42 @@
   };
 
   const placeBotCtas = (body) => {
-    // Спочатку прибираємо всі старі промоблоки, щоб у кожній статті було рівно два.
     body.querySelectorAll('.bot-cta').forEach((block) => block.remove());
 
     const faq = body.querySelector('section[aria-labelledby="faq-title"], .article-faq');
-    const paragraphs = [...body.querySelectorAll('p')].filter((paragraph) => {
-      if (paragraph.closest('.article-faq, [aria-labelledby="faq-title"], .source-list, .note-box, .safety-box')) return false;
-      return paragraph.textContent.trim().length > 0;
-    });
+    let anchor = null;
+    let paragraphCount = 0;
 
-    // Перший CTA — після третього змістового абзацу. Якщо абзаців менше, після останнього доступного.
-    const anchor = paragraphs[Math.min(2, Math.max(0, paragraphs.length - 1))];
+    for (const paragraph of body.querySelectorAll('p')) {
+      if (paragraph.closest('.article-faq, [aria-labelledby="faq-title"], .source-list, .note-box, .safety-box')) continue;
+      if (!paragraph.textContent.trim()) continue;
+      anchor = paragraph;
+      paragraphCount += 1;
+      if (paragraphCount === 3) break;
+    }
+
     if (anchor) anchor.insertAdjacentElement('afterend', makeBotCta('top'));
 
-    // Другий CTA — безпосередньо перед FAQ.
     if (faq) {
       faq.before(makeBotCta('bottom'));
-    } else if (body.lastElementChild) {
+    } else {
       body.append(makeBotCta('bottom'));
     }
   };
 
+  const notifyReady = () => {
+    document.dispatchEvent(new CustomEvent('habitteen:article-ready'));
+  };
+
   const prune = () => {
     const body = document.querySelector('.article-body');
-    if (!body) return false;
+    if (!body || body.dataset.deduplicated === 'true') return false;
 
-    // Однакові службові блоки, що повторювали зміст у багатьох матеріалах.
-    removeSectionByHeading('Практика на сім днів');
-    removeSectionByHeading('Як застосувати матеріал до своєї ситуації');
-    removeSectionByHeading('Головне з матеріалу');
+    removeRepeatedSections(body);
 
-    // Генератори додавали ще один загальний вступ перед уже тематичним першим H2.
     const firstParagraph = body.querySelector(':scope > p:first-child');
     if (firstParagraph) {
       const text = firstParagraph.textContent.trim();
-      const repeatedIntroStarts = [
-        'Слово «лінь» часто приховує',
-        'Побутове слово «лінь» часто приховує',
-        'Прокрастинація часто допомагає короткочасно уникнути',
-        'Апатія описує зниження інтересу й активності'
-      ];
       if (repeatedIntroStarts.some((start) => text.startsWith(start))) firstParagraph.remove();
     }
 
@@ -101,10 +106,16 @@
     return true;
   };
 
-  if (prune()) return;
+  if (prune()) {
+    notifyReady();
+    return;
+  }
 
+  const target = document.querySelector('#content') || document.body;
   const observer = new MutationObserver(() => {
-    if (prune()) observer.disconnect();
+    if (!prune()) return;
+    observer.disconnect();
+    notifyReady();
   });
-  observer.observe(document.querySelector('#content') || document.body, { childList: true, subtree: true });
+  observer.observe(target, { childList: true, subtree: true });
 })();
