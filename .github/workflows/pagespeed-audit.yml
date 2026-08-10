@@ -1,0 +1,128 @@
+name: PageSpeed audit (mobile)
+
+on:
+  push:
+    branches:
+      - audit/pagespeed-20260810
+  workflow_dispatch:
+
+jobs:
+  pagespeed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run PageSpeed Insights for all article URLs
+        shell: bash
+        run: |
+          cat > /tmp/pagespeed-audit.mjs <<'NODE'
+          import fs from 'node:fs/promises';
+
+          const xml = await fs.readFile('sitemap.xml', 'utf8');
+          const urls = [...xml.matchAll(/<loc>(https:\/\/[^<]+\/statti\/[^<]+\/)<\/loc>/g)].map((m) => m[1]);
+          if (urls.length !== 30) {
+            console.error(`Expected 30 article URLs, found ${urls.length}`);
+            process.exit(1);
+          }
+
+          const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+          const esc = (v) => `"${String(v ?? '').replaceAll('"', '""')}"`;
+          const rows = [];
+
+          async function runPsi(url) {
+            const api = new URL('https://www.googleapis.com/pagespeedonline/v5/runPagespeed');
+            api.searchParams.set('url', url);
+            api.searchParams.set('strategy', 'mobile');
+            api.searchParams.append('category', 'performance');
+
+            let lastError;
+            for (let attempt = 1; attempt <= 4; attempt++) {
+              try {
+                const res = await fetch(api, { headers: { 'user-agent': 'site-lab-pagespeed-audit/1.0' } });
+                const text = await res.text();
+                if (!res.ok) throw new Error(`HTTP ${res.status}: ${text.slice(0, 300)}`);
+                return JSON.parse(text);
+              } catch (error) {
+                lastError = error;
+                if (attempt < 4) await sleep(3000 * attempt);
+              }
+            }
+            throw lastError;
+          }
+
+          for (let i = 0; i < urls.length; i++) {
+            const url = urls[i];
+            console.log(`\n[${i + 1}/${urls.length}] ${url}`);
+            try {
+              const data = await runPsi(url);
+              const lh = data.lighthouseResult;
+              const audits = lh?.audits || {};
+              const score = Math.round((lh?.categories?.performance?.score ?? 0) * 100);
+              const row = {
+                url,
+                score,
+                fcp: audits['first-contentful-paint']?.displayValue || '',
+                lcp: audits['largest-contentful-paint']?.displayValue || '',
+                tbt: audits['total-blocking-time']?.displayValue || '',
+                cls: audits['cumulative-layout-shift']?.displayValue || '',
+                si: audits['speed-index']?.displayValue || '',
+                tti: audits['interactive']?.displayValue || '',
+                server: audits['server-response-time']?.displayValue || '',
+                unusedJsMs: audits['unused-javascript']?.details?.overallSavingsMs ?? '',
+                unusedCssMs: audits['unused-css-rules']?.details?.overallSavingsMs ?? '',
+                renderBlockingMs: audits['render-blocking-resources']?.details?.overallSavingsMs ?? '',
+                totalBytes: audits['total-byte-weight']?.displayValue || '',
+                mainThread: audits['mainthread-work-breakdown']?.displayValue || '',
+                fetchTime: lh?.fetchTime || data.analysisUTCTimestamp || ''
+              };
+              rows.push(row);
+              console.log(`Score ${score} | FCP ${row.fcp} | LCP ${row.lcp} | TBT ${row.tbt} | CLS ${row.cls}`);
+            } catch (error) {
+              console.error(`FAILED: ${error.message}`);
+              rows.push({ url, score: '', error: error.message });
+            }
+            await sleep(1500);
+          }
+
+          const headers = ['url','score','fcp','lcp','tbt','cls','si','tti','server','unusedJsMs','unusedCssMs','renderBlockingMs','totalBytes','mainThread','fetchTime','error'];
+          const csv = [headers.join(','), ...rows.map((row) => headers.map((h) => esc(row[h] ?? '')).join(','))].join('\n');
+          await fs.writeFile('pagespeed-mobile.csv', csv);
+
+          const ok = rows.filter((r) => Number.isFinite(r.score));
+          const sorted = [...ok].sort((a, b) => a.score - b.score);
+          const average = ok.length ? Math.round(ok.reduce((s, r) => s + r.score, 0) / ok.length) : 0;
+          const summary = [
+            '# PageSpeed mobile audit',
+            '',
+            `Tested: ${ok.length}/${rows.length}`,
+            `Average performance score: ${average}`,
+            '',
+            '## Lowest scores',
+            ...sorted.slice(0, 10).map((r) => `- ${r.score} — ${r.url} — LCP ${r.lcp}, TBT ${r.tbt}, CLS ${r.cls}`),
+            '',
+            '## Highest scores',
+            ...sorted.slice(-5).reverse().map((r) => `- ${r.score} — ${r.url} — LCP ${r.lcp}, TBT ${r.tbt}, CLS ${r.cls}`),
+            ''
+          ].join('\n');
+          await fs.writeFile('pagespeed-summary.md', summary);
+          console.log(`\n${summary}`);
+
+          if (ok.length < 25) {
+            console.error('Too many PSI requests failed.');
+            process.exit(2);
+          }
+          NODE
+          node /tmp/pagespeed-audit.mjs
+
+      - name: Upload audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pagespeed-mobile-results
+          path: |
+            pagespeed-mobile.csv
+            pagespeed-summary.md
+          if-no-files-found: warn
