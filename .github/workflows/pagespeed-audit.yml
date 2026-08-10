@@ -1,4 +1,4 @@
-name: Lighthouse mobile audit
+name: Lighthouse local comparison
 
 on:
   push:
@@ -6,17 +6,31 @@ on:
       - audit/pagespeed-20260810
   workflow_dispatch:
 
-env:
-  TARGET_ORIGIN: https://site-lab-git-perf-article-speed-20260810-sit-lab1.vercel.app
-
 jobs:
   lighthouse:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout main baseline
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: baseline
+
+      - name: Checkout performance candidate
+        uses: actions/checkout@v4
+        with:
+          ref: perf/article-speed-20260810
+          path: candidate
+
+      - name: Validate changed JavaScript
+        run: |
+          node --check candidate/script.js
+          node --check candidate/article-deduplicate.js
+          node --check candidate/article-toc-fix.js
+          node --check candidate/article-router.js
 
       - name: Install Lighthouse
         run: |
@@ -24,126 +38,248 @@ jobs:
           npm install --global lighthouse
           lighthouse --version
 
-      - name: Build article URL list
+      - name: Start identical local servers
+        shell: bash
+        run: |
+          cat > /tmp/static-server.mjs <<'NODE'
+          import http from 'node:http';
+          import fs from 'node:fs';
+          import path from 'node:path';
+
+          const root = path.resolve(process.argv[2]);
+          const port = Number(process.argv[3]);
+          const mime = {
+            '.html': 'text/html; charset=utf-8',
+            '.js': 'application/javascript; charset=utf-8',
+            '.css': 'text/css; charset=utf-8',
+            '.xml': 'application/xml; charset=utf-8',
+            '.json': 'application/json; charset=utf-8',
+            '.svg': 'image/svg+xml',
+            '.png': 'image/png',
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.webp': 'image/webp',
+            '.ico': 'image/x-icon'
+          };
+
+          const safeFile = (pathname) => {
+            const decoded = decodeURIComponent(pathname);
+            const relative = decoded.replace(/^\/+/, '');
+            const resolved = path.resolve(root, relative);
+            return resolved.startsWith(root) ? resolved : null;
+          };
+
+          const server = http.createServer((req, res) => {
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const pathname = url.pathname;
+            let file = safeFile(pathname);
+
+            if (file && pathname.endsWith('/')) file = path.join(file, 'index.html');
+            if ((!file || !fs.existsSync(file)) && /^\/statti\/[^/]+\/?$/.test(pathname)) {
+              file = path.join(root, 'statti', 'article', 'index.html');
+            }
+
+            if (!file || !fs.existsSync(file) || !fs.statSync(file).isFile()) {
+              res.writeHead(404, {'content-type': 'text/plain; charset=utf-8'});
+              res.end('Not found');
+              return;
+            }
+
+            const ext = path.extname(file).toLowerCase();
+            res.writeHead(200, {
+              'content-type': mime[ext] || 'application/octet-stream',
+              'cache-control': 'no-store'
+            });
+            fs.createReadStream(file).pipe(res);
+          });
+
+          server.listen(port, '127.0.0.1', () => console.log(`Serving ${root} at ${port}`));
+          NODE
+
+          node /tmp/static-server.mjs baseline 4173 >/tmp/baseline-server.log 2>&1 &
+          echo $! >/tmp/baseline-server.pid
+          node /tmp/static-server.mjs candidate 4174 >/tmp/candidate-server.log 2>&1 &
+          echo $! >/tmp/candidate-server.pid
+
+          for i in {1..20}; do
+            if curl --fail --silent http://127.0.0.1:4173/statti/ >/dev/null && curl --fail --silent http://127.0.0.1:4174/statti/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/baseline-server.log /tmp/candidate-server.log
+          exit 1
+
+      - name: Build article path list
         shell: bash
         run: |
           python3 - <<'PY'
-          import os, re, urllib.parse
-          xml = open('sitemap.xml', encoding='utf-8').read()
-          production_urls = re.findall(r'<loc>(https://[^<]+/statti/[^<]+/)</loc>', xml)
-          assert len(production_urls) == 30, f'Expected 30 article URLs, got {len(production_urls)}'
-          origin = os.environ['TARGET_ORIGIN'].rstrip('/')
-          urls = []
-          for url in production_urls:
-              path = urllib.parse.urlparse(url).path
-              urls.append(origin + path)
-          with open('article-urls.txt', 'w', encoding='utf-8') as f:
+          import re, urllib.parse
+          xml = open('baseline/sitemap.xml', encoding='utf-8').read()
+          urls = re.findall(r'<loc>(https://[^<]+/statti/[^<]+/)</loc>', xml)
+          assert len(urls) == 30, f'Expected 30 article URLs, got {len(urls)}'
+          with open('article-paths.txt', 'w', encoding='utf-8') as f:
               for url in urls:
-                  f.write(url + '\n')
-          print(f'Found {len(urls)} article URLs for {origin}')
+                  f.write(urllib.parse.urlparse(url).path + '\n')
+          print(f'Found {len(urls)} article paths')
           PY
 
-      - name: Run Lighthouse mobile audits
+      - name: Functional smoke checks
         shell: bash
         run: |
-          mkdir -p lighthouse-json
+          for path in \
+            /statti/yak-zmusyty-sebe-vchytysia/ \
+            /statti/yak-dopomohty-liudyni-z-apatiieiu/ \
+            /statti/metod-pomodoro/ \
+            /statti/yak-poboroty-lin/
+          do
+            echo "Checking $path"
+            google-chrome \
+              --headless \
+              --no-sandbox \
+              --disable-dev-shm-usage \
+              --virtual-time-budget=4000 \
+              --dump-dom "http://127.0.0.1:4174$path" \
+              > /tmp/dom.html 2>/dev/null
+            grep -q 'class="article-page"' /tmp/dom.html
+            grep -q 'Поширені запитання' /tmp/dom.html
+            test "$(grep -o 'article-bot-cta' /tmp/dom.html | wc -l)" -eq 2
+            ! grep -q 'Готуємо матеріал…' /tmp/dom.html
+          done
+
+      - name: Run baseline Lighthouse audits
+        shell: bash
+        run: |
+          mkdir -p baseline-json
           python3 - <<'PY'
           import pathlib
-          urls = pathlib.Path('article-urls.txt').read_text().splitlines()
-          with open('/tmp/lh-jobs.txt', 'w') as f:
-              for i, url in enumerate(urls, 1):
-                  slug = url.rstrip('/').split('/')[-1]
-                  f.write(f'{i}\t{slug}\t{url}\n')
+          paths = pathlib.Path('article-paths.txt').read_text().splitlines()
+          with open('/tmp/baseline-jobs.txt', 'w') as f:
+              for i, p in enumerate(paths, 1):
+                  slug = p.rstrip('/').split('/')[-1]
+                  f.write(f'{i}\t{slug}\thttp://127.0.0.1:4173{p}\n')
           PY
-          cat /tmp/lh-jobs.txt | xargs -P 3 -n 3 bash -c '
+          cat /tmp/baseline-jobs.txt | xargs -P 3 -n 3 bash -c '
             index="$0"; slug="$1"; url="$2";
-            echo "[$index/30] $url";
+            echo "[baseline $index/30] $url";
             lighthouse "$url" \
               --only-categories=performance \
               --form-factor=mobile \
               --output=json \
-              --output-path="lighthouse-json/${slug}.json" \
+              --output-path="baseline-json/${slug}.json" \
               --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
-              --quiet \
-              || echo "$url" >> lighthouse-failures.txt
+              --quiet
           '
 
-      - name: Summarize Lighthouse results
+      - name: Run candidate Lighthouse audits
         shell: bash
         run: |
-          cat > /tmp/summarize.mjs <<'NODE'
+          mkdir -p candidate-json
+          python3 - <<'PY'
+          import pathlib
+          paths = pathlib.Path('article-paths.txt').read_text().splitlines()
+          with open('/tmp/candidate-jobs.txt', 'w') as f:
+              for i, p in enumerate(paths, 1):
+                  slug = p.rstrip('/').split('/')[-1]
+                  f.write(f'{i}\t{slug}\thttp://127.0.0.1:4174{p}\n')
+          PY
+          cat /tmp/candidate-jobs.txt | xargs -P 3 -n 3 bash -c '
+            index="$0"; slug="$1"; url="$2";
+            echo "[candidate $index/30] $url";
+            lighthouse "$url" \
+              --only-categories=performance \
+              --form-factor=mobile \
+              --output=json \
+              --output-path="candidate-json/${slug}.json" \
+              --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+              --quiet
+          '
+
+      - name: Compare results
+        shell: bash
+        run: |
+          cat > /tmp/compare.mjs <<'NODE'
           import fs from 'node:fs/promises';
           import path from 'node:path';
 
-          const urls = (await fs.readFile('article-urls.txt', 'utf8')).trim().split(/\n+/);
+          const paths = (await fs.readFile('article-paths.txt', 'utf8')).trim().split(/\n+/);
+          const metric = async (dir, slug) => {
+            const data = JSON.parse(await fs.readFile(path.join(dir, `${slug}.json`), 'utf8'));
+            const audits = data.audits || {};
+            return {
+              score: Math.round((data.categories?.performance?.score ?? 0) * 100),
+              fcp: audits['first-contentful-paint']?.numericValue ?? 0,
+              lcp: audits['largest-contentful-paint']?.numericValue ?? 0,
+              tbt: audits['total-blocking-time']?.numericValue ?? 0,
+              cls: audits['cumulative-layout-shift']?.numericValue ?? 0,
+              si: audits['speed-index']?.numericValue ?? 0,
+              mainThread: audits['mainthread-work-breakdown']?.numericValue ?? 0,
+              requests: audits['diagnostics']?.details?.items?.[0]?.numRequests ?? 0,
+              scripts: audits['diagnostics']?.details?.items?.[0]?.numScripts ?? 0,
+              runtimeError: data.runtimeError?.message || ''
+            };
+          };
+
           const rows = [];
-          for (const url of urls) {
-            const slug = url.replace(/\/$/, '').split('/').pop();
-            const file = path.join('lighthouse-json', `${slug}.json`);
-            try {
-              const data = JSON.parse(await fs.readFile(file, 'utf8'));
-              const audits = data.audits || {};
-              rows.push({
-                url,
-                score: Math.round((data.categories?.performance?.score ?? 0) * 100),
-                fcp: audits['first-contentful-paint']?.displayValue || '',
-                lcp: audits['largest-contentful-paint']?.displayValue || '',
-                tbt: audits['total-blocking-time']?.displayValue || '',
-                cls: audits['cumulative-layout-shift']?.displayValue || '',
-                si: audits['speed-index']?.displayValue || '',
-                tti: audits['interactive']?.displayValue || '',
-                server: audits['server-response-time']?.displayValue || '',
-                totalBytes: audits['total-byte-weight']?.displayValue || '',
-                mainThread: audits['mainthread-work-breakdown']?.displayValue || '',
-                unusedJsMs: audits['unused-javascript']?.details?.overallSavingsMs ?? '',
-                unusedCssMs: audits['unused-css-rules']?.details?.overallSavingsMs ?? '',
-                renderBlockingMs: audits['render-blocking-insight']?.details?.metricSavings?.FCP ?? audits['render-blocking-resources']?.details?.overallSavingsMs ?? '',
-                fetchTime: data.fetchTime || ''
-              });
-            } catch (error) {
-              rows.push({url, score: '', error: error.message});
-            }
+          for (const articlePath of paths) {
+            const slug = articlePath.replace(/\/$/, '').split('/').pop();
+            const baseline = await metric('baseline-json', slug);
+            const candidate = await metric('candidate-json', slug);
+            rows.push({path: articlePath, baseline, candidate});
           }
 
-          const esc = (v) => `"${String(v ?? '').replaceAll('"', '""')}"`;
-          const headers = ['url','score','fcp','lcp','tbt','cls','si','tti','server','totalBytes','mainThread','unusedJsMs','unusedCssMs','renderBlockingMs','fetchTime','error'];
-          const csv = [headers.join(','), ...rows.map((r) => headers.map((h) => esc(r[h] ?? '')).join(','))].join('\n');
-          await fs.writeFile('lighthouse-mobile.csv', csv);
+          const avg = (key, side) => rows.reduce((sum, row) => sum + row[side][key], 0) / rows.length;
+          const zeroCls = (side) => rows.filter((row) => row[side].cls === 0).length;
+          const medianScore = (side) => {
+            const values = rows.map((row) => row[side].score).sort((a,b) => a-b);
+            return values[Math.floor(values.length / 2)];
+          };
+          const changed = [...rows].sort((a,b) => (b.candidate.score - b.baseline.score) - (a.candidate.score - a.baseline.score));
 
-          const ok = rows.filter((r) => Number.isFinite(r.score));
-          const sorted = [...ok].sort((a,b) => a.score - b.score);
-          const average = ok.length ? Math.round(ok.reduce((s,r) => s + r.score, 0) / ok.length) : 0;
-          const median = ok.length ? sorted[Math.floor(ok.length / 2)].score : 0;
-          const zeroCls = ok.filter((r) => Number.parseFloat(r.cls) === 0).length;
           const summary = [
-            '# Lighthouse mobile audit — PR 17 Preview',
+            '# Lighthouse local comparison',
             '',
-            `Tested: ${ok.length}/${rows.length}`,
-            `Average performance score: ${average}`,
-            `Median performance score: ${median}`,
-            `CLS 0 pages: ${zeroCls}/${ok.length}`,
+            `Pages: ${rows.length}/30`,
+            `Baseline average score: ${avg('score','baseline').toFixed(1)}`,
+            `Candidate average score: ${avg('score','candidate').toFixed(1)}`,
+            `Baseline median score: ${medianScore('baseline')}`,
+            `Candidate median score: ${medianScore('candidate')}`,
+            `Baseline CLS 0: ${zeroCls('baseline')}/30`,
+            `Candidate CLS 0: ${zeroCls('candidate')}/30`,
+            `Baseline average TBT: ${Math.round(avg('tbt','baseline'))} ms`,
+            `Candidate average TBT: ${Math.round(avg('tbt','candidate'))} ms`,
+            `Baseline average main-thread work: ${Math.round(avg('mainThread','baseline'))} ms`,
+            `Candidate average main-thread work: ${Math.round(avg('mainThread','candidate'))} ms`,
+            `Baseline average scripts: ${avg('scripts','baseline').toFixed(1)}`,
+            `Candidate average scripts: ${avg('scripts','candidate').toFixed(1)}`,
             '',
-            '## Lowest scores',
-            ...sorted.slice(0, 10).map((r) => `- ${r.score} — ${r.url} — FCP ${r.fcp}, LCP ${r.lcp}, TBT ${r.tbt}, CLS ${r.cls}, SI ${r.si}`),
+            '## Largest score improvements',
+            ...changed.slice(0, 10).map((r) => `- ${r.path}: ${r.baseline.score} → ${r.candidate.score}; CLS ${r.baseline.cls.toFixed(3)} → ${r.candidate.cls.toFixed(3)}; TBT ${Math.round(r.baseline.tbt)} → ${Math.round(r.candidate.tbt)} ms`),
             '',
-            '## Highest scores',
-            ...sorted.slice(-5).reverse().map((r) => `- ${r.score} — ${r.url} — FCP ${r.fcp}, LCP ${r.lcp}, TBT ${r.tbt}, CLS ${r.cls}, SI ${r.si}`),
+            '## Lowest candidate scores',
+            ...[...rows].sort((a,b) => a.candidate.score - b.candidate.score).slice(0, 10).map((r) => `- ${r.candidate.score} — ${r.path}; LCP ${(r.candidate.lcp/1000).toFixed(2)} s; TBT ${Math.round(r.candidate.tbt)} ms; CLS ${r.candidate.cls.toFixed(3)}`),
             ''
           ].join('\n');
-          await fs.writeFile('lighthouse-summary.md', summary);
-          console.log(summary);
-          if (ok.length < 25) process.exit(2);
-          NODE
-          node /tmp/summarize.mjs
+          await fs.writeFile('lighthouse-comparison.md', summary);
 
-      - name: Upload Lighthouse results
+          const esc = (value) => `"${String(value ?? '').replaceAll('"','""')}"`;
+          const header = ['path','baselineScore','candidateScore','baselineFcpMs','candidateFcpMs','baselineLcpMs','candidateLcpMs','baselineTbtMs','candidateTbtMs','baselineCls','candidateCls','baselineMainThreadMs','candidateMainThreadMs','baselineScripts','candidateScripts'];
+          const csvRows = rows.map((r) => [r.path,r.baseline.score,r.candidate.score,r.baseline.fcp,r.candidate.fcp,r.baseline.lcp,r.candidate.lcp,r.baseline.tbt,r.candidate.tbt,r.baseline.cls,r.candidate.cls,r.baseline.mainThread,r.candidate.mainThread,r.baseline.scripts,r.candidate.scripts].map(esc).join(','));
+          await fs.writeFile('lighthouse-comparison.csv', [header.join(','), ...csvRows].join('\n'));
+          console.log(summary);
+
+          if (rows.some((r) => r.candidate.runtimeError)) process.exit(2);
+          NODE
+          node /tmp/compare.mjs
+
+      - name: Upload comparison
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: lighthouse-mobile-results
+          name: lighthouse-local-comparison
           path: |
-            lighthouse-mobile.csv
-            lighthouse-summary.md
-            lighthouse-json/
-            lighthouse-failures.txt
+            lighthouse-comparison.md
+            lighthouse-comparison.csv
+            baseline-json/
+            candidate-json/
           if-no-files-found: warn
