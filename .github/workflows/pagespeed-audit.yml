@@ -9,7 +9,7 @@ on:
 jobs:
   pagespeed:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     permissions:
       contents: read
     steps:
@@ -30,7 +30,7 @@ jobs:
 
           const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
           const esc = (v) => `"${String(v ?? '').replaceAll('"', '""')}"`;
-          const rows = [];
+          const rows = new Array(urls.length);
 
           async function runPsi(url) {
             const api = new URL('https://www.googleapis.com/pagespeedonline/v5/runPagespeed');
@@ -47,15 +47,15 @@ jobs:
                 return JSON.parse(text);
               } catch (error) {
                 lastError = error;
-                if (attempt < 4) await sleep(3000 * attempt);
+                if (attempt < 4) await sleep(2500 * attempt);
               }
             }
             throw lastError;
           }
 
-          for (let i = 0; i < urls.length; i++) {
-            const url = urls[i];
-            console.log(`\n[${i + 1}/${urls.length}] ${url}`);
+          async function testOne(index) {
+            const url = urls[index];
+            console.log(`\n[${index + 1}/${urls.length}] ${url}`);
             try {
               const data = await runPsi(url);
               const lh = data.lighthouseResult;
@@ -78,20 +78,32 @@ jobs:
                 mainThread: audits['mainthread-work-breakdown']?.displayValue || '',
                 fetchTime: lh?.fetchTime || data.analysisUTCTimestamp || ''
               };
-              rows.push(row);
+              rows[index] = row;
               console.log(`Score ${score} | FCP ${row.fcp} | LCP ${row.lcp} | TBT ${row.tbt} | CLS ${row.cls}`);
             } catch (error) {
-              console.error(`FAILED: ${error.message}`);
-              rows.push({ url, score: '', error: error.message });
+              console.error(`FAILED ${url}: ${error.message}`);
+              rows[index] = { url, score: '', error: error.message };
             }
-            await sleep(1500);
           }
 
+          let cursor = 0;
+          async function worker(workerId) {
+            while (true) {
+              const index = cursor++;
+              if (index >= urls.length) return;
+              console.log(`Worker ${workerId} starting item ${index + 1}`);
+              await testOne(index);
+              await sleep(800);
+            }
+          }
+
+          await Promise.all([worker(1), worker(2), worker(3)]);
+
           const headers = ['url','score','fcp','lcp','tbt','cls','si','tti','server','unusedJsMs','unusedCssMs','renderBlockingMs','totalBytes','mainThread','fetchTime','error'];
-          const csv = [headers.join(','), ...rows.map((row) => headers.map((h) => esc(row[h] ?? '')).join(','))].join('\n');
+          const csv = [headers.join(','), ...rows.map((row) => headers.map((h) => esc(row?.[h] ?? '')).join(','))].join('\n');
           await fs.writeFile('pagespeed-mobile.csv', csv);
 
-          const ok = rows.filter((r) => Number.isFinite(r.score));
+          const ok = rows.filter((r) => Number.isFinite(r?.score));
           const sorted = [...ok].sort((a, b) => a.score - b.score);
           const average = ok.length ? Math.round(ok.reduce((s, r) => s + r.score, 0) / ok.length) : 0;
           const summary = [
