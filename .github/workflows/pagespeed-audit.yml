@@ -143,7 +143,9 @@ jobs:
               > /tmp/dom.html 2>/dev/null
             grep -q 'class="article-page"' /tmp/dom.html
             grep -q 'Поширені запитання' /tmp/dom.html
-            test "$(grep -o 'article-bot-cta' /tmp/dom.html | wc -l)" -eq 2
+            cta_count="$(grep -o 'article-bot-cta article-bot-cta-' /tmp/dom.html | wc -l)"
+            echo "Telegram CTA count: $cta_count"
+            test "$cta_count" -eq 2
             ! grep -q 'Готуємо матеріал…' /tmp/dom.html
           done
 
