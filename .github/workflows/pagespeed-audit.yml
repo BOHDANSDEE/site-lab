@@ -1,4 +1,4 @@
-name: PageSpeed audit (mobile)
+name: Lighthouse mobile audit
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  pagespeed:
+  lighthouse:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -15,55 +15,69 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run PageSpeed Insights for all article URLs
+      - name: Install Lighthouse
+        run: |
+          google-chrome --version
+          npm install --global lighthouse
+          lighthouse --version
+
+      - name: Build article URL list
         shell: bash
         run: |
-          cat > /tmp/pagespeed-audit.mjs <<'NODE'
+          python3 - <<'PY'
+          import re
+          xml = open('sitemap.xml', encoding='utf-8').read()
+          urls = re.findall(r'<loc>(https://[^<]+/statti/[^<]+/)</loc>', xml)
+          assert len(urls) == 30, f'Expected 30 article URLs, got {len(urls)}'
+          with open('article-urls.txt', 'w', encoding='utf-8') as f:
+              for url in urls:
+                  f.write(url + '\n')
+          print(f'Found {len(urls)} article URLs')
+          PY
+
+      - name: Run Lighthouse mobile audits
+        shell: bash
+        run: |
+          mkdir -p lighthouse-json
+          python3 - <<'PY'
+          import pathlib
+          urls = pathlib.Path('article-urls.txt').read_text().splitlines()
+          with open('/tmp/lh-jobs.txt', 'w') as f:
+              for i, url in enumerate(urls, 1):
+                  slug = url.rstrip('/').split('/')[-1]
+                  f.write(f'{i}\t{slug}\t{url}\n')
+          PY
+          cat /tmp/lh-jobs.txt | xargs -P 3 -n 3 bash -c '
+            index="$0"; slug="$1"; url="$2";
+            echo "[$index/30] $url";
+            lighthouse "$url" \
+              --only-categories=performance \
+              --form-factor=mobile \
+              --output=json \
+              --output-path="lighthouse-json/${slug}.json" \
+              --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+              --quiet \
+              || echo "$url" >> lighthouse-failures.txt
+          '
+
+      - name: Summarize Lighthouse results
+        shell: bash
+        run: |
+          cat > /tmp/summarize.mjs <<'NODE'
           import fs from 'node:fs/promises';
+          import path from 'node:path';
 
-          const xml = await fs.readFile('sitemap.xml', 'utf8');
-          const urls = [...xml.matchAll(/<loc>(https:\/\/[^<]+\/statti\/[^<]+\/)<\/loc>/g)].map((m) => m[1]);
-          if (urls.length !== 30) {
-            console.error(`Expected 30 article URLs, found ${urls.length}`);
-            process.exit(1);
-          }
-
-          const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-          const esc = (v) => `"${String(v ?? '').replaceAll('"', '""')}"`;
-          const rows = new Array(urls.length);
-
-          async function runPsi(url) {
-            const api = new URL('https://www.googleapis.com/pagespeedonline/v5/runPagespeed');
-            api.searchParams.set('url', url);
-            api.searchParams.set('strategy', 'mobile');
-            api.searchParams.append('category', 'performance');
-
-            let lastError;
-            for (let attempt = 1; attempt <= 4; attempt++) {
-              try {
-                const res = await fetch(api, { headers: { 'user-agent': 'site-lab-pagespeed-audit/1.0' } });
-                const text = await res.text();
-                if (!res.ok) throw new Error(`HTTP ${res.status}: ${text.slice(0, 300)}`);
-                return JSON.parse(text);
-              } catch (error) {
-                lastError = error;
-                if (attempt < 4) await sleep(2500 * attempt);
-              }
-            }
-            throw lastError;
-          }
-
-          async function testOne(index) {
-            const url = urls[index];
-            console.log(`\n[${index + 1}/${urls.length}] ${url}`);
+          const urls = (await fs.readFile('article-urls.txt', 'utf8')).trim().split(/\n+/);
+          const rows = [];
+          for (const url of urls) {
+            const slug = url.replace(/\/$/, '').split('/').pop();
+            const file = path.join('lighthouse-json', `${slug}.json`);
             try {
-              const data = await runPsi(url);
-              const lh = data.lighthouseResult;
-              const audits = lh?.audits || {};
-              const score = Math.round((lh?.categories?.performance?.score ?? 0) * 100);
-              const row = {
+              const data = JSON.parse(await fs.readFile(file, 'utf8'));
+              const audits = data.audits || {};
+              rows.push({
                 url,
-                score,
+                score: Math.round((data.categories?.performance?.score ?? 0) * 100),
                 fcp: audits['first-contentful-paint']?.displayValue || '',
                 lcp: audits['largest-contentful-paint']?.displayValue || '',
                 tbt: audits['total-blocking-time']?.displayValue || '',
@@ -71,70 +85,55 @@ jobs:
                 si: audits['speed-index']?.displayValue || '',
                 tti: audits['interactive']?.displayValue || '',
                 server: audits['server-response-time']?.displayValue || '',
-                unusedJsMs: audits['unused-javascript']?.details?.overallSavingsMs ?? '',
-                unusedCssMs: audits['unused-css-rules']?.details?.overallSavingsMs ?? '',
-                renderBlockingMs: audits['render-blocking-resources']?.details?.overallSavingsMs ?? '',
                 totalBytes: audits['total-byte-weight']?.displayValue || '',
                 mainThread: audits['mainthread-work-breakdown']?.displayValue || '',
-                fetchTime: lh?.fetchTime || data.analysisUTCTimestamp || ''
-              };
-              rows[index] = row;
-              console.log(`Score ${score} | FCP ${row.fcp} | LCP ${row.lcp} | TBT ${row.tbt} | CLS ${row.cls}`);
+                unusedJsMs: audits['unused-javascript']?.details?.overallSavingsMs ?? '',
+                unusedCssMs: audits['unused-css-rules']?.details?.overallSavingsMs ?? '',
+                renderBlockingMs: audits['render-blocking-insight']?.details?.metricSavings?.FCP ?? audits['render-blocking-resources']?.details?.overallSavingsMs ?? '',
+                fetchTime: data.fetchTime || ''
+              });
             } catch (error) {
-              console.error(`FAILED ${url}: ${error.message}`);
-              rows[index] = { url, score: '', error: error.message };
+              rows.push({url, score: '', error: error.message});
             }
           }
 
-          let cursor = 0;
-          async function worker(workerId) {
-            while (true) {
-              const index = cursor++;
-              if (index >= urls.length) return;
-              console.log(`Worker ${workerId} starting item ${index + 1}`);
-              await testOne(index);
-              await sleep(800);
-            }
-          }
+          const esc = (v) => `"${String(v ?? '').replaceAll('"', '""')}"`;
+          const headers = ['url','score','fcp','lcp','tbt','cls','si','tti','server','totalBytes','mainThread','unusedJsMs','unusedCssMs','renderBlockingMs','fetchTime','error'];
+          const csv = [headers.join(','), ...rows.map((r) => headers.map((h) => esc(r[h] ?? '')).join(','))].join('\n');
+          await fs.writeFile('lighthouse-mobile.csv', csv);
 
-          await Promise.all([worker(1), worker(2), worker(3)]);
-
-          const headers = ['url','score','fcp','lcp','tbt','cls','si','tti','server','unusedJsMs','unusedCssMs','renderBlockingMs','totalBytes','mainThread','fetchTime','error'];
-          const csv = [headers.join(','), ...rows.map((row) => headers.map((h) => esc(row?.[h] ?? '')).join(','))].join('\n');
-          await fs.writeFile('pagespeed-mobile.csv', csv);
-
-          const ok = rows.filter((r) => Number.isFinite(r?.score));
-          const sorted = [...ok].sort((a, b) => a.score - b.score);
-          const average = ok.length ? Math.round(ok.reduce((s, r) => s + r.score, 0) / ok.length) : 0;
+          const ok = rows.filter((r) => Number.isFinite(r.score));
+          const sorted = [...ok].sort((a,b) => a.score - b.score);
+          const average = ok.length ? Math.round(ok.reduce((s,r) => s + r.score, 0) / ok.length) : 0;
+          const median = ok.length ? sorted[Math.floor(ok.length / 2)].score : 0;
           const summary = [
-            '# PageSpeed mobile audit',
+            '# Lighthouse mobile audit',
             '',
             `Tested: ${ok.length}/${rows.length}`,
             `Average performance score: ${average}`,
+            `Median performance score: ${median}`,
             '',
             '## Lowest scores',
-            ...sorted.slice(0, 10).map((r) => `- ${r.score} — ${r.url} — LCP ${r.lcp}, TBT ${r.tbt}, CLS ${r.cls}`),
+            ...sorted.slice(0, 10).map((r) => `- ${r.score} — ${r.url} — FCP ${r.fcp}, LCP ${r.lcp}, TBT ${r.tbt}, CLS ${r.cls}, SI ${r.si}`),
             '',
             '## Highest scores',
-            ...sorted.slice(-5).reverse().map((r) => `- ${r.score} — ${r.url} — LCP ${r.lcp}, TBT ${r.tbt}, CLS ${r.cls}`),
+            ...sorted.slice(-5).reverse().map((r) => `- ${r.score} — ${r.url} — FCP ${r.fcp}, LCP ${r.lcp}, TBT ${r.tbt}, CLS ${r.cls}, SI ${r.si}`),
             ''
           ].join('\n');
-          await fs.writeFile('pagespeed-summary.md', summary);
-          console.log(`\n${summary}`);
-
-          if (ok.length < 25) {
-            console.error('Too many PSI requests failed.');
-            process.exit(2);
-          }
+          await fs.writeFile('lighthouse-summary.md', summary);
+          console.log(summary);
+          if (ok.length < 25) process.exit(2);
           NODE
-          node /tmp/pagespeed-audit.mjs
+          node /tmp/summarize.mjs
 
-      - name: Upload audit results
+      - name: Upload Lighthouse results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pagespeed-mobile-results
+          name: lighthouse-mobile-results
           path: |
-            pagespeed-mobile.csv
-            pagespeed-summary.md
+            lighthouse-mobile.csv
+            lighthouse-summary.md
+            lighthouse-json/
+            lighthouse-failures.txt
           if-no-files-found: warn
