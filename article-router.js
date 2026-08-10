@@ -21,13 +21,25 @@
     'chomu-pislia-roboty-nichoho-ne-khochetsia',
     'yak-rozvynuty-samodystsyplinu'
   ]);
+  const apathyRichSlugs = new Set([
+    'emotsiine-vyhorannia-symptomy',
+    'yak-dopomohty-liudyni-z-apatiieiu',
+    'apatiia-pislia-stresu',
+    'nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia',
+    'postiino-khochetsia-spaty-i-nemaie-syl',
+    'apatiia-u-pidlitkiv',
+    'postiina-vtoma-i-nemaie-syl',
+    'nemaie-syl-nichoho-robyty'
+  ]);
 
   const script = document.createElement('script');
-  script.src = lazinessRichSlugs.has(slug)
-    ? '/article-page-lazy.js'
-    : procrastinationRichSlugs.has(slug)
-      ? '/article-page.js'
-      : '/article-page-base.js';
+  script.src = apathyRichSlugs.has(slug)
+    ? '/article-page-apathy.js'
+    : lazinessRichSlugs.has(slug)
+      ? '/article-page-lazy.js'
+      : procrastinationRichSlugs.has(slug)
+        ? '/article-page.js'
+        : '/article-page-base.js';
   script.async = false;
   script.onerror = () => {
     const main = document.querySelector('#content');
