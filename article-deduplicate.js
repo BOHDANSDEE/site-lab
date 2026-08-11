@@ -1,6 +1,17 @@
 (() => {
-  const articlePath = /^\/statti\/[^/]+\/?$/;
-  if (!articlePath.test(location.pathname)) return;
+  const articlePath = /^\/statti\/([^/]+)\/?$/;
+  const articleMatch = location.pathname.match(articlePath);
+  if (!articleMatch) return;
+
+  const BOT_BASE_URL = 'https://t.me/HabitTeen_bot';
+  const ARTICLE_START_PREFIX = 'article_';
+
+  const articleSlug = articleMatch[1];
+  const startPayload = `${ARTICLE_START_PREFIX}${articleSlug}`;
+  const hasSafePayload = /^[A-Za-z0-9_-]+$/.test(startPayload) && startPayload.length <= 64;
+  const articleBotUrl = hasSafePayload
+    ? `${BOT_BASE_URL}?start=${encodeURIComponent(startPayload)}`
+    : BOT_BASE_URL;
 
   const removableHeadings = new Set([
     'Практика на сім днів',
@@ -42,19 +53,21 @@
   const makeBotCta = (position) => {
     const section = document.createElement('section');
     section.className = `bot-cta article-bot-cta article-bot-cta-${position}`;
+    section.dataset.articleSlug = articleSlug;
+    section.dataset.botStartPayload = hasSafePayload ? startPayload : '';
 
     if (position === 'top') {
       section.innerHTML = `
-        <p class="section-kicker">Практика</p>
-        <h2>Розібрати свою ситуацію в Telegram-боті</h2>
-        <p>Коротко опишіть, що відбувається, і визначте один конкретний крок.</p>
-        <a class="button button-primary" href="https://t.me/HabitTeen_bot" target="_blank" rel="noopener noreferrer">Відкрити Telegram-бота <span aria-hidden="true">↗</span></a>`;
+        <p class="section-kicker">Практика до цієї статті</p>
+        <h2>Пройдіть саме цей рівень у Telegram</h2>
+        <p>Не шукайте тему повторно. Кнопка відкриє в HabitTeen рівень цієї статті, а бот одразу дасть розбір: стан, проблему, вторинну вигоду, значення в житті, три конкретні кроки та афірмацію.</p>
+        <a class="button button-primary" data-article-bot-deeplink="true" href="${articleBotUrl}" target="_blank" rel="noopener noreferrer">🚀 Пройти цей рівень у Telegram <span aria-hidden="true">↗</span></a>`;
     } else {
       section.innerHTML = `
-        <p class="section-kicker">Спробуйте на своїй ситуації</p>
-        <h2>Перейдіть від читання до конкретної дії</h2>
-        <p>Опишіть свою ситуацію в боті та сформулюйте наступний практичний крок.</p>
-        <a class="button button-primary" href="https://t.me/HabitTeen_bot" target="_blank" rel="noopener noreferrer">Відкрити Telegram-бота <span aria-hidden="true">↗</span></a>`;
+        <p class="section-kicker">Від читання до дії</p>
+        <h2>Застосуйте матеріал одразу після статті</h2>
+        <p>HabitTeen відкриє саме цей рівень без меню й повторного пошуку. Пройдіть розбір і виберіть дію, яку реально зробити зараз.</p>
+        <a class="button button-primary" data-article-bot-deeplink="true" href="${articleBotUrl}" target="_blank" rel="noopener noreferrer">✨ Відкрити рівень цієї статті <span aria-hidden="true">↗</span></a>`;
     }
 
     return section;
@@ -103,6 +116,7 @@
     placeBotCtas(body);
     body.dataset.deduplicated = 'true';
     body.dataset.botCtasPlaced = 'true';
+    body.dataset.articleBotDeeplink = hasSafePayload ? 'true' : 'fallback';
     return true;
   };
 
