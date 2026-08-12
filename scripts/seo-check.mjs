@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import articleHandler from '../api/article.mjs';
+import articleHandler from '../api/article-final.mjs';
 import libraryHandler from '../api/articles.mjs';
 
 class MockResponse {
@@ -52,8 +52,17 @@ for (const [slug, titlePart] of samples) {
   assert.ok(response.body.includes('BreadcrumbList'));
   assert.ok(response.body.includes(`https://t.me/HabitTeen_bot?start=article_${slug}`));
   assert.ok(!response.body.includes('Готуємо матеріал'), `${slug} must contain useful HTML before JavaScript`);
+  assert.ok(!response.body.includes('/article-router.js'), `${slug} must not replace SSR content with a second client render`);
+  assert.ok(!response.body.includes('/article-toc-fix.js'), `${slug} must keep server TOC stable`);
+  assert.ok(!response.body.includes('/articles-index.js'), `${slug} does not need article catalog JS after server render`);
   assert.ok(response.body.length > 5000, `${slug} server HTML should contain substantial content`);
 }
+
+const apathy = renderArticle('apatiia-pislia-stresu');
+assert.ok(
+  apathy.body.includes('https://www.who.int/publications/i/item/9789240003927'),
+  'apathy SSR must retain the apathy-specific WHO stress source'
+);
 
 const missing = renderArticle('not-a-real-article');
 assert.equal(missing.statusCode, 404);
@@ -80,9 +89,10 @@ assert.deepEqual(vercel.rewrites[0], {
 });
 assert.deepEqual(vercel.rewrites[1], {
   source: '/statti/:slug/',
-  destination: '/api/article?slug=:slug'
+  destination: '/api/article-final?slug=:slug'
 });
 assert.equal(vercel.functions['api/article.mjs'].includeFiles, '**/*.js');
+assert.equal(vercel.functions['api/article-final.mjs'].includeFiles, '**/*.js');
 assert.equal(vercel.functions['api/articles.mjs'].includeFiles, '**/*.js');
 
 const template = await readFile(new URL('../statti/article/index.html', import.meta.url), 'utf8');
@@ -100,4 +110,4 @@ for (const slug of libraryLinks) {
   );
 }
 
-console.log('✅ SEO server-render check passed: 45 crawlable library links + rich, apathy and fallback article HTML');
+console.log('✅ SEO server-render check passed: 45 crawlable links + stable SSR + apathy sources + canonical article HTML');
