@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import articleHandler from '../api/article-final.mjs';
 import libraryHandler from '../api/articles.mjs';
 import { TOPIC_SPECIFIC_SECTIONS } from '../api/topic-specific-sections.mjs';
+import { TOPIC_SPECIFIC_META } from '../api/topic-specific-meta.mjs';
 
 class MockResponse {
   constructor() {
@@ -36,6 +37,10 @@ function renderLibrary() {
   return response;
 }
 
+function articleLinks(html) {
+  return [...html.matchAll(/class="article-card"(?: data-article-card)? href="\/statti\/([^"/]+)\/"/g)].map((match) => match[1]);
+}
+
 const samples = [
   ['akademichna-prokrastynatsiia', 'Академічна прокрастинація'],
   ['apatiia-pislia-stresu', 'Апатія після стресу'],
@@ -66,10 +71,30 @@ assert.ok(
 );
 
 const topicSlugs = Object.keys(TOPIC_SPECIFIC_SECTIONS);
+const topicMetaSlugs = Object.keys(TOPIC_SPECIFIC_META);
 assert.equal(topicSlugs.length, 15, 'all 15 newest article topics must have unique server-side sections');
+assert.deepEqual(new Set(topicMetaSlugs), new Set(topicSlugs), 'all 15 newest topics must also have topic-specific FAQ/related metadata');
+assert.equal(new Set(topicSlugs.map((slug) => TOPIC_SPECIFIC_SECTIONS[slug].intro)).size, 15, 'topic intros must be unique');
+assert.equal(
+  new Set(topicSlugs.map((slug) => TOPIC_SPECIFIC_SECTIONS[slug].sections.map((section) => section.heading).join('|'))).size,
+  15,
+  'topic section heading sets must be unique'
+);
+
+const faqQuestions = new Set();
 for (const slug of topicSlugs) {
   const topic = TOPIC_SPECIFIC_SECTIONS[slug];
+  const meta = TOPIC_SPECIFIC_META[slug];
   assert.equal(topic.sections.length, 3, `${slug} must have three unique topic sections`);
+  assert.ok(meta.faq?.length >= 2, `${slug} must have topic-specific FAQ entries`);
+  assert.equal(meta.related?.length, 3, `${slug} must have three curated related links`);
+  assert.ok(meta.sources?.length >= 2, `${slug} must have topic-relevant sources`);
+
+  for (const entry of meta.faq) {
+    assert.ok(!faqQuestions.has(entry.q), `${slug}: FAQ question must be unique across newest topics: ${entry.q}`);
+    faqQuestions.add(entry.q);
+  }
+
   const response = renderArticle(slug);
   assert.equal(response.statusCode, 200, `${slug} unique-content page must return 200`);
   assert.ok(response.body.includes(topic.intro), `${slug} must expose its unique intro in initial HTML`);
@@ -81,6 +106,17 @@ for (const slug of topicSlugs) {
     3,
     `${slug} must render three unique sections before shared fallback content`
   );
+  for (const entry of meta.faq) {
+    assert.ok(response.body.includes(`<summary>${entry.q}</summary>`), `${slug} must expose topic-specific visible FAQ: ${entry.q}`);
+    assert.ok(response.body.includes(`"name":"${entry.q}"`), `${slug} FAQ schema must match visible FAQ: ${entry.q}`);
+  }
+  assert.equal((response.body.match(/"@type":"FAQPage"/g) || []).length, 1, `${slug} must expose exactly one FAQPage schema`);
+  assert.ok(!response.body.includes('<summary>З чого почати сьогодні?</summary>'), `${slug} must not keep generic fallback FAQ`);
+  for (const relatedSlug of meta.related) {
+    assert.ok(response.body.includes(`href="/statti/${relatedSlug}/"`), `${slug} must expose curated related link: ${relatedSlug}`);
+  }
+  assert.ok(response.body.includes('"dateModified":"2026-08-12"'), `${slug} Article schema must carry its real content update date`);
+  assert.ok(response.body.includes('Оновлено 12 серпня 2026 р.'), `${slug} visible update date must match the content change`);
   assert.ok(response.body.length > 7000, `${slug} must provide substantial initial HTML after enrichment`);
 }
 
@@ -103,6 +139,45 @@ assert.equal(new Set(libraryLinks).size, 45, 'all 45 library links must be uniqu
 for (const slug of topicSlugs) {
   assert.ok(libraryLinks.includes(slug), `unique topic must be crawlable from library: ${slug}`);
 }
+
+const expectedCategories = {
+  lin: [
+    'yak-poboroty-lin', 'prychyny-lini', 'lin-chy-vyhorannia', 'yak-diiaty-koly-nemaie-motyvatsii',
+    'yak-zmusyty-sebe-vchytysia', 'yak-zmusyty-sebe-prybyraty', 'lin-u-pidlitkiv', 'yak-vstaty-z-lizhka-vrantsi',
+    'chomu-pislia-roboty-nichoho-ne-khochetsia', 'yak-rozvynuty-samodystsyplinu', 'chomu-ne-vystachaie-syly-voli',
+    'yak-pochaty-trenuvatysia-koly-lin', 'yak-ne-kydaty-spravy-na-pivdorozi', 'yak-vyrobyty-korysnu-zvychku',
+    'chomu-pislia-navchannia-nichoho-ne-khochetsia'
+  ],
+  apatiia: [
+    'apatiia-shcho-robyty', 'apatiia-chy-depresiia', 'emotsiine-vyhorannia-symptomy', 'yak-dopomohty-liudyni-z-apatiieiu',
+    'apatiia-pislia-stresu', 'nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia', 'postiino-khochetsia-spaty-i-nemaie-syl',
+    'apatiia-u-pidlitkiv', 'postiina-vtoma-i-nemaie-syl', 'nemaie-syl-nichoho-robyty', 'apatiia-i-tryvoha',
+    'emotsiine-oniminnia', 'apatiia-pislia-khvoroby', 'apatiia-i-sotsialna-izoliatsiia', 'yak-povernuty-rezhym-pislia-apatii'
+  ],
+  prokrastynatsiia: [
+    'yak-perestaty-vidkladaty-spravy', 'prychyny-prokrastynatsii', 'prokrastynatsiia-i-perfektsionizm',
+    'akademichna-prokrastynatsiia', 'prokrastynatsiia-i-tryvoha', 'chomu-vse-roblu-v-ostanniu-myt',
+    'sduh-i-prokrastynatsiia', 'metod-pomodoro', 'nichna-prokrastynatsiia', 'telefon-korotki-video-i-prokrastynatsiia',
+    'prokrastynatsiia-v-pobuti', 'prokrastynatsiia-bez-dedlainu', 'yak-zavershuvaty-spravy',
+    'yak-vybraty-priorytet-koly-vse-terminove', 'prokrastynatsiia-i-nudga'
+  ]
+};
+
+for (const [category, expected] of Object.entries(expectedCategories)) {
+  const html = await readFile(new URL(`../${category}/index.html`, import.meta.url), 'utf8');
+  const links = articleLinks(html);
+  assert.equal(links.length, 15, `/${category}/ must expose exactly 15 canonical article links`);
+  assert.equal(new Set(links).size, 15, `/${category}/ article links must be unique`);
+  assert.deepEqual(new Set(links), new Set(expected), `/${category}/ must link to the complete canonical category set`);
+  assert.ok(html.includes(`<link rel="canonical" href="https://xn--k1ae9bxb.online/${category}/">`), `/${category}/ must self-canonicalize`);
+  assert.ok(html.includes('name="robots" content="index,follow'), `/${category}/ must be indexable`);
+  assert.ok(html.includes('CollectionPage'), `/${category}/ must expose CollectionPage schema`);
+  assert.ok(html.includes('ItemList'), `/${category}/ must expose ItemList schema`);
+  for (const slug of links) assert.ok(libraryLinks.includes(slug), `/${category}/ link must be present in the 45-article library: ${slug}`);
+}
+
+const linCategory = await readFile(new URL('../lin/index.html', import.meta.url), 'utf8');
+assert.ok(!linCategory.includes('href="/statti/lin-chy-vtoma/"'), '/lin/ must not link to the redirected legacy article URL');
 
 const vercel = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8'));
 assert.equal(vercel.rewrites.length, 2);
@@ -133,4 +208,4 @@ for (const slug of libraryLinks) {
   );
 }
 
-console.log('✅ SEO check passed: 45 crawlable links + stable SSR + 15 unique topic enrichments + sources/canonicals');
+console.log('✅ SEO check passed: 45 crawlable links + 3 complete category hubs + stable SSR + 15 fully topic-specific enrichments');
