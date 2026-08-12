@@ -17,5 +17,6 @@ jobs:
           node --check api/article.mjs
           node --check api/article-final.mjs
           node --check api/articles.mjs
+          node --check api/topic-specific-sections.mjs
       - name: Verify crawlable article HTML
         run: node scripts/seo-check.mjs
