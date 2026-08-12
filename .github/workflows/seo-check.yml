@@ -19,7 +19,9 @@ jobs:
           node --check api/articles.mjs
           node --check api/topic-specific-sections.mjs
           node --check scripts/apathy-source-dedupe-check.mjs
+          node --check scripts/all-article-seo-check.mjs
       - name: Verify crawlable article HTML
         run: |
           node scripts/seo-check.mjs
           node scripts/apathy-source-dedupe-check.mjs
+          node scripts/all-article-seo-check.mjs
