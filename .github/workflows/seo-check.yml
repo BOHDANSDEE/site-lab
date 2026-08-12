@@ -1,0 +1,29 @@
+name: SEO server render check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  seo-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check server renderer syntax
+        run: |
+          node --check api/article.mjs
+          node --check api/article-final.mjs
+          node --check api/articles.mjs
+          node --check api/topic-specific-sections.mjs
+          node --check api/topic-specific-meta.mjs
+          node --check scripts/seo-check.mjs
+          node --check scripts/apathy-source-dedupe-check.mjs
+          node --check scripts/all-article-seo-check.mjs
+      - name: Verify crawlable article HTML
+        run: |
+          node scripts/seo-check.mjs
+          node scripts/apathy-source-dedupe-check.mjs
+          node scripts/all-article-seo-check.mjs
