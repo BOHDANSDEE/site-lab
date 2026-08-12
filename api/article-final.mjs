@@ -7,6 +7,7 @@ import { TOPIC_SPECIFIC_SECTIONS } from './topic-specific-sections.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let apathyCache = null;
+let commonSourcesCache = null;
 
 class CaptureResponse {
   constructor() {
@@ -28,18 +29,30 @@ class CaptureResponse {
   }
 }
 
+function runBrowserScript(relativePath, sandbox) {
+  const filename = path.join(ROOT, relativePath);
+  vm.runInNewContext(readFileSync(filename, 'utf8'), sandbox, { filename, timeout: 1000 });
+}
+
 function loadApathyContent() {
   if (apathyCache) return apathyCache;
   const sandbox = { window: {} };
   for (const relativePath of ['apathy-rich-content.js', 'apathy-tone-overrides.js']) {
-    const filename = path.join(ROOT, relativePath);
-    vm.runInNewContext(readFileSync(filename, 'utf8'), sandbox, { filename, timeout: 1000 });
+    runBrowserScript(relativePath, sandbox);
   }
   apathyCache = {
     articles: sandbox.window.HABITTEEN_APATHY_ARTICLES || {},
     sources: sandbox.window.HABITTEEN_APATHY_SOURCES || {}
   };
   return apathyCache;
+}
+
+function loadCommonSources() {
+  if (commonSourcesCache) return commonSourcesCache;
+  const sandbox = { window: {} };
+  runBrowserScript('articles-index.js', sandbox);
+  commonSourcesCache = sandbox.window.HABITTEEN_ARTICLE_SOURCES || {};
+  return commonSourcesCache;
 }
 
 function escapeHtml(value) {
@@ -105,7 +118,9 @@ function enrichApathySources(html, slug) {
   const article = apathy.articles[slug];
   if (!article?.sources?.length) return html;
 
+  const commonSources = loadCommonSources();
   const missing = article.sources
+    .filter((key) => !commonSources[key])
     .map((key) => apathy.sources[key])
     .filter(Boolean)
     .filter((source) => !html.includes(source.url));
