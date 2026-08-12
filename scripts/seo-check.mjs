@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import articleHandler from '../api/article-final.mjs';
 import libraryHandler from '../api/articles.mjs';
+import { TOPIC_SPECIFIC_SECTIONS } from '../api/topic-specific-sections.mjs';
 
 class MockResponse {
   constructor() {
@@ -64,6 +65,25 @@ assert.ok(
   'apathy SSR must retain the apathy-specific WHO stress source'
 );
 
+const topicSlugs = Object.keys(TOPIC_SPECIFIC_SECTIONS);
+assert.equal(topicSlugs.length, 15, 'all 15 newest article topics must have unique server-side sections');
+for (const slug of topicSlugs) {
+  const topic = TOPIC_SPECIFIC_SECTIONS[slug];
+  assert.equal(topic.sections.length, 3, `${slug} must have three unique topic sections`);
+  const response = renderArticle(slug);
+  assert.equal(response.statusCode, 200, `${slug} unique-content page must return 200`);
+  assert.ok(response.body.includes(topic.intro), `${slug} must expose its unique intro in initial HTML`);
+  for (const section of topic.sections) {
+    assert.ok(response.body.includes(section.heading), `${slug} must expose unique heading: ${section.heading}`);
+  }
+  assert.equal(
+    (response.body.match(/class="topic-specific-section"/g) || []).length,
+    3,
+    `${slug} must render three unique sections before shared fallback content`
+  );
+  assert.ok(response.body.length > 7000, `${slug} must provide substantial initial HTML after enrichment`);
+}
+
 const missing = renderArticle('not-a-real-article');
 assert.equal(missing.statusCode, 404);
 assert.ok(missing.body.includes('noindex,follow'));
@@ -80,6 +100,9 @@ assert.ok(library.body.includes('<h1>45 статей про те, що зава�
 const libraryLinks = [...library.body.matchAll(/class="article-card" data-article-card href="\/statti\/([^"/]+)\/"/g)].map((match) => match[1]);
 assert.equal(libraryLinks.length, 45, 'initial library HTML must expose all 45 article links');
 assert.equal(new Set(libraryLinks).size, 45, 'all 45 library links must be unique');
+for (const slug of topicSlugs) {
+  assert.ok(libraryLinks.includes(slug), `unique topic must be crawlable from library: ${slug}`);
+}
 
 const vercel = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8'));
 assert.equal(vercel.rewrites.length, 2);
@@ -110,4 +133,4 @@ for (const slug of libraryLinks) {
   );
 }
 
-console.log('✅ SEO server-render check passed: 45 crawlable links + stable SSR + apathy sources + canonical article HTML');
+console.log('✅ SEO check passed: 45 crawlable links + stable SSR + 15 unique topic enrichments + sources/canonicals');
