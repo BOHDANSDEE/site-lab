@@ -3,6 +3,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import articleHandler from './article.mjs';
+import { TOPIC_SPECIFIC_SECTIONS } from './topic-specific-sections.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let apathyCache = null;
@@ -72,6 +73,33 @@ function removeClientArticleRerender(html) {
   return output;
 }
 
+function enrichTopicSpecificSections(html, slug) {
+  const topic = TOPIC_SPECIFIC_SECTIONS[slug];
+  if (!topic?.sections?.length) return html;
+
+  const sections = topic.sections.map((section, index) => {
+    const id = `topic-${index + 1}-title`;
+    const paragraphs = (section.paragraphs || [])
+      .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+      .join('');
+    return `<section class="topic-specific-section" aria-labelledby="${id}"><h2 id="${id}">${escapeHtml(section.heading)}</h2>${paragraphs}</section>`;
+  }).join('');
+
+  const intro = `<p class="topic-specific-intro">${escapeHtml(topic.intro)}</p>`;
+  const bodyMarker = '<div class="article-body">';
+  let output = html.replace(bodyMarker, `${bodyMarker}${intro}${sections}`);
+
+  const tocLinks = topic.sections
+    .map((section, index) => `<a href="#topic-${index + 1}-title">${escapeHtml(section.heading)}</a>`)
+    .join('');
+  output = output.replace(
+    /(<aside class="article-toc" aria-label="Зміст статті"><strong>Зміст статті<\/strong>)/i,
+    `$1${tocLinks}`
+  );
+
+  return output;
+}
+
 function enrichApathySources(html, slug) {
   const apathy = loadApathyContent();
   const article = apathy.articles[slug];
@@ -113,6 +141,7 @@ export default function handler(request, response) {
 
   const slug = String(request.query?.slug || '').trim().toLowerCase();
   let html = removeClientArticleRerender(captured.body);
+  html = enrichTopicSpecificSections(html, slug);
   html = enrichApathySources(html, slug);
   copyResponse(captured, response, html);
 }
