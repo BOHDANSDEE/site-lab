@@ -4,6 +4,9 @@
     "api/article.mjs": {
       "includeFiles": "**/*.js"
     },
+    "api/article-final.mjs": {
+      "includeFiles": "**/*.js"
+    },
     "api/articles.mjs": {
       "includeFiles": "**/*.js"
     }
@@ -35,6 +38,6 @@
   ],
   "rewrites": [
     {"source":"/statti/","destination":"/api/articles"},
-    {"source":"/statti/:slug/","destination":"/api/article?slug=:slug"}
+    {"source":"/statti/:slug/","destination":"/api/article-final?slug=:slug"}
   ]
 }
