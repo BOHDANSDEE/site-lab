@@ -13,6 +13,8 @@ jobs:
         with:
           node-version: 22
       - name: Check server renderer syntax
-        run: node --check api/article.mjs
+        run: |
+          node --check api/article.mjs
+          node --check api/articles.mjs
       - name: Verify crawlable article HTML
         run: node scripts/seo-check.mjs
