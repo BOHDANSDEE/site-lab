@@ -52,4 +52,13 @@ assert.ok(
   'apathy-only WHO stress source must remain in initial HTML'
 );
 
-console.log('✅ Apathy source check passed: no duplicate labels and apathy-only sources are preserved');
+const unicefUrl = 'https://www.unicef.org/ukraine/stories/when-help-your-teen-find-mental-health-support';
+for (const slug of ['yak-dopomohty-liudyni-z-apatiieiu', 'apatiia-u-pidlitkiv']) {
+  const response = render(slug);
+  assert.ok(
+    response.body.includes(unicefUrl),
+    `${slug} must retain the apathy-only UNICEF teen-support source in initial HTML`
+  );
+}
+
+console.log('✅ Apathy source check passed: no duplicate labels and WHO/UNICEF apathy-only sources are preserved');
