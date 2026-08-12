@@ -15,6 +15,7 @@ jobs:
       - name: Check server renderer syntax
         run: |
           node --check api/article.mjs
+          node --check api/article-final.mjs
           node --check api/articles.mjs
       - name: Verify crawlable article HTML
         run: node scripts/seo-check.mjs
