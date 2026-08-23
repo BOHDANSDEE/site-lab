@@ -13,6 +13,12 @@ const META_FILES = [
   'articles-index-45.js'
 ];
 
+const CATEGORIES = {
+  lin: { name: 'Лінь', path: '/lin/' },
+  apatiia: { name: 'Апатія', path: '/apatiia/' },
+  prokrastynatsiia: { name: 'Прокрастинація', path: '/prokrastynatsiia/' }
+};
+
 let cache = null;
 
 function loadIndex() {
@@ -49,17 +55,44 @@ function renderCards(items) {
   return items.map((item) => `<a class="article-card" data-article-card href="/statti/${escapeHtml(item.slug)}/"><span>${escapeHtml(item.cat)} · ${escapeHtml(item.time)} хв</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.desc)}</p></a>`).join('\n');
 }
 
-function renderPage(items) {
-  const canonical = `${SITE}/statti/`;
+function countByCategory(items, catSlug) {
+  return items.filter((item) => item.cat_slug === catSlug).length;
+}
+
+function renderTopics(items) {
+  const descriptions = {
+    lin: 'Матеріали про лінь, мотивацію, причини складного старту та ранковий підйом.',
+    apatiia: 'Матеріали про апатію, втрату інтересу та апатію у підлітків.',
+    prokrastynatsiia: 'Матеріали про пріоритети та концентрацію під час навчання.'
+  };
+
+  return `<section class="section shell">
+    <div class="section-heading"><p class="section-kicker">Три напрямки</p><h2>Оберіть розділ</h2></div>
+    <div class="topic-list">
+      ${Object.entries(CATEGORIES).map(([key, category], index) => `<a class="topic-link" href="${category.path}"><span class="topic-number">0${index + 1}</span><span><h3>${category.name}</h3><p>${countByCategory(items, key)} статті. ${descriptions[key]}</p></span><span class="topic-arrow" aria-hidden="true">→</span></a>`).join('\n')}
+    </div>
+  </section>`;
+}
+
+function renderPage(allItems, categoryKey = '') {
+  const category = CATEGORIES[categoryKey] || null;
+  const items = category ? allItems.filter((item) => item.cat_slug === categoryKey) : allItems;
+  const canonicalPath = category ? category.path : '/statti/';
+  const canonical = `${SITE}${canonicalPath}`;
+  const heading = category ? `${category.name}: ${items.length} статті` : `${items.length} статей про те, що заважає діяти`;
+  const pageTitle = category ? `${category.name}: ${items.length} статті | Лінь` : `${items.length} статей про лінь, апатію та прокрастинацію | Лінь`;
+  const description = category
+    ? `${items.length} відібрані матеріали у розділі «${category.name}».`
+    : `${items.length} відібраних матеріалів про лінь, апатію та прокрастинацію.`;
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
       {
         '@type': 'CollectionPage',
-        name: 'Статті про лінь, апатію та прокрастинацію',
+        name: category ? `Статті: ${category.name}` : 'Статті про лінь, апатію та прокрастинацію',
         url: canonical,
         inLanguage: 'uk-UA',
-        description: 'Бібліотека практичних матеріалів про лінь, апатію та прокрастинацію.'
+        description
       },
       {
         '@type': 'ItemList',
@@ -79,14 +112,14 @@ function renderPage(items) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>45 статей про лінь, апатію та прокрастинацію | Лінь</title>
-  <meta name="description" content="45 практичних матеріалів про лінь, апатію та прокрастинацію: причини, маленькі кроки, межі самодопомоги й надійні джерела.">
+  <title>${escapeHtml(pageTitle)}</title>
+  <meta name="description" content="${escapeHtml(description)}">
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
   <link rel="canonical" href="${canonical}">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="uk_UA">
-  <meta property="og:title" content="45 статей | Лінь">
-  <meta property="og:description" content="Бібліотека матеріалів про лінь, апатію та прокрастинацію.">
+  <meta property="og:title" content="${escapeHtml(pageTitle)}">
+  <meta property="og:description" content="${escapeHtml(description)}">
   <meta property="og:url" content="${canonical}">
   <meta property="og:site_name" content="Лінь">
   <meta name="theme-color" content="#eaf7ff">
@@ -104,35 +137,28 @@ function renderPage(items) {
   <main id="content">
     <section class="page-hero shell">
       <p class="eyebrow">Бібліотека матеріалів</p>
-      <h1>45 статей про те, що заважає діяти</h1>
-      <p class="page-intro">Оберіть тему або знайдіть матеріал за кількома словами. Усі 45 матеріалів доступні прямо на цій сторінці — без прихованого завантаження через JavaScript.</p>
+      <h1>${escapeHtml(heading)}</h1>
+      <p class="page-intro">${category ? `У цьому розділі залишені тільки відібрані матеріали. <a href="/statti/">Повернутися до всіх статей</a>.` : 'Залишені тільки матеріали, які ми будемо далі оновлювати й переписувати.'}</p>
     </section>
 
-    <section class="section shell">
-      <div class="section-heading"><p class="section-kicker">Три напрямки</p><h2>Оберіть розділ</h2></div>
-      <div class="topic-list">
-        <a class="topic-link" href="/lin/"><span class="topic-number">01</span><span><h3>Лінь</h3><p>15 матеріалів про бар’єр старту, втому, звички й реалістичні маленькі дії.</p></span><span class="topic-arrow" aria-hidden="true">→</span></a>
-        <a class="topic-link" href="/apatiia/"><span class="topic-number">02</span><span><h3>Апатія</h3><p>15 матеріалів про низьку енергію, втрату інтересу, сон, стрес і межі самодопомоги.</p></span><span class="topic-arrow" aria-hidden="true">→</span></a>
-        <a class="topic-link" href="/prokrastynatsiia/"><span class="topic-number">03</span><span><h3>Прокрастинація</h3><p>15 матеріалів про відкладання, тривогу, перфекціонізм, увагу та завершення справ.</p></span><span class="topic-arrow" aria-hidden="true">→</span></a>
-      </div>
-    </section>
+    ${category ? '' : renderTopics(allItems)}
 
     <section class="soft-band">
       <div class="section shell">
         <div class="section-heading">
-          <p class="section-kicker">45 матеріалів у бібліотеці</p>
-          <h2>Знайдіть матеріал за запитом</h2>
-          <p>Пошук перевіряє назви й короткі описи. Без пошуку нижче одразу доступні всі статті.</p>
+          <p class="section-kicker">${items.length} матеріалів у списку</p>
+          <h2>${category ? `Статті: ${escapeHtml(category.name)}` : 'Знайдіть матеріал за запитом'}</h2>
+          <p>Нижче доступні всі статті, які залишилися в бібліотеці.</p>
         </div>
 
         <form class="article-search" data-article-search role="search" novalidate>
           <label for="article-search-input">Пошук у назвах і описах</label>
           <div class="article-search-field">
             <span class="search-icon" aria-hidden="true">⌕</span>
-            <input id="article-search-input" type="search" inputmode="search" autocomplete="off" placeholder="Наприклад: немає сил, сон, апатія">
+            <input id="article-search-input" type="search" inputmode="search" autocomplete="off" placeholder="Наприклад: мотивація, апатія, навчання">
             <button type="button" data-search-clear hidden>Очистити</button>
           </div>
-          <p class="search-status" data-search-status aria-live="polite">Показано 45 матеріалів</p>
+          <p class="search-status" data-search-status aria-live="polite">Показано ${items.length} матеріалів</p>
         </form>
 
         <div class="article-grid" data-article-grid>
@@ -154,11 +180,16 @@ function renderPage(items) {
 export default function handler(request, response) {
   try {
     const items = loadIndex();
+    const categoryKey = String(request.query?.category || '').trim();
+    if (categoryKey && !CATEGORIES[categoryKey]) {
+      response.status(404).setHeader('Content-Type', 'text/plain; charset=utf-8').send('Category not found');
+      return;
+    }
     response.setHeader('Content-Type', 'text/html; charset=utf-8');
     response.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-    response.setHeader('CDN-Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=604800');
-    response.setHeader('Vercel-CDN-Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=604800');
-    response.status(200).send(renderPage(items));
+    response.setHeader('CDN-Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+    response.setHeader('Vercel-CDN-Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+    response.status(200).send(renderPage(items, categoryKey));
   } catch (error) {
     console.error('SSR article library failed', error);
     response.status(500).setHeader('Content-Type', 'text/plain; charset=utf-8').send('Article library render failed');
