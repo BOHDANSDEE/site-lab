@@ -30,8 +30,8 @@ function extract(html, pattern, label, slug) {
 const library = render(libraryHandler);
 assert.equal(library.statusCode, 200);
 const slugs = [...library.body.matchAll(/class="article-card" data-article-card href="\/statti\/([^"/]+)\/"/g)].map((match) => match[1]);
-assert.equal(slugs.length, 9, 'library must expose exactly 9 canonical article slugs');
-assert.equal(new Set(slugs).size, 9, 'library article slugs must be unique');
+assert.equal(slugs.length, 5, 'library must expose exactly 5 canonical article slugs');
+assert.equal(new Set(slugs).size, 5, 'library article slugs must be unique');
 
 const canonicals = new Set();
 const titles = new Set();
@@ -61,8 +61,8 @@ for (const slug of slugs) {
   h1s.add(h1);
 }
 
-assert.equal(canonicals.size, 9);
-assert.equal(titles.size, 9);
-assert.equal(h1s.size, 9);
+assert.equal(canonicals.size, 5);
+assert.equal(titles.size, 5);
+assert.equal(h1s.size, 5);
 
-console.log('✅ Full SEO audit passed: 9 unique selected article pages render server-side');
+console.log('✅ Full SEO audit passed: 5 unique selected article pages render server-side');

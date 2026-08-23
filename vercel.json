@@ -13,9 +13,7 @@
   },
   "redirects": [
     {"source":"/faq","destination":"/#faq","permanent":true},
-    {"source":"/faq/:path*","destination":"/#faq","permanent":true},
-    {"source":"/statti/lin-chy-vtoma/","destination":"/statti/prychyny-lini/","permanent":true},
-    {"source":"/statti/yak-povernuty-interes-do-sprav/","destination":"/statti/nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia/","permanent":true}
+    {"source":"/faq/:path*","destination":"/#faq","permanent":true}
   ],
   "rewrites": [
     {"source":"/lin/","destination":"/api/articles?category=lin"},

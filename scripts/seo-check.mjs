@@ -7,31 +7,23 @@ const SITE = 'https://xn--k1ae9bxb.online';
 const EXPECTED = {
   lin: [
     'yak-poboroty-lin',
-    'prychyny-lini',
     'yak-diiaty-koly-nemaie-motyvatsii',
     'yak-vstaty-z-lizhka-vrantsi'
   ],
   apatiia: [
-    'apatiia-u-pidlitkiv',
-    'nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia',
     'apatiia-shcho-robyty'
   ],
   prokrastynatsiia: [
-    'yak-vybraty-priorytet-koly-vse-terminove',
-    'sduh-i-prokrastynatsiia'
+    'yak-vybraty-priorytet-koly-vse-terminove'
   ]
 };
 const ALL = Object.values(EXPECTED).flat();
 const TITLES = new Map([
   ['yak-poboroty-lin', 'Як побороти лінь'],
-  ['prychyny-lini', 'Чому виникає лінь і що з цим робити'],
   ['yak-diiaty-koly-nemaie-motyvatsii', 'Що робити, коли немає мотивації'],
   ['yak-vstaty-z-lizhka-vrantsi', 'Як прокидатися зранку'],
-  ['apatiia-u-pidlitkiv', 'Апатія у підлітків: ознаки, причини та коли потрібна допомога'],
-  ['nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia', 'Нічого не радує: як повернути інтерес до життя'],
   ['apatiia-shcho-robyty', 'Апатія: що робити, коли нічого не хочеться'],
-  ['yak-vybraty-priorytet-koly-vse-terminove', 'Як вибирати пріоритети'],
-  ['sduh-i-prokrastynatsiia', 'Як зосередитися на навчанні']
+  ['yak-vybraty-priorytet-koly-vse-terminove', 'Як вибирати пріоритети']
 ]);
 
 class MockResponse {
@@ -57,12 +49,13 @@ function articleLinks(html) {
 
 const library = render(libraryHandler);
 assert.equal(library.statusCode, 200);
-assert.match(library.body, /<title>9 статей про лінь, апатію та прокрастинацію \| Лінь<\/title>/);
-assert.match(library.body, /<h1>9 статей про те, що заважає діяти<\/h1>/);
+assert.match(library.body, /<title>5 статей про лінь, апатію та прокрастинацію \| Лінь<\/title>/);
+assert.match(library.body, /<h1>5 статей про те, що заважає діяти<\/h1>/);
+assert.ok(!library.body.includes('9 статей'));
 assert.ok(!library.body.includes('45 статей'));
 const libraryLinks = articleLinks(library.body);
-assert.equal(libraryLinks.length, 9);
-assert.equal(new Set(libraryLinks).size, 9);
+assert.equal(libraryLinks.length, 5);
+assert.equal(new Set(libraryLinks).size, 5);
 assert.deepEqual(new Set(libraryLinks), new Set(ALL));
 
 for (const [slug, title] of TITLES) {
@@ -78,6 +71,9 @@ for (const [category, expected] of Object.entries(EXPECTED)) {
   assert.deepEqual(new Set(links), new Set(expected), `${category}: wrong curated slugs`);
 }
 
+assert.ok(render(libraryHandler, { category: 'apatiia' }).body.includes('<h1>Апатія: 1 стаття</h1>'));
+assert.ok(render(libraryHandler, { category: 'prokrastynatsiia' }).body.includes('<h1>Прокрастинація: 1 стаття</h1>'));
+
 for (const slug of ALL) {
   const response = render(articleHandler, { slug });
   assert.equal(response.statusCode, 200, `${slug}: selected article must render`);
@@ -86,11 +82,19 @@ for (const slug of ALL) {
   assert.ok(!response.body.includes('Готуємо матеріал'));
   const related = articleLinks(response.body);
   for (const relatedSlug of related) {
-    assert.ok(ALL.includes(relatedSlug), `${slug}: related link must stay inside curated 9: ${relatedSlug}`);
+    assert.ok(ALL.includes(relatedSlug), `${slug}: related link must stay inside curated 5: ${relatedSlug}`);
   }
 }
 
-for (const slug of ['lin-chy-vyhorannia', 'apatiia-chy-depresiia', 'prokrastynatsiia-i-nudga']) {
+for (const slug of [
+  'prychyny-lini',
+  'sduh-i-prokrastynatsiia',
+  'nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia',
+  'apatiia-u-pidlitkiv',
+  'lin-chy-vyhorannia',
+  'apatiia-chy-depresiia',
+  'prokrastynatsiia-i-nudga'
+]) {
   const response = render(articleHandler, { slug });
   assert.equal(response.statusCode, 404, `${slug}: removed article must return 404`);
   assert.ok(response.body.includes('noindex,follow'));
@@ -98,7 +102,7 @@ for (const slug of ['lin-chy-vyhorannia', 'apatiia-chy-depresiia', 'prokrastynat
 
 const sitemap = await readFile(new URL('../sitemap.xml', import.meta.url), 'utf8');
 const sitemapSlugs = [...sitemap.matchAll(/<loc>https:\/\/xn--k1ae9bxb\.online\/statti\/([^<]+)\/<\/loc>/g)].map((match) => match[1]);
-assert.equal(sitemapSlugs.length, 9, 'sitemap must list exactly 9 article URLs');
+assert.equal(sitemapSlugs.length, 5, 'sitemap must list exactly 5 article URLs');
 assert.deepEqual(new Set(sitemapSlugs), new Set(ALL));
 
 const vercel = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8'));
@@ -109,5 +113,9 @@ assert.deepEqual(vercel.rewrites, [
   { source: '/statti/', destination: '/api/articles' },
   { source: '/statti/:slug/', destination: '/api/article-final?slug=:slug' }
 ]);
+for (const redirect of vercel.redirects || []) {
+  assert.ok(!redirect.destination.includes('/statti/prychyny-lini/'));
+  assert.ok(!redirect.destination.includes('/statti/nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia/'));
+}
 
-console.log('✅ SEO check passed: only 9 curated articles remain crawlable (4 лінь + 3 апатія + 2 прокрастинація)');
+console.log('✅ SEO check passed: only 5 curated articles remain crawlable (3 лінь + 1 апатія + 1 прокрастинація)');
