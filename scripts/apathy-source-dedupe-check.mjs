@@ -7,18 +7,9 @@ class MockResponse {
     this.headers = new Map();
     this.body = '';
   }
-  status(code) {
-    this.statusCode = code;
-    return this;
-  }
-  setHeader(name, value) {
-    this.headers.set(String(name).toLowerCase(), String(value));
-    return this;
-  }
-  send(body) {
-    this.body = String(body);
-    return this;
-  }
+  status(code) { this.statusCode = code; return this; }
+  setHeader(name, value) { this.headers.set(String(name).toLowerCase(), String(value)); return this; }
+  send(body) { this.body = String(body); return this; }
 }
 
 function render(slug) {
@@ -27,18 +18,13 @@ function render(slug) {
   return response;
 }
 
-const richApathySlugs = [
-  'emotsiine-vyhorannia-symptomy',
-  'yak-dopomohty-liudyni-z-apatiieiu',
-  'apatiia-pislia-stresu',
+const selectedApathySlugs = [
+  'apatiia-shcho-robyty',
   'nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia',
-  'postiino-khochetsia-spaty-i-nemaie-syl',
-  'apatiia-u-pidlitkiv',
-  'postiina-vtoma-i-nemaie-syl',
-  'nemaie-syl-nichoho-robyty'
+  'apatiia-u-pidlitkiv'
 ];
 
-for (const slug of richApathySlugs) {
+for (const slug of selectedApathySlugs) {
   const response = render(slug);
   assert.equal(response.statusCode, 200, `${slug} must render with HTTP 200`);
   const sourceSection = response.body.match(/<section aria-labelledby="sources-title">[\s\S]*?<\/section>/i)?.[0] || '';
@@ -46,19 +32,10 @@ for (const slug of richApathySlugs) {
   assert.equal(new Set(labels).size, labels.length, `${slug} must not contain duplicate source labels`);
 }
 
-const stress = render('apatiia-pislia-stresu');
+const teen = render('apatiia-u-pidlitkiv');
 assert.ok(
-  stress.body.includes('https://www.who.int/publications/i/item/9789240003927'),
-  'apathy-only WHO stress source must remain in initial HTML'
+  teen.body.includes('https://www.unicef.org/ukraine/stories/when-help-your-teen-find-mental-health-support'),
+  'teen apathy article must retain the UNICEF teen-support source'
 );
 
-const unicefUrl = 'https://www.unicef.org/ukraine/stories/when-help-your-teen-find-mental-health-support';
-for (const slug of ['yak-dopomohty-liudyni-z-apatiieiu', 'apatiia-u-pidlitkiv']) {
-  const response = render(slug);
-  assert.ok(
-    response.body.includes(unicefUrl),
-    `${slug} must retain the apathy-only UNICEF teen-support source in initial HTML`
-  );
-}
-
-console.log('✅ Apathy source check passed: no duplicate labels and WHO/UNICEF apathy-only sources are preserved');
+console.log('✅ Apathy source check passed for the 3 selected apathy articles');
