@@ -59,17 +59,43 @@ function countByCategory(items, catSlug) {
   return items.filter((item) => item.cat_slug === catSlug).length;
 }
 
+function plural(count, one, few, many) {
+  const mod100 = count % 100;
+  const mod10 = count % 10;
+  if (mod100 >= 11 && mod100 <= 14) return many;
+  if (mod10 === 1) return one;
+  if (mod10 >= 2 && mod10 <= 4) return few;
+  return many;
+}
+
+function articleCount(count) {
+  return `${count} ${plural(count, 'стаття', 'статті', 'статей')}`;
+}
+
+function materialCount(count) {
+  return `${count} ${plural(count, 'матеріал', 'матеріали', 'матеріалів')}`;
+}
+
+function selectedMaterialCount(count) {
+  if (count === 1) return '1 відібраний матеріал';
+  if (count >= 2 && count <= 4) return `${count} відібрані матеріали`;
+  return `${count} відібраних матеріалів`;
+}
+
 function renderTopics(items) {
   const descriptions = {
-    lin: 'Матеріали про лінь, мотивацію, причини складного старту та ранковий підйом.',
-    apatiia: 'Матеріали про апатію, втрату інтересу та апатію у підлітків.',
-    prokrastynatsiia: 'Матеріали про пріоритети та концентрацію під час навчання.'
+    lin: 'Матеріали про лінь, мотивацію та ранковий підйом.',
+    apatiia: 'Матеріал про апатію та перші кроки, коли нічого не хочеться.',
+    prokrastynatsiia: 'Матеріал про вибір пріоритетів.'
   };
 
   return `<section class="section shell">
     <div class="section-heading"><p class="section-kicker">Три напрямки</p><h2>Оберіть розділ</h2></div>
     <div class="topic-list">
-      ${Object.entries(CATEGORIES).map(([key, category], index) => `<a class="topic-link" href="${category.path}"><span class="topic-number">0${index + 1}</span><span><h3>${category.name}</h3><p>${countByCategory(items, key)} статті. ${descriptions[key]}</p></span><span class="topic-arrow" aria-hidden="true">→</span></a>`).join('\n')}
+      ${Object.entries(CATEGORIES).map(([key, category], index) => {
+        const count = countByCategory(items, key);
+        return `<a class="topic-link" href="${category.path}"><span class="topic-number">0${index + 1}</span><span><h3>${category.name}</h3><p>${articleCount(count)}. ${descriptions[key]}</p></span><span class="topic-arrow" aria-hidden="true">→</span></a>`;
+      }).join('\n')}
     </div>
   </section>`;
 }
@@ -79,11 +105,11 @@ function renderPage(allItems, categoryKey = '') {
   const items = category ? allItems.filter((item) => item.cat_slug === categoryKey) : allItems;
   const canonicalPath = category ? category.path : '/statti/';
   const canonical = `${SITE}${canonicalPath}`;
-  const heading = category ? `${category.name}: ${items.length} статті` : `${items.length} статей про те, що заважає діяти`;
-  const pageTitle = category ? `${category.name}: ${items.length} статті | Лінь` : `${items.length} статей про лінь, апатію та прокрастинацію | Лінь`;
+  const heading = category ? `${category.name}: ${articleCount(items.length)}` : `${articleCount(items.length)} про те, що заважає діяти`;
+  const pageTitle = category ? `${category.name}: ${articleCount(items.length)} | Лінь` : `${articleCount(items.length)} про лінь, апатію та прокрастинацію | Лінь`;
   const description = category
-    ? `${items.length} відібрані матеріали у розділі «${category.name}».`
-    : `${items.length} відібраних матеріалів про лінь, апатію та прокрастинацію.`;
+    ? `${selectedMaterialCount(items.length)} у розділі «${category.name}».`
+    : `${selectedMaterialCount(items.length)} про лінь, апатію та прокрастинацію.`;
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -146,7 +172,7 @@ function renderPage(allItems, categoryKey = '') {
     <section class="soft-band">
       <div class="section shell">
         <div class="section-heading">
-          <p class="section-kicker">${items.length} матеріалів у списку</p>
+          <p class="section-kicker">${materialCount(items.length)} у списку</p>
           <h2>${category ? `Статті: ${escapeHtml(category.name)}` : 'Знайдіть матеріал за запитом'}</h2>
           <p>Нижче доступні всі статті, які залишилися в бібліотеці.</p>
         </div>
@@ -155,10 +181,10 @@ function renderPage(allItems, categoryKey = '') {
           <label for="article-search-input">Пошук у назвах і описах</label>
           <div class="article-search-field">
             <span class="search-icon" aria-hidden="true">⌕</span>
-            <input id="article-search-input" type="search" inputmode="search" autocomplete="off" placeholder="Наприклад: мотивація, апатія, навчання">
+            <input id="article-search-input" type="search" inputmode="search" autocomplete="off" placeholder="Наприклад: мотивація, апатія, пріоритети">
             <button type="button" data-search-clear hidden>Очистити</button>
           </div>
-          <p class="search-status" data-search-status aria-live="polite">Показано ${items.length} матеріалів</p>
+          <p class="search-status" data-search-status aria-live="polite">Показано ${materialCount(items.length)}</p>
         </form>
 
         <div class="article-grid" data-article-grid>
