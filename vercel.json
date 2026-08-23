@@ -1,43 +1,20 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/article.mjs": {
-      "includeFiles": "**/*.js"
-    },
-    "api/article-final.mjs": {
-      "includeFiles": "**/*.js"
-    },
-    "api/articles.mjs": {
-      "includeFiles": "**/*.js"
-    }
+    "api/article.mjs": { "includeFiles": "**/*.js" },
+    "api/article-final.mjs": { "includeFiles": "**/*.js" },
+    "api/articles.mjs": { "includeFiles": "**/*.js" },
+    "api/selected-article.mjs": { "includeFiles": "**/*.js" }
   },
   "redirects": [
     {"source":"/faq","destination":"/#faq","permanent":true},
-    {"source":"/faq/:path*","destination":"/#faq","permanent":true},
-    {"source":"/statti/yak-ne-vidkladaty-navchannia/","destination":"/statti/akademichna-prokrastynatsiia/","permanent":true},
-    {"source":"/statti/telefon-i-prokrastynatsiia/","destination":"/statti/telefon-korotki-video-i-prokrastynatsiia/","permanent":true},
-    {"source":"/statti/strakh-pomylky-i-vidkladannia/","destination":"/statti/prokrastynatsiia-i-tryvoha/","permanent":true},
-    {"source":"/statti/dedlainy-bez-nichnoho-avralu/","destination":"/statti/chomu-vse-roblu-v-ostanniu-myt/","permanent":true},
-    {"source":"/statti/metod-desiaty-khvylyn/","destination":"/statti/metod-pomodoro/","permanent":true},
-    {"source":"/statti/yak-planuvaty-den-pry-prokrastynatsii/","destination":"/statti/chomu-vse-roblu-v-ostanniu-myt/","permanent":true},
-    {"source":"/statti/prokrastynatsiia-cherez-perevantazhennia/","destination":"/statti/prychyny-prokrastynatsii/","permanent":true},
-    {"source":"/statti/lin-chy-vtoma/","destination":"/statti/prychyny-lini/","permanent":true},
-    {"source":"/statti/chomu-vazhko-pochaty-prostu-spravu/","destination":"/statti/lin-chy-vyhorannia/","permanent":true},
-    {"source":"/statti/yak-povernutysia-do-sprav-pislia-perervy/","destination":"/statti/yak-zmusyty-sebe-vchytysia/","permanent":true},
-    {"source":"/statti/lin-i-son/","destination":"/statti/yak-zmusyty-sebe-prybyraty/","permanent":true},
-    {"source":"/statti/yak-rozbyty-velyke-zavdannia/","destination":"/statti/lin-u-pidlitkiv/","permanent":true},
-    {"source":"/statti/koly-vse-zdaietsia-zanadto-skladnym/","destination":"/statti/yak-vstaty-z-lizhka-vrantsi/","permanent":true},
-    {"source":"/statti/samodystsyplina-bez-samokrytyky/","destination":"/statti/chomu-pislia-roboty-nichoho-ne-khochetsia/","permanent":true},
-    {"source":"/statti/seredovyshche-dlia-lehkoho-startu/","destination":"/statti/yak-rozvynuty-samodystsyplinu/","permanent":true},
-    {"source":"/statti/apatiia-i-vyhorannia/","destination":"/statti/emotsiine-vyhorannia-symptomy/","permanent":true},
-    {"source":"/statti/yak-pidtrymaty-liudynu-z-apatiieiu/","destination":"/statti/yak-dopomohty-liudyni-z-apatiieiu/","permanent":true},
-    {"source":"/statti/yak-povernuty-interes-do-sprav/","destination":"/statti/nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia/","permanent":true},
-    {"source":"/statti/apatiia-i-son/","destination":"/statti/postiino-khochetsia-spaty-i-nemaie-syl/","permanent":true},
-    {"source":"/statti/yak-hovoryty-z-likarem-pro-apatiiu/","destination":"/statti/postiina-vtoma-i-nemaie-syl/","permanent":true},
-    {"source":"/statti/mali-dii-pry-nyzkii-energii/","destination":"/statti/nemaie-syl-nichoho-robyty/","permanent":true}
+    {"source":"/faq/:path*","destination":"/#faq","permanent":true}
   ],
   "rewrites": [
-    {"source":"/statti/","destination":"/api/articles"},
-    {"source":"/statti/:slug/","destination":"/api/article-final?slug=:slug"}
+    {"source":"/statti/","destination":"/api/selected-articles"},
+    {"source":"/lin/","destination":"/api/selected-articles?category=lin"},
+    {"source":"/apatiia/","destination":"/api/selected-articles?category=apatiia"},
+    {"source":"/prokrastynatsiia/","destination":"/api/selected-articles?category=prokrastynatsiia"},
+    {"source":"/statti/:slug/","destination":"/api/selected-article?slug=:slug"}
   ]
 }
