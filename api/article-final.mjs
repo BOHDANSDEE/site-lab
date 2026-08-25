@@ -7,6 +7,7 @@ import { TOPIC_SPECIFIC_SECTIONS } from './topic-specific-sections.mjs';
 import { TOPIC_SPECIFIC_META } from './topic-specific-meta.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const SITE = 'https://xn--k1ae9bxb.online';
 const META_FILES = [
   'articles-index.js',
   'article-topic-overrides.js',
@@ -16,6 +17,22 @@ const META_FILES = [
 ];
 const TOPIC_UPDATED_LABEL = '12 серпня 2026 р.';
 const TOPIC_UPDATED_ISO = '2026-08-12';
+
+const PLACEHOLDER_TOPICS = {
+  lin: { title: 'Лінь', category: 'Лінь', categoryPath: '/lin/' },
+  motyvatsiia: { title: 'Мотивація', category: 'Лінь', categoryPath: '/lin/' },
+  dystsyplina: { title: 'Дисципліна', category: 'Лінь', categoryPath: '/lin/' },
+  'krashche-zhyttia': { title: 'Краще життя', category: 'Лінь', categoryPath: '/lin/' },
+  'yak-nareshti-pochaty': { title: 'Як нарешті почати', category: 'Прокрастинація', categoryPath: '/prokrastynatsiia/' },
+  'tysk-na-sebe': { title: 'Тиск на себе', category: 'Прокрастинація', categoryPath: '/prokrastynatsiia/' },
+  'shchaslyve-zhyttia': { title: 'Щасливе життя', category: 'Прокрастинація', categoryPath: '/prokrastynatsiia/' },
+  'yak-zminyty-svoi-zvychky': { title: 'Як змінити свої звички', category: 'Прокрастинація', categoryPath: '/prokrastynatsiia/' },
+  'vtrata-interesu': { title: 'Втрата інтересу', category: 'Апатія', categoryPath: '/apatiia/' },
+  'vysnazhennia-i-perevantazhennia': { title: 'Виснаження і перевантаження', category: 'Апатія', categoryPath: '/apatiia/' },
+  'povernennia-pislia-zavysannia': { title: 'Повернення після зависання', category: 'Апатія', categoryPath: '/apatiia/' },
+  'viddalennia-vid-liudei-i-zhyttia': { title: 'Віддалення від людей і життя', category: 'Апатія', categoryPath: '/apatiia/' }
+};
+
 let apathyCache = null;
 let catalogCache = null;
 
@@ -79,6 +96,77 @@ function escapeHtml(value) {
 
 function safeJson(value) {
   return JSON.stringify(value).replace(/</g, '\\u003c');
+}
+
+function renderPlaceholder(topic, slug) {
+  const canonical = `${SITE}/statti/${slug}/`;
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: topic.title,
+    url: canonical,
+    inLanguage: 'uk-UA'
+  };
+
+  return `<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(topic.title)} | Лінь</title>
+  <meta name="description" content="Сторінка теми «${escapeHtml(topic.title)}». Наповнення буде додано пізніше.">
+  <meta name="robots" content="noindex,follow">
+  <link rel="canonical" href="${canonical}">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="uk_UA">
+  <meta property="og:title" content="${escapeHtml(topic.title)} | Лінь">
+  <meta property="og:url" content="${canonical}">
+  <meta property="og:site_name" content="Лінь">
+  <meta name="theme-color" content="#eaf7ff">
+  <script type="application/ld+json">${safeJson(jsonLd)}</script>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/refresh.css">
+</head>
+<body>
+  <a class="skip-link" href="#content">Перейти до змісту</a>
+  <header class="site-header">
+    <div class="shell brand-row">
+      <a class="brand" href="/" aria-label="Лінь — головна"><span class="brand-mark" aria-hidden="true">Л</span><span>Лінь</span></a>
+      <p class="brand-note">Без осуду. Без спрощених відповідей.</p>
+    </div>
+    <div class="nav-wrap">
+      <nav class="site-nav shell" aria-label="Головна навігація">
+        <a href="/">Головна</a>
+        <a href="/statti/" aria-current="page">Теми</a>
+        <a href="/psykholoham/">Психологам</a>
+        <a href="/pro-sait/">Про простір</a>
+        <a href="/bezpeka/">Безпека</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="content">
+    <section class="page-hero shell blank-topic-hero">
+      <p class="eyebrow">${escapeHtml(topic.category)} · майбутня стаття</p>
+      <h1>${escapeHtml(topic.title)}</h1>
+      <div class="page-actions"><a class="button button-secondary" href="${topic.categoryPath}">← Назад до тем</a></div>
+    </section>
+    <section class="section shell blank-topic-section">
+      <article class="article-canvas" aria-label="Місце для майбутнього тексту статті"></article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-grid">
+      <div class="footer-brand"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">Л</span><span>Лінь</span></a><p>Український простір про лінь, апатію та прокрастинацію.</p></div>
+      <nav class="footer-nav" aria-label="Навігація"><strong>Простір</strong><a href="/statti/">Теми</a><a href="/pro-sait/">Про простір</a><a href="/bezpeka/">Безпека</a></nav>
+      <nav class="footer-nav" aria-label="Напрямки"><strong>Напрямки</strong><a href="/lin/">Лінь</a><a href="/prokrastynatsiia/">Прокрастинація</a><a href="/apatiia/">Апатія</a></nav>
+    </div>
+    <div class="shell footer-bottom"><span>© <span data-current-year>2026</span> Лінь</span><span>Матеріали для самоосвіти, а не самодіагностики</span></div>
+  </footer>
+  <script src="/script.js" defer></script>
+</body>
+</html>`;
 }
 
 function removeClientArticleRerender(html) {
@@ -238,6 +326,18 @@ function copyResponse(captured, response, body) {
 }
 
 export default function handler(request, response) {
+  const slug = String(request.query?.slug || '').trim().toLowerCase();
+  const placeholder = PLACEHOLDER_TOPICS[slug];
+
+  if (placeholder) {
+    response.setHeader('Content-Type', 'text/html; charset=utf-8');
+    response.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+    response.setHeader('CDN-Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
+    response.setHeader('Vercel-CDN-Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
+    response.status(200).send(renderPlaceholder(placeholder, slug));
+    return;
+  }
+
   const captured = new CaptureResponse();
   articleHandler(request, captured);
 
@@ -246,7 +346,6 @@ export default function handler(request, response) {
     return;
   }
 
-  const slug = String(request.query?.slug || '').trim().toLowerCase();
   let html = removeClientArticleRerender(captured.body);
   html = enrichTopicSpecificSections(html, slug);
   html = enrichTopicSpecificFaq(html, slug);
