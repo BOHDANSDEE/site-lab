@@ -7,14 +7,30 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
   document.head.append(colorSchemeMeta);
 }
 
-// Keep old static pages visually consistent while they remain reachable by direct URL.
+// Keep every reachable page consistent with the current site navigation.
 document.querySelectorAll('a[href="/statti/"]').forEach((link) => {
-  if (link.textContent.trim() === 'Статті') link.textContent = 'Теми';
+  const label = link.textContent.trim();
+  if (label === 'Теми' || label === 'Статті') link.textContent = 'Статті';
 });
 
 document.querySelectorAll('a[href="/pro-sait/"]').forEach((link) => {
   if (link.textContent.trim() === 'Про простір') link.textContent = 'Про сайт';
 });
+
+document.querySelectorAll('.footer-nav strong').forEach((heading) => {
+  if (heading.textContent.trim() === 'Простір') heading.textContent = 'Сайт';
+  if (heading.textContent.trim() === 'Напрямки') heading.textContent = 'Розділи';
+});
+
+const blankTopicHero = document.querySelector('.blank-topic-hero');
+if (blankTopicHero) {
+  const eyebrow = blankTopicHero.querySelector('.eyebrow');
+  const backLink = blankTopicHero.querySelector('.page-actions a');
+  const categoryName = eyebrow?.textContent.replace('· майбутня стаття', '').trim();
+
+  if (eyebrow && categoryName) eyebrow.textContent = categoryName;
+  if (backLink && categoryName) backLink.textContent = `← До розділу «${categoryName}»`;
+}
 
 const loadScript = (src) => new Promise((resolve, reject) => {
   const script = document.createElement('script');
