@@ -1,42 +1,97 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
-import vm from 'node:vm';
-import { fileURLToPath } from 'node:url';
-
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://xn--k1ae9bxb.online';
-const META_FILES = [
-  'articles-index.js',
-  'article-topic-overrides.js',
-  'lazy-topic-overrides.js',
-  'apathy-topic-overrides.js',
-  'articles-index-45.js'
-];
 
 const CATEGORIES = {
-  lin: { name: 'Лінь', path: '/lin/' },
-  apatiia: { name: 'Апатія', path: '/apatiia/' },
-  prokrastynatsiia: { name: 'Прокрастинація', path: '/prokrastynatsiia/' }
+  lin: {
+    name: 'Лінь',
+    path: '/lin/',
+    intro: 'Лінь, мотивація, дисципліна та повсякденні способи зробити життя простішим.'
+  },
+  prokrastynatsiia: {
+    name: 'Прокрастинація',
+    path: '/prokrastynatsiia/',
+    intro: 'Старт, внутрішній тиск, швидкі стимули та звички, які підтримують відкладання.'
+  },
+  apatiia: {
+    name: 'Апатія',
+    path: '/apatiia/',
+    intro: 'Втрата інтересу, виснаження, повернення після паузи та віддалення від людей і життя.'
+  }
 };
 
-let cache = null;
-
-function loadIndex() {
-  if (cache) return cache;
-  const sandbox = { window: {} };
-  for (const relativePath of META_FILES) {
-    const filename = path.join(ROOT, relativePath);
-    vm.runInNewContext(readFileSync(filename, 'utf8'), sandbox, { filename, timeout: 1000 });
+const TOPICS = [
+  {
+    slug: 'lin',
+    category: 'lin',
+    title: 'Лінь',
+    desc: 'Чому навіть важлива справа може викликати опір і що насправді стоїть за відчуттям «не хочу».'
+  },
+  {
+    slug: 'motyvatsiia',
+    category: 'lin',
+    title: 'Мотивація',
+    desc: 'Що відбувається, коли бажання діяти немає, швидко зникає або з’являється лише на короткий час.'
+  },
+  {
+    slug: 'dystsyplina',
+    category: 'lin',
+    title: 'Дисципліна',
+    desc: 'Як робити потрібне регулярніше без постійної боротьби із собою та без режиму «все або нічого».'
+  },
+  {
+    slug: 'krashche-zhyttia',
+    category: 'lin',
+    title: 'Краще життя',
+    desc: 'Ранок, побут, інформаційний шум, увага й прості зміни, які роблять повсякденне життя легшим.'
+  },
+  {
+    slug: 'yak-nareshti-pochaty',
+    category: 'prokrastynatsiia',
+    title: 'Як нарешті почати',
+    desc: 'Чому ми відкладаємо старт, зависаємо перед завданням і готуємося замість того, щоб перейти до дії.'
+  },
+  {
+    slug: 'tysk-na-sebe',
+    category: 'prokrastynatsiia',
+    title: 'Тиск на себе',
+    desc: 'Страх помилки, перфекціонізм, дедлайни та ситуації, коли власні вимоги роблять початок ще важчим.'
+  },
+  {
+    slug: 'shchaslyve-zhyttia',
+    category: 'prokrastynatsiia',
+    title: 'Щасливе життя',
+    desc: 'Телефон, TikTok, YouTube, ігри та інші швидкі стимули — як не віддати їм увесь вільний час і увагу.'
+  },
+  {
+    slug: 'yak-zminyty-svoi-zvychky',
+    category: 'prokrastynatsiia',
+    title: 'Як змінити свої звички',
+    desc: 'Чому стара поведінка запускається автоматично та як зробити нову дію простішою для повторення.'
+  },
+  {
+    slug: 'vtrata-interesu',
+    category: 'apatiia',
+    title: 'Втрата інтересу',
+    desc: 'Чому те, що раніше захоплювало, може перестати цікавити і як розібратися, що саме змінилося.'
+  },
+  {
+    slug: 'vysnazhennia-i-perevantazhennia',
+    category: 'apatiia',
+    title: 'Виснаження і перевантаження',
+    desc: 'Що відбувається, коли справ і напруги стає забагато, а навіть прості дії починають здаватися важкими.'
+  },
+  {
+    slug: 'povernennia-pislia-zavysannia',
+    category: 'apatiia',
+    title: 'Повернення після зависання',
+    desc: 'Як повернутися до справ після кількох порожніх днів, зриву або довгої паузи без самозвинувачення.'
+  },
+  {
+    slug: 'viddalennia-vid-liudei-i-zhyttia',
+    category: 'apatiia',
+    title: 'Віддалення від людей і життя',
+    desc: 'Коли все менше хочеться відповідати, виходити з дому, підтримувати контакт і бути включеним у звичне життя.'
   }
-  const index = sandbox.window.HABITTEEN_ARTICLE_INDEX || [];
-  const seen = new Set();
-  cache = index.filter((item) => {
-    if (!item?.slug || seen.has(item.slug)) return false;
-    seen.add(item.slug);
-    return true;
-  });
-  return cache;
-}
+];
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -51,61 +106,57 @@ function safeJson(value) {
   return JSON.stringify(value).replace(/</g, '\\u003c');
 }
 
-function renderCards(items) {
-  return items.map((item) => `<a class="article-card" data-article-card href="/statti/${escapeHtml(item.slug)}/"><span>${escapeHtml(item.cat)} · ${escapeHtml(item.time)} хв</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.desc)}</p></a>`).join('\n');
+function topicCards(items) {
+  return items.map((item) => `<a class="article-card" href="/statti/${escapeHtml(item.slug)}/">
+    <span>Тема</span>
+    <h3>${escapeHtml(item.title)}</h3>
+    <p>${escapeHtml(item.desc)}</p>
+  </a>`).join('\n');
 }
 
-function countByCategory(items, catSlug) {
-  return items.filter((item) => item.cat_slug === catSlug).length;
+function categoryCards() {
+  return Object.entries(CATEGORIES).map(([key, category], index) => {
+    const count = TOPICS.filter((item) => item.category === key).length;
+    return `<a class="topic-link" href="${category.path}">
+      <span class="topic-number">0${index + 1}</span>
+      <span><h3>${category.name}</h3><p>${count} теми. ${category.intro}</p></span>
+      <span class="topic-arrow" aria-hidden="true">→</span>
+    </a>`;
+  }).join('\n');
 }
 
-function renderTopics(items) {
-  const descriptions = {
-    lin: 'Матеріали про лінь, мотивацію, причини складного старту та ранковий підйом.',
-    apatiia: 'Матеріали про апатію, втрату інтересу та апатію у підлітків.',
-    prokrastynatsiia: 'Матеріали про пріоритети та концентрацію під час навчання.'
-  };
-
-  return `<section class="section shell">
-    <div class="section-heading"><p class="section-kicker">Три напрямки</p><h2>Оберіть розділ</h2></div>
-    <div class="topic-list">
-      ${Object.entries(CATEGORIES).map(([key, category], index) => `<a class="topic-link" href="${category.path}"><span class="topic-number">0${index + 1}</span><span><h3>${category.name}</h3><p>${countByCategory(items, key)} статті. ${descriptions[key]}</p></span><span class="topic-arrow" aria-hidden="true">→</span></a>`).join('\n')}
-    </div>
-  </section>`;
-}
-
-function renderPage(allItems, categoryKey = '') {
+function renderPage(categoryKey = '') {
   const category = CATEGORIES[categoryKey] || null;
-  const items = category ? allItems.filter((item) => item.cat_slug === categoryKey) : allItems;
+  const items = category ? TOPICS.filter((item) => item.category === categoryKey) : [];
   const canonicalPath = category ? category.path : '/statti/';
   const canonical = `${SITE}${canonicalPath}`;
-  const heading = category ? `${category.name}: ${items.length} статті` : `${items.length} статей про те, що заважає діяти`;
-  const pageTitle = category ? `${category.name}: ${items.length} статті | Лінь` : `${items.length} статей про лінь, апатію та прокрастинацію | Лінь`;
+  const pageTitle = category
+    ? `${category.name}: 4 основні теми | Лінь`
+    : 'Лінь, прокрастинація та апатія — оберіть напрям | Лінь';
   const description = category
-    ? `${items.length} відібрані матеріали у розділі «${category.name}».`
-    : `${items.length} відібраних матеріалів про лінь, апатію та прокрастинацію.`;
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
+    ? `${category.name}: 4 основні теми, з яких можна почати розбір своєї ситуації.`
+    : 'Три головні напрямки: лінь, прокрастинація та апатія. Оберіть напрям і тему, яка найбільше схожа на вашу ситуацію.';
+
+  const jsonLd = category
+    ? {
+        '@context': 'https://schema.org',
         '@type': 'CollectionPage',
-        name: category ? `Статті: ${category.name}` : 'Статті про лінь, апатію та прокрастинацію',
+        name: `${category.name}: основні теми`,
         url: canonical,
         inLanguage: 'uk-UA',
-        description
-      },
-      {
-        '@type': 'ItemList',
-        numberOfItems: items.length,
-        itemListElement: items.map((item, index) => ({
-          '@type': 'ListItem',
-          position: index + 1,
+        hasPart: items.map((item) => ({
+          '@type': 'WebPage',
           name: item.title,
           url: `${SITE}/statti/${item.slug}/`
         }))
       }
-    ]
-  };
+    : {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: 'Лінь, прокрастинація та апатія',
+        url: canonical,
+        inLanguage: 'uk-UA'
+      };
 
   return `<!doctype html>
 <html lang="uk">
@@ -130,68 +181,61 @@ function renderPage(allItems, categoryKey = '') {
 <body>
   <a class="skip-link" href="#content">Перейти до змісту</a>
   <header class="site-header">
-    <div class="shell brand-row"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">Л</span><span>Лінь</span></a><p class="brand-note">Без осуду. Без спрощених діагнозів.</p></div>
-    <div class="nav-wrap"><nav class="site-nav shell" aria-label="Головна навігація"><a href="/">Головна</a><a href="/statti/" aria-current="page">Статті</a><a href="/psykholoham/">Психологам</a><a href="/pro-sait/">Про простір</a><a href="/bezpeka/">Безпека</a></nav></div>
+    <div class="shell brand-row">
+      <a class="brand" href="/" aria-label="Лінь — головна"><span class="brand-mark" aria-hidden="true">Л</span><span>Лінь</span></a>
+      <p class="brand-note">Без осуду. Без спрощених відповідей.</p>
+    </div>
+    <div class="nav-wrap">
+      <nav class="site-nav shell" aria-label="Головна навігація">
+        <a href="/">Головна</a>
+        <a href="/statti/" aria-current="page">Теми</a>
+        <a href="/psykholoham/">Психологам</a>
+        <a href="/pro-sait/">Про простір</a>
+        <a href="/bezpeka/">Безпека</a>
+      </nav>
+    </div>
   </header>
 
   <main id="content">
     <section class="page-hero shell">
-      <p class="eyebrow">Бібліотека матеріалів</p>
-      <h1>${escapeHtml(heading)}</h1>
-      <p class="page-intro">${category ? `У цьому розділі залишені тільки відібрані матеріали. <a href="/statti/">Повернутися до всіх статей</a>.` : 'Залишені тільки матеріали, які ми будемо далі оновлювати й переписувати.'}</p>
+      <p class="eyebrow">${category ? 'Один напрям · чотири теми' : 'Три напрямки · дванадцять тем'}</p>
+      <h1>${category ? escapeHtml(category.name) : 'Оберіть, що зараз найбільше схоже на вашу ситуацію'}</h1>
+      <p class="page-intro">${category ? escapeHtml(category.intro) : 'Почніть із ліні, прокрастинації або апатії. Усередині кожного розділу — чотири окремі теми без зайвого дублювання.'}</p>
+      ${category ? '<div class="page-actions"><a class="button button-secondary" href="/statti/">← Усі напрямки</a></div>' : ''}
     </section>
 
-    ${category ? '' : renderTopics(allItems)}
-
-    <section class="soft-band">
-      <div class="section shell">
-        <div class="section-heading">
-          <p class="section-kicker">${items.length} матеріалів у списку</p>
-          <h2>${category ? `Статті: ${escapeHtml(category.name)}` : 'Знайдіть матеріал за запитом'}</h2>
-          <p>Нижче доступні всі статті, які залишилися в бібліотеці.</p>
-        </div>
-
-        <form class="article-search" data-article-search role="search" novalidate>
-          <label for="article-search-input">Пошук у назвах і описах</label>
-          <div class="article-search-field">
-            <span class="search-icon" aria-hidden="true">⌕</span>
-            <input id="article-search-input" type="search" inputmode="search" autocomplete="off" placeholder="Наприклад: мотивація, апатія, навчання">
-            <button type="button" data-search-clear hidden>Очистити</button>
-          </div>
-          <p class="search-status" data-search-status aria-live="polite">Показано ${items.length} матеріалів</p>
-        </form>
-
-        <div class="article-grid" data-article-grid>
-          ${renderCards(items)}
-        </div>
-        <p class="search-empty" data-search-empty hidden>За цим запитом матеріалів поки немає. Спробуйте інше слово або очистіть пошук.</p>
+    <section class="section shell">
+      <div class="section-heading">
+        <p class="section-kicker">${category ? '4 теми' : '3 напрямки'}</p>
+        <h2>${category ? 'Оберіть тему' : 'З чого почати'}</h2>
+        <p>${category ? 'Натисніть на тему, яка найближча до вашої ситуації. Наповнення цих сторінок ми додамо наступним етапом.' : 'Якщо сумніваєтеся, оберіть найближчий за відчуттям напрям — пізніше додамо короткий тест, який допоможе точніше підібрати матеріал.'}</p>
       </div>
+      ${category ? `<div class="article-grid">${topicCards(items)}</div>` : `<div class="topic-list">${categoryCards()}</div>`}
     </section>
-
-    <section class="section shell"><div class="callout"><p class="section-kicker">Не знаєте, яку статтю обрати?</p><h2>Почніть із короткого розбору ситуації</h2><p>Опишіть, що саме не виходить: немає сил, нічого не хочеться або справа постійно відкладається.</p><a class="button button-primary" href="https://t.me/HabitTeen_bot" target="_blank" rel="noopener noreferrer">Розбір ситуації ↗</a></div></section>
   </main>
 
-  <footer class="site-footer"><div class="shell footer-grid"><div class="footer-brand"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">Л</span><span>Лінь</span></a><p>Український інформаційний простір про лінь, апатію та прокрастинацію.</p></div><nav class="footer-nav" aria-label="Навігація"><strong>Простір</strong><a href="/statti/">Статті</a><a href="/psykholoham/">Психологам</a><a href="/pro-sait/">Про простір</a><a href="/bezpeka/">Безпека</a></nav><nav class="footer-nav" aria-label="Теми"><strong>Теми</strong><a href="/lin/">Лінь</a><a href="/apatiia/">Апатія</a><a href="/prokrastynatsiia/">Прокрастинація</a><a href="/#faq">FAQ</a></nav></div><div class="shell footer-bottom"><span>© <span data-current-year>2026</span> Лінь</span><span>Матеріали для самоосвіти, а не самодіагностики</span></div></footer>
+  <footer class="site-footer">
+    <div class="shell footer-grid">
+      <div class="footer-brand"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">Л</span><span>Лінь</span></a><p>Український простір про лінь, апатію та прокрастинацію.</p></div>
+      <nav class="footer-nav" aria-label="Навігація"><strong>Простір</strong><a href="/statti/">Теми</a><a href="/psykholoham/">Психологам</a><a href="/pro-sait/">Про простір</a><a href="/bezpeka/">Безпека</a></nav>
+      <nav class="footer-nav" aria-label="Напрямки"><strong>Напрямки</strong><a href="/lin/">Лінь</a><a href="/prokrastynatsiia/">Прокрастинація</a><a href="/apatiia/">Апатія</a></nav>
+    </div>
+    <div class="shell footer-bottom"><span>© <span data-current-year>2026</span> Лінь</span><span>Матеріали для самоосвіти, а не самодіагностики</span></div>
+  </footer>
   <script src="/script.js" defer></script>
 </body>
 </html>`;
 }
 
 export default function handler(request, response) {
-  try {
-    const items = loadIndex();
-    const categoryKey = String(request.query?.category || '').trim();
-    if (categoryKey && !CATEGORIES[categoryKey]) {
-      response.status(404).setHeader('Content-Type', 'text/plain; charset=utf-8').send('Category not found');
-      return;
-    }
-    response.setHeader('Content-Type', 'text/html; charset=utf-8');
-    response.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-    response.setHeader('CDN-Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
-    response.setHeader('Vercel-CDN-Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
-    response.status(200).send(renderPage(items, categoryKey));
-  } catch (error) {
-    console.error('SSR article library failed', error);
-    response.status(500).setHeader('Content-Type', 'text/plain; charset=utf-8').send('Article library render failed');
+  const categoryKey = String(request.query?.category || '').trim();
+  if (categoryKey && !CATEGORIES[categoryKey]) {
+    response.status(404).setHeader('Content-Type', 'text/plain; charset=utf-8').send('Category not found');
+    return;
   }
+  response.setHeader('Content-Type', 'text/html; charset=utf-8');
+  response.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  response.setHeader('CDN-Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+  response.setHeader('Vercel-CDN-Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+  response.status(200).send(renderPage(categoryKey));
 }
