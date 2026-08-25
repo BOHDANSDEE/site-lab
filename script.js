@@ -32,6 +32,28 @@ if (blankTopicHero) {
   if (backLink && categoryName) backLink.textContent = `← До розділу «${categoryName}»`;
 }
 
+const blankArticleCanvas = document.querySelector('.blank-topic-section .article-canvas');
+if (blankArticleCanvas && !blankArticleCanvas.querySelector('.article-canvas-choice')) {
+  const choice = document.createElement('div');
+  choice.className = 'article-canvas-choice';
+  choice.setAttribute('aria-label', 'Спосіб вибору матеріалу');
+
+  const manualButton = document.createElement('button');
+  manualButton.type = 'button';
+  manualButton.className = 'button button-primary';
+  manualButton.textContent = 'Обрати вручну';
+  manualButton.dataset.pendingDestination = 'manual';
+
+  const testButton = document.createElement('button');
+  testButton.type = 'button';
+  testButton.className = 'button button-secondary';
+  testButton.textContent = 'Пройти тест';
+  testButton.dataset.pendingDestination = 'test';
+
+  choice.append(manualButton, testButton);
+  blankArticleCanvas.append(choice);
+}
+
 const loadScript = (src) => new Promise((resolve, reject) => {
   const script = document.createElement('script');
   script.src = src;
