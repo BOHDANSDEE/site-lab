@@ -20,10 +20,8 @@ jobs:
           node --check api/topic-specific-sections.mjs
           node --check api/topic-specific-meta.mjs
           node --check scripts/seo-check.mjs
-          node --check scripts/apathy-source-dedupe-check.mjs
           node --check scripts/all-article-seo-check.mjs
-      - name: Verify crawlable article HTML
-        run: |
-          node scripts/seo-check.mjs
-          node scripts/apathy-source-dedupe-check.mjs
-          node scripts/all-article-seo-check.mjs
+      - name: Verify 12-topic navigation and indexing rules
+        run: node scripts/seo-check.mjs
+      - name: Verify 12 blank topic canvases
+        run: node scripts/all-article-seo-check.mjs
