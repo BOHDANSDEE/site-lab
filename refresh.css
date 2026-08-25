@@ -93,9 +93,30 @@ body {
   display: none;
 }
 
+.blank-topic-hero {
+  padding-bottom: clamp(20px, 3vw, 34px);
+}
+
+.blank-topic-section {
+  padding-top: 0;
+}
+
+.article-canvas {
+  min-height: clamp(460px, 64vh, 760px);
+  border: 1px solid rgba(72, 139, 178, 0.18);
+  border-radius: 30px;
+  background: #ffffff;
+  box-shadow: 0 18px 48px rgba(34, 106, 145, 0.08);
+}
+
 @media (max-width: 719px) {
   .thought-card {
     min-height: 300px;
+  }
+
+  .article-canvas {
+    min-height: 58vh;
+    border-radius: 24px;
   }
 }
 
