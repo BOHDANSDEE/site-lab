@@ -3,6 +3,20 @@ import articleHandler from '../api/article-final.mjs';
 import libraryHandler from '../api/articles.mjs';
 
 const SITE = 'https://xn--k1ae9bxb.online';
+const TOPICS = [
+  'lin',
+  'motyvatsiia',
+  'dystsyplina',
+  'krashche-zhyttia',
+  'yak-nareshti-pochaty',
+  'tysk-na-sebe',
+  'shchaslyve-zhyttia',
+  'yak-zminyty-svoi-zvychky',
+  'vtrata-interesu',
+  'vysnazhennia-i-perevantazhennia',
+  'povernennia-pislia-zavysannia',
+  'viddalennia-vid-liudei-i-zhyttia'
+];
 
 class MockResponse {
   constructor() {
@@ -27,31 +41,35 @@ function extract(html, pattern, label, slug) {
   return value;
 }
 
-const library = render(libraryHandler);
-assert.equal(library.statusCode, 200);
-const slugs = [...library.body.matchAll(/class="article-card" data-article-card href="\/statti\/([^"/]+)\/"/g)].map((match) => match[1]);
-assert.equal(slugs.length, 9, 'library must expose exactly 9 canonical article slugs');
-assert.equal(new Set(slugs).size, 9, 'library article slugs must be unique');
+const categorySlugs = ['lin', 'prokrastynatsiia', 'apatiia'];
+const discovered = [];
+for (const category of categorySlugs) {
+  const response = render(libraryHandler, { category });
+  assert.equal(response.statusCode, 200, `${category}: category must render`);
+  const slugs = [...response.body.matchAll(/class="article-card" href="\/statti\/([^"/]+)\/"/g)].map((match) => match[1]);
+  assert.equal(slugs.length, 4, `${category}: category must contain four topics`);
+  discovered.push(...slugs);
+}
+
+assert.equal(discovered.length, 12, 'categories must expose exactly 12 topic canvases');
+assert.equal(new Set(discovered).size, 12, 'topic slugs must be unique');
+assert.deepEqual(new Set(discovered), new Set(TOPICS), 'category navigation must match the 12 approved topics');
 
 const canonicals = new Set();
 const titles = new Set();
 const h1s = new Set();
 
-for (const slug of slugs) {
+for (const slug of TOPICS) {
   const response = render(articleHandler, { slug });
-  assert.equal(response.statusCode, 200, `${slug}: server-rendered page must return 200`);
+  assert.equal(response.statusCode, 200, `${slug}: blank topic page must return 200`);
   const html = response.body;
   const canonical = extract(html, /<link rel="canonical" href="([^"]+)">/i, 'canonical', slug);
   const title = extract(html, /<title>([^<]+)<\/title>/i, 'title', slug);
   const h1 = extract(html, /<h1[^>]*>([^<]+)<\/h1>/i, 'H1', slug);
-  const description = extract(html, /<meta name="description" content="([^"]+)">/i, 'meta description', slug);
 
   assert.equal(canonical, `${SITE}/statti/${slug}/`, `${slug}: canonical must point to itself`);
-  assert.ok(!/noindex/i.test(html), `${slug}: selected article must stay indexable`);
-  assert.ok(!html.includes('Готуємо матеріал'), `${slug}: page must expose useful HTML immediately`);
-  assert.ok(description.length >= 50, `${slug}: meta description should be meaningful`);
-  assert.ok(title.length >= 10, `${slug}: title should be descriptive`);
-  assert.ok(h1.length >= 8, `${slug}: H1 should be descriptive`);
+  assert.match(html, /<meta name="robots" content="noindex,follow">/i, `${slug}: blank topic page must be noindex`);
+  assert.ok(html.includes('class="article-canvas"'), `${slug}: blank canvas is missing`);
 
   assert.ok(!canonicals.has(canonical), `${slug}: duplicate canonical ${canonical}`);
   assert.ok(!titles.has(title), `${slug}: duplicate title ${title}`);
@@ -61,8 +79,8 @@ for (const slug of slugs) {
   h1s.add(h1);
 }
 
-assert.equal(canonicals.size, 9);
-assert.equal(titles.size, 9);
-assert.equal(h1s.size, 9);
+assert.equal(canonicals.size, 12);
+assert.equal(titles.size, 12);
+assert.equal(h1s.size, 12);
 
-console.log('✅ Full SEO audit passed: 9 unique selected article pages render server-side');
+console.log('✅ Topic audit passed: 12 unique blank pages render server-side and remain noindex');
