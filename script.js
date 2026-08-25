@@ -32,6 +32,23 @@ if (blankTopicHero) {
   if (backLink && categoryName) backLink.textContent = `← До розділу «${categoryName}»`;
 }
 
+// Every one of the 12 blank topic canvases gets the same two entry choices.
+// Destinations will be connected later when the manual picker and test are ready.
+const blankArticleCanvas = document.querySelector('.article-canvas');
+if (blankArticleCanvas && !blankArticleCanvas.querySelector('.topic-entry-actions')) {
+  const choicePanel = document.createElement('div');
+  choicePanel.className = 'topic-entry-actions';
+  choicePanel.innerHTML = `
+    <p class="section-kicker">Як продовжити</p>
+    <div class="page-actions">
+      <button class="button button-secondary" type="button" data-future-action="manual">Обрати вручну</button>
+      <button class="button" type="button" data-future-action="test">Пройти тест</button>
+    </div>
+    <p class="topic-entry-note">Переходи для цих кнопок додамо пізніше.</p>
+  `;
+  blankArticleCanvas.prepend(choicePanel);
+}
+
 const loadScript = (src) => new Promise((resolve, reject) => {
   const script = document.createElement('script');
   script.src = src;
