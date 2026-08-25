@@ -34,23 +34,26 @@ function articleLinks(html) {
 
 const library = render(libraryHandler);
 assert.equal(library.statusCode, 200, 'article library must render');
-const libraryLinks = articleLinks(library.body);
-assert.equal(libraryLinks.length, 12, 'article library must expose exactly 12 article links');
-assert.equal(new Set(libraryLinks).size, 12, 'article library links must be unique');
-assert.deepEqual(new Set(libraryLinks), new Set(ALL), 'article library must expose the approved 12 topics');
-assert.ok(library.body.includes('<h1>Статті</h1>'), 'article library must use the Статті heading');
+assert.ok(library.body.includes('<h1>Оберіть розділ</h1>'), 'article library must start with category choice');
+assert.equal(articleLinks(library.body).length, 0, 'top-level library must not dump article cards');
 
 for (const category of Object.keys(EXPECTED)) {
   assert.ok(library.body.includes(`href="/${category}/"`), `article library must link to ${category}`);
 }
 
+const discovered = [];
 for (const [category, expected] of Object.entries(EXPECTED)) {
   const response = render(libraryHandler, { category });
   assert.equal(response.statusCode, 200, `${category}: category must render`);
   const links = articleLinks(response.body);
   assert.equal(links.length, 4, `${category}: must expose exactly four topics`);
   assert.deepEqual(new Set(links), new Set(expected), `${category}: wrong topic slugs`);
+  discovered.push(...links);
 }
+
+assert.equal(discovered.length, 12, 'three categories must expose exactly 12 topics total');
+assert.equal(new Set(discovered).size, 12, 'all 12 topic links must be unique');
+assert.deepEqual(new Set(discovered), new Set(ALL), 'category flow must expose the approved 12 topics');
 
 for (const slug of ALL) {
   const response = render(articleHandler, { slug });
@@ -65,4 +68,4 @@ for (const slug of ALL) {
   assert.ok(!sitemap.includes(`${SITE}/statti/${slug}/`), `${slug}: blank noindex topic must not be in sitemap`);
 }
 
-console.log('✅ SEO check passed: 12 visible article links, 3 category pages, 12 noindex blank canvases');
+console.log('✅ SEO check passed: 3 category buttons, 4 topics each, 12 blank noindex canvases');
