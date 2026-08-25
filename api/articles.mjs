@@ -4,17 +4,17 @@ const CATEGORIES = {
   lin: {
     name: 'Лінь',
     path: '/lin/',
-    intro: 'Оберіть, що хочете розібрати: саму лінь, мотивацію, дисципліну або повсякденне життя.'
+    intro: 'Лінь, мотивація, дисципліна та способи зробити повсякденне життя простішим.'
   },
   prokrastynatsiia: {
     name: 'Прокрастинація',
     path: '/prokrastynatsiia/',
-    intro: 'Оберіть тему про відкладання, внутрішній тиск, швидкі розваги або звички.'
+    intro: 'Відкладання, складний старт, тиск на себе, швидкі розваги та звички.'
   },
   apatiia: {
     name: 'Апатія',
     path: '/apatiia/',
-    intro: 'Оберіть тему про втрату інтересу, виснаження, повернення після паузи або віддалення від людей.'
+    intro: 'Втрата інтересу, виснаження, повернення після паузи та віддалення від людей.'
   }
 };
 
@@ -22,9 +22,9 @@ const TOPICS = [
   { slug: 'lin', category: 'lin', title: 'Лінь', desc: 'Чому не хочеться діяти навіть тоді, коли справа важлива.' },
   { slug: 'motyvatsiia', category: 'lin', title: 'Мотивація', desc: 'Що робити, коли бажання діяти немає або воно швидко зникає.' },
   { slug: 'dystsyplina', category: 'lin', title: 'Дисципліна', desc: 'Як робити потрібне регулярно без режиму «все або нічого».' },
-  { slug: 'krashche-zhyttia', category: 'lin', title: 'Краще життя', desc: 'Ранок, побут, інформаційний шум, увага й прості зміни в щоденному житті.' },
-  { slug: 'yak-nareshti-pochaty', category: 'prokrastynatsiia', title: 'Як нарешті почати', desc: 'Що відбувається в момент, коли справа відкладається ще до першої дії.' },
-  { slug: 'tysk-na-sebe', category: 'prokrastynatsiia', title: 'Тиск на себе', desc: 'Страх помилки, перфекціонізм, дедлайни й завищені вимоги до себе.' },
+  { slug: 'krashche-zhyttia', category: 'lin', title: 'Краще життя', desc: 'Ранок, побут, інформаційний шум, увага та прості зміни в щоденному житті.' },
+  { slug: 'yak-nareshti-pochaty', category: 'prokrastynatsiia', title: 'Як нарешті почати', desc: 'Чому ми відкладаємо старт і що відбувається до першої реальної дії.' },
+  { slug: 'tysk-na-sebe', category: 'prokrastynatsiia', title: 'Тиск на себе', desc: 'Страх помилки, перфекціонізм, дедлайни та завищені вимоги до себе.' },
   { slug: 'shchaslyve-zhyttia', category: 'prokrastynatsiia', title: 'Щасливе життя', desc: 'Телефон, TikTok, YouTube, ігри та баланс між швидкими розвагами й рештою життя.' },
   { slug: 'yak-zminyty-svoi-zvychky', category: 'prokrastynatsiia', title: 'Як змінити свої звички', desc: 'Як автоматична поведінка закріплюється і як поступово її змінювати.' },
   { slug: 'vtrata-interesu', category: 'apatiia', title: 'Втрата інтересу', desc: 'Чому те, що раніше подобалося, може перестати цікавити.' },
@@ -53,33 +53,44 @@ function renderTopicCards(items) {
   </a>`).join('\n');
 }
 
-function renderCategoryCards() {
-  return Object.entries(CATEGORIES).map(([key, category], index) => `<a class="topic-link" href="${category.path}">
-    <span class="topic-number">0${index + 1}</span>
-    <span><h3>${category.name}</h3><p>${category.intro.replace(/^Оберіть, що хочете розібрати: |^Оберіть тему про |^Оберіть тему про /, '')}</p></span>
-    <span class="topic-arrow" aria-hidden="true">→</span>
-  </a>`).join('\n');
+function renderLibraryGroups() {
+  return Object.entries(CATEGORIES).map(([key, category]) => {
+    const items = TOPICS.filter((item) => item.category === key);
+    return `<section class="library-group" aria-labelledby="${key}-title">
+      <div class="library-group-heading">
+        <div>
+          <p class="section-kicker">${escapeHtml(category.name)}</p>
+          <h2 id="${key}-title">${escapeHtml(category.name)}</h2>
+          <p>${escapeHtml(category.intro)}</p>
+        </div>
+        <a class="text-link" href="${category.path}">Відкрити розділ →</a>
+      </div>
+      <div class="article-grid">${renderTopicCards(items)}</div>
+    </section>`;
+  }).join('\n');
 }
 
 function renderPage(categoryKey = '') {
   const category = CATEGORIES[categoryKey] || null;
-  const items = category ? TOPICS.filter((item) => item.category === categoryKey) : [];
+  const items = category ? TOPICS.filter((item) => item.category === categoryKey) : TOPICS;
   const canonicalPath = category ? category.path : '/statti/';
   const canonical = `${SITE}${canonicalPath}`;
-  const pageTitle = category ? `${category.name} — теми | Лінь` : 'Теми: лінь, прокрастинація та апатія | Лінь';
+  const pageTitle = category ? `${category.name} — статті | Лінь` : 'Статті про лінь, прокрастинацію та апатію | Лінь';
   const description = category
-    ? `${category.name}: оберіть одну з основних тем і перейдіть до матеріалу.`
-    : 'Оберіть один із трьох напрямів: лінь, прокрастинація або апатія.';
+    ? `${category.name}: чотири основні теми для майбутніх матеріалів.`
+    : '12 тем про лінь, прокрастинацію та апатію, згрупованих у три розділи.';
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: category ? `${category.name}: теми` : 'Теми сайту «Лінь»',
+    name: category ? `${category.name}: статті` : 'Статті сайту «Лінь»',
     url: canonical,
     inLanguage: 'uk-UA',
-    hasPart: category
-      ? items.map((item) => ({ '@type': 'WebPage', name: item.title, url: `${SITE}/statti/${item.slug}/` }))
-      : Object.values(CATEGORIES).map((item) => ({ '@type': 'CollectionPage', name: item.name, url: `${SITE}${item.path}` }))
+    hasPart: items.map((item) => ({
+      '@type': 'WebPage',
+      name: item.title,
+      url: `${SITE}/statti/${item.slug}/`
+    }))
   };
 
   return `<!doctype html>
@@ -112,7 +123,7 @@ function renderPage(categoryKey = '') {
     <div class="nav-wrap">
       <nav class="site-nav shell" aria-label="Головна навігація">
         <a href="/">Головна</a>
-        <a href="/statti/" aria-current="page">Теми</a>
+        <a href="/statti/" aria-current="page">Статті</a>
         <a href="/psykholoham/">Психологам</a>
         <a href="/pro-sait/">Про сайт</a>
         <a href="/bezpeka/">Безпека</a>
@@ -122,22 +133,24 @@ function renderPage(categoryKey = '') {
 
   <main id="content">
     <section class="page-hero shell">
-      <p class="eyebrow">${category ? escapeHtml(category.name) : 'Теми'}</p>
-      <h1>${category ? 'Оберіть тему' : 'Оберіть напрям'}</h1>
-      <p class="page-intro">${category ? escapeHtml(category.intro) : 'Лінь, прокрастинація або апатія — перейдіть у потрібний розділ.'}</p>
-      ${category ? '<div class="page-actions"><a class="button button-secondary" href="/statti/">← Назад до напрямів</a></div>' : ''}
+      <p class="eyebrow">${category ? escapeHtml(category.name) : '12 тем · 3 розділи'}</p>
+      <h1>${category ? escapeHtml(category.name) : 'Статті'}</h1>
+      <p class="page-intro">${category ? escapeHtml(category.intro) : 'Виберіть тему, яку хочете прочитати. Усі 12 майбутніх статей уже мають окремі сторінки.'}</p>
+      ${category ? '<div class="page-actions"><a class="button button-secondary" href="/statti/">← Усі статті</a></div>' : ''}
     </section>
 
     <section class="section shell topic-choice-section">
-      ${category ? `<div class="article-grid">${renderTopicCards(items)}</div>` : `<div class="topic-list">${renderCategoryCards()}</div>`}
+      ${category
+        ? `<div class="section-heading"><h2>Статті</h2></div><div class="article-grid">${renderTopicCards(items)}</div>`
+        : renderLibraryGroups()}
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="shell footer-grid">
       <div class="footer-brand"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">Л</span><span>Лінь</span></a><p>Український простір про лінь, прокрастинацію та апатію.</p></div>
-      <nav class="footer-nav" aria-label="Навігація"><strong>Сайт</strong><a href="/statti/">Теми</a><a href="/psykholoham/">Психологам</a><a href="/pro-sait/">Про сайт</a><a href="/bezpeka/">Безпека</a></nav>
-      <nav class="footer-nav" aria-label="Напрямки"><strong>Напрямки</strong><a href="/lin/">Лінь</a><a href="/prokrastynatsiia/">Прокрастинація</a><a href="/apatiia/">Апатія</a></nav>
+      <nav class="footer-nav" aria-label="Навігація"><strong>Сайт</strong><a href="/statti/">Статті</a><a href="/psykholoham/">Психологам</a><a href="/pro-sait/">Про сайт</a><a href="/bezpeka/">Безпека</a></nav>
+      <nav class="footer-nav" aria-label="Розділи"><strong>Розділи</strong><a href="/lin/">Лінь</a><a href="/prokrastynatsiia/">Прокрастинація</a><a href="/apatiia/">Апатія</a></nav>
     </div>
     <div class="shell footer-bottom"><span>© <span data-current-year>2026</span> Лінь</span><span>Матеріали для самоосвіти, а не самодіагностики</span></div>
   </footer>
