@@ -33,9 +33,15 @@ function articleLinks(html) {
 }
 
 const library = render(libraryHandler);
-assert.equal(library.statusCode, 200, 'top-level topic library must render');
+assert.equal(library.statusCode, 200, 'article library must render');
+const libraryLinks = articleLinks(library.body);
+assert.equal(libraryLinks.length, 12, 'article library must expose exactly 12 article links');
+assert.equal(new Set(libraryLinks).size, 12, 'article library links must be unique');
+assert.deepEqual(new Set(libraryLinks), new Set(ALL), 'article library must expose the approved 12 topics');
+assert.ok(library.body.includes('<h1>Статті</h1>'), 'article library must use the Статті heading');
+
 for (const category of Object.keys(EXPECTED)) {
-  assert.ok(library.body.includes(`href="/${category}/"`), `top-level library must link to ${category}`);
+  assert.ok(library.body.includes(`href="/${category}/"`), `article library must link to ${category}`);
 }
 
 for (const [category, expected] of Object.entries(EXPECTED)) {
@@ -59,4 +65,4 @@ for (const slug of ALL) {
   assert.ok(!sitemap.includes(`${SITE}/statti/${slug}/`), `${slug}: blank noindex topic must not be in sitemap`);
 }
 
-console.log('✅ SEO check passed: 3 directions, 12 noindex topic canvases, no blank URLs in sitemap');
+console.log('✅ SEO check passed: 12 visible article links, 3 category pages, 12 noindex blank canvases');
