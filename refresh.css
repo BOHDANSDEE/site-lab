@@ -40,6 +40,36 @@ body {
   color: #0d6fa8;
 }
 
+.library-group + .library-group {
+  margin-top: clamp(70px, 9vw, 120px);
+}
+
+.library-group-heading {
+  display: flex;
+  margin-bottom: 28px;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.library-group-heading > div {
+  max-width: 760px;
+}
+
+.library-group-heading h2 {
+  margin-bottom: 12px;
+}
+
+.library-group-heading p:last-child {
+  margin-bottom: 0;
+  color: #5a7284;
+}
+
+.library-group-heading .text-link {
+  flex: 0 0 auto;
+  margin-bottom: 5px;
+}
+
 .blank-topic-hero {
   padding-bottom: clamp(20px, 3vw, 34px);
 }
@@ -77,6 +107,16 @@ body {
   .topic-choice-section .article-card {
     min-height: 150px;
     padding: 22px;
+  }
+
+  .library-group-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .library-group-heading .text-link {
+    margin-bottom: 0;
   }
 
   .article-canvas {
