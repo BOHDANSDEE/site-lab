@@ -32,6 +32,25 @@ if (blankTopicHero) {
   if (backLink && categoryName) backLink.textContent = `← До розділу «${categoryName}»`;
 }
 
+const blankArticleCanvas = document.querySelector('.article-canvas');
+if (blankArticleCanvas && !blankArticleCanvas.querySelector('.topic-entry-actions')) {
+  const isLinGuide = /^\/statti\/lin\/?$/.test(location.pathname);
+  const choicePanel = document.createElement('div');
+  choicePanel.className = 'topic-entry-actions';
+  choicePanel.innerHTML = `
+    <p class="section-kicker">Як продовжити</p>
+    <h2>Знайди матеріал під свою ситуацію</h2>
+    <p class="topic-entry-note">Можна обрати опис вручну або пізніше пройти короткий тест, який сам підбере матеріал.</p>
+    <div class="page-actions">
+      ${isLinGuide
+        ? '<a class="button button-primary" href="/statti/lin-vybir/">Обрати вручну</a>'
+        : '<button class="button button-primary" type="button" disabled aria-disabled="true">Обрати вручну</button>'}
+      <button class="button button-secondary" type="button" disabled aria-disabled="true">Пройти тест</button>
+    </div>
+  `;
+  blankArticleCanvas.prepend(choicePanel);
+}
+
 const loadScript = (src) => new Promise((resolve, reject) => {
   const script = document.createElement('script');
   script.src = src;

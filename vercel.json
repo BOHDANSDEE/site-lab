@@ -22,6 +22,8 @@
     {"source":"/apatiia/","destination":"/api/articles?category=apatiia"},
     {"source":"/prokrastynatsiia/","destination":"/api/articles?category=prokrastynatsiia"},
     {"source":"/statti/","destination":"/api/articles"},
+    {"source":"/statti/lin-vybir/","destination":"/api/lin-experiment?view=catalog"},
+    {"source":"/statti/lin/:slug/","destination":"/api/lin-experiment?slug=:slug"},
     {"source":"/statti/:slug/","destination":"/api/article-final?slug=:slug"}
   ]
 }

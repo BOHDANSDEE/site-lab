@@ -86,6 +86,92 @@ body {
   box-shadow: 0 18px 48px rgba(34, 106, 145, 0.08);
 }
 
+.topic-entry-actions {
+  display: flex;
+  min-height: 100%;
+  padding: clamp(28px, 5vw, 58px);
+  flex-direction: column;
+  justify-content: center;
+}
+
+.topic-entry-actions h2 {
+  max-width: 720px;
+  margin-bottom: 14px;
+  color: #153247;
+  font-size: clamp(2rem, 4vw, 3.7rem);
+}
+
+.topic-entry-note {
+  max-width: 700px;
+  margin-bottom: 0;
+  color: #5a7284;
+  font-size: 1.05rem;
+}
+
+.topic-entry-actions .page-actions {
+  margin-top: 28px;
+}
+
+.topic-entry-actions button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+  transform: none;
+}
+
+.lin-picker-hero h1 {
+  max-width: 920px;
+}
+
+.lin-picker-list {
+  padding-top: 18px;
+}
+
+.lin-choice-card {
+  min-height: 260px;
+  text-decoration: none;
+}
+
+.lin-experiment-article .article-body {
+  max-width: 840px;
+}
+
+.lin-experiment-article .topic-section-block + .topic-section-block {
+  margin-top: 56px;
+}
+
+.lin-experiment-article .science-section {
+  padding: clamp(24px, 4vw, 34px);
+  border: 1px solid #acd8eb;
+  border-radius: 26px;
+  background: linear-gradient(145deg, #e2f4fc, #fff);
+  box-shadow: 0 18px 48px rgba(34, 106, 145, .08);
+}
+
+.lin-experiment-article .science-section h2 {
+  margin-top: 0;
+}
+
+.lin-phrase blockquote {
+  margin: 18px 0 20px;
+  color: #075783;
+  font-family: Georgia, serif;
+  font-size: clamp(1.3rem, 3vw, 1.85rem);
+  font-style: italic;
+  line-height: 1.45;
+}
+
+.lin-phrase p:last-child {
+  margin-bottom: 0;
+  color: #5a7284;
+}
+
+.bot-question {
+  padding: 16px 18px;
+  border-left: 4px solid #55b9e8;
+  color: #153247 !important;
+  background: rgba(255,255,255,.68);
+}
+
 .site-nav {
   scrollbar-width: none;
 }
@@ -122,6 +208,22 @@ body {
   .article-canvas {
     min-height: 58vh;
     border-radius: 24px;
+  }
+
+  .topic-entry-actions {
+    padding: 26px 22px;
+  }
+
+  .topic-entry-actions .page-actions .button {
+    width: 100%;
+  }
+
+  .lin-choice-card {
+    min-height: 220px;
+  }
+
+  .lin-experiment-article .topic-section-block + .topic-section-block {
+    margin-top: 42px;
   }
 }
 
