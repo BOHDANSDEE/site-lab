@@ -1,22 +1,16 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+
   "functions": {
-    "api/article.mjs": {
-      "includeFiles": "**/*.js"
-    },
-    "api/article-final.mjs": {
-      "includeFiles": "**/*.js"
-    },
-    "api/articles.mjs": {
-      "includeFiles": "**/*.js"
-    }
+    "api/article.mjs": {"includeFiles": "**/*.js"},
+    "api/article-final.mjs": {"includeFiles": "**/*.js"},
+    "api/articles.mjs": {"includeFiles": "**/*.js"}
   },
   "redirects": [
     {"source":"/faq","destination":"/#faq","permanent":true},
     {"source":"/faq/:path*","destination":"/#faq","permanent":true},
     {"source":"/statti/lin-chy-vtoma/","destination":"/statti/prychyny-lini/","permanent":true},
     {"source":"/statti/yak-povernuty-interes-do-sprav/","destination":"/statti/nichogo-ne-raduie-yak-povernuty-interes-do-zhyttia/","permanent":true},
-
     {"source":"/statti/lin/chomu-vidkladaiu-prosti-spravy/","destination":"/statti/lin/chomu-vidkladaiu-navit-prosti-spravy/","permanent":true},
     {"source":"/statti/lin/chomu-vazhko-pochaty-nudnu-spravu/","destination":"/statti/lin/yak-zmusyty-sebe-shchos-robyty-koly-ne-khochetsia/","permanent":true},
     {"source":"/statti/lin/dumaiu-pro-spravu-ale-ne-robliu/","destination":"/statti/lin/yak-poboroty-lin-i-pochaty-diiaty/","permanent":true},
@@ -43,6 +37,7 @@
     {"source":"/statti/","destination":"/api/articles"},
     {"source":"/statti/lin-vybir/","destination":"/api/lin-experiment?view=catalog"},
     {"source":"/statti/lin/:slug/","destination":"/api/lin-experiment?slug=:slug"},
+    {"source":"/statti/motyvatsiia/:slug/","destination":"/api/motivation?slug=:slug"},
     {"source":"/statti/:slug/","destination":"/api/article-final?slug=:slug"}
   ]
 }
