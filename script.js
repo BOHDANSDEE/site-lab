@@ -32,6 +32,14 @@ if (blankTopicHero) {
   if (backLink && categoryName) backLink.textContent = `← До розділу «${categoryName}»`;
 }
 
+// The article-list page for «Лінь» is a subblock page, so its back button must
+// return to the parent section rather than loop back into the same subblock.
+const linCatalogBackLink = document.querySelector('.lin-picker-hero .page-actions a');
+if (linCatalogBackLink) {
+  linCatalogBackLink.href = '/lin/';
+  linCatalogBackLink.textContent = '← До розділу «Лінь»';
+}
+
 const escapeTopicHtml = (value) => String(value ?? '')
   .replace(/&/g, '&amp;')
   .replace(/</g, '&lt;')
@@ -54,21 +62,23 @@ async function renderMotivationTopicList(canvas) {
     ...(modules[3].MOTIVATION_ARTICLES_4 || [])
   ];
 
-  const cards = articles.map((article) => `
-    <a class="article-card" href="/statti/motyvatsiia/${escapeTopicHtml(article.slug)}/">
-      <span>Мотивація · ${escapeTopicHtml(article.readMinutes)} хв</span>
+  const cards = articles.map((article, index) => `
+    <a class="article-card topic-library-card" href="/statti/motyvatsiia/${escapeTopicHtml(article.slug)}/">
+      <span class="topic-library-meta">${String(index + 1).padStart(2, '0')} · ${escapeTopicHtml(article.readMinutes)} хв</span>
       <h3>${escapeTopicHtml(article.title)}</h3>
       <p>${escapeTopicHtml(article.lead)}</p>
+      <strong class="topic-library-open">Читати статтю →</strong>
     </a>
   `).join('');
 
+  canvas.classList.add('topic-article-library');
   canvas.innerHTML = `
-    <div class="section-heading">
-      <p class="section-kicker">20 матеріалів</p>
-      <h2>Статті про мотивацію</h2>
-      <p>Обери ситуацію, яка найбільше схожа на твою. Без тесту і проміжного вибору.</p>
+    <div class="topic-library-heading">
+      <p class="section-kicker">20 статей</p>
+      <h2>Обери те, що зараз найближче</h2>
+      <p>Кожна картка — окрема ситуація. Відкрий ту, в якій найбільше впізнаєш свою проблему.</p>
     </div>
-    <div class="article-grid">${cards}</div>
+    <div class="article-grid topic-library-grid">${cards}</div>
   `;
 }
 
@@ -76,11 +86,7 @@ const blankArticleCanvas = document.querySelector('.article-canvas');
 if (blankArticleCanvas) {
   const topicPath = location.pathname.replace(/\/+$/, '/');
 
-  // «Лінь» already has a full article chooser/list page. Open it immediately,
-  // instead of showing the old manual-vs-test screen.
-  if (topicPath === '/statti/lin/') {
-    location.replace('/statti/lin-vybir/');
-  } else if (topicPath === '/statti/motyvatsiia/') {
+  if (topicPath === '/statti/motyvatsiia/') {
     renderMotivationTopicList(blankArticleCanvas).catch((error) => {
       console.error('Не вдалося завантажити список статей «Мотивація».', error);
       blankArticleCanvas.innerHTML = `
@@ -92,7 +98,7 @@ if (blankArticleCanvas) {
         </div>
       `;
     });
-  } else {
+  } else if (topicPath !== '/statti/lin/') {
     // Future subblocks no longer show disabled "manual" and "test" choices.
     blankArticleCanvas.innerHTML = `
       <div class="topic-entry-actions">
