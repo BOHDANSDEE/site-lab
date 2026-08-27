@@ -1,8 +1,9 @@
 import { MOTIVATION_ARTICLES_1 } from '../article-data/motivation-articles-1.mjs';
 import { MOTIVATION_ARTICLES_2 } from '../article-data/motivation-articles-2.mjs';
 import { MOTIVATION_ARTICLES_3 } from '../article-data/motivation-articles-3.mjs';
+import { MOTIVATION_ARTICLES_4 } from '../article-data/motivation-articles-4.mjs';
 
-const MOTIVATION_ARTICLES = [...MOTIVATION_ARTICLES_1, ...MOTIVATION_ARTICLES_2, ...MOTIVATION_ARTICLES_3];
+const MOTIVATION_ARTICLES = [...MOTIVATION_ARTICLES_1, ...MOTIVATION_ARTICLES_2, ...MOTIVATION_ARTICLES_3, ...MOTIVATION_ARTICLES_4];
 const MOTIVATION_ARTICLE_MAP = new Map(MOTIVATION_ARTICLES.map((article) => [article.slug, article]));
 const SITE = 'https://xn--k1ae9bxb.online';
 const UPDATED_ISO = '2026-08-27';
