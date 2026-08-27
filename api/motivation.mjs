@@ -1,4 +1,4 @@
-import { MOTIVATION_ARTICLES_1, MOTIVATION_ARTICLE_MAP } from './motivation-articles-1.mjs';
+import { MOTIVATION_ARTICLES_1, MOTIVATION_ARTICLE_MAP } from '../article-data/motivation-articles-1.mjs';
 
 const SITE = 'https://xn--k1ae9bxb.online';
 const UPDATED_ISO = '2026-08-27';
