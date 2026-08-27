@@ -41,12 +41,12 @@ body {
 }
 
 .library-group + .library-group {
-  margin-top: clamp(70px, 9vw, 120px);
+  margin-top: clamp(54px, 8vw, 96px);
 }
 
 .library-group-heading {
   display: flex;
-  margin-bottom: 28px;
+  margin-bottom: 22px;
   align-items: flex-end;
   justify-content: space-between;
   gap: 28px;
@@ -57,7 +57,7 @@ body {
 }
 
 .library-group-heading h2 {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .library-group-heading p:last-child {
@@ -118,17 +118,100 @@ body {
   transform: none;
 }
 
+/* Article libraries for filled subblocks */
+.topic-article-library {
+  min-height: 0;
+  padding: clamp(24px, 4vw, 42px);
+  border: 0;
+  border-radius: 28px;
+  background: rgba(255,255,255,.72);
+  box-shadow: 0 14px 42px rgba(34, 106, 145, .07);
+}
+
+.topic-library-heading {
+  max-width: 760px;
+  margin-bottom: 28px;
+}
+
+.topic-library-heading h2 {
+  margin: 8px 0 10px;
+  font-size: clamp(2rem, 4.2vw, 3.15rem);
+  line-height: 1.06;
+}
+
+.topic-library-heading > p:last-child {
+  margin: 0;
+  color: #5a7284;
+  font-size: 1.05rem;
+}
+
+.topic-library-grid,
+.lin-picker-list .article-grid {
+  gap: 18px;
+}
+
+.topic-library-card,
+.lin-choice-card {
+  min-height: 0;
+  padding: 26px;
+  border: 1px solid rgba(72, 139, 178, .15);
+  border-radius: 24px;
+  background: #fff;
+  text-decoration: none;
+  box-shadow: 0 9px 28px rgba(34, 106, 145, .07);
+}
+
+.topic-library-card h3,
+.lin-choice-card h3 {
+  margin: 16px 0 12px;
+  color: #0d6fa8;
+  font-size: clamp(1.35rem, 2.4vw, 1.7rem);
+  line-height: 1.14;
+  overflow-wrap: anywhere;
+}
+
+.topic-library-card p,
+.lin-choice-card p {
+  margin: 0;
+  color: #5a7284;
+  font-size: .98rem;
+  line-height: 1.55;
+}
+
+.topic-library-meta,
+.topic-library-card > span,
+.lin-choice-card > span {
+  display: inline-flex;
+  width: fit-content;
+  padding: 7px 11px;
+  border-radius: 999px;
+  color: #0d6fa8;
+  background: #e5f5fd;
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.topic-library-open {
+  display: block;
+  margin-top: 20px;
+  color: #0d6fa8;
+  font-size: .94rem;
+}
+
+.lin-picker-hero {
+  padding-bottom: clamp(20px, 3vw, 32px);
+}
+
 .lin-picker-hero h1 {
-  max-width: 920px;
+  max-width: 860px;
+}
+
+.lin-picker-hero .page-intro {
+  max-width: 760px;
 }
 
 .lin-picker-list {
-  padding-top: 18px;
-}
-
-.lin-choice-card {
-  min-height: 260px;
-  text-decoration: none;
+  padding-top: 8px;
 }
 
 .lin-experiment-article .article-body {
@@ -187,7 +270,27 @@ body {
   }
 
   .page-hero {
-    padding-top: 54px;
+    padding-top: 34px;
+  }
+
+  .page-hero h1,
+  .lin-picker-hero h1 {
+    font-size: clamp(2.35rem, 12vw, 3.5rem);
+    line-height: .98;
+    overflow-wrap: anywhere;
+  }
+
+  .page-hero .page-intro,
+  .lin-picker-hero .page-intro {
+    font-size: 1.02rem;
+    line-height: 1.55;
+  }
+
+  .page-actions .button {
+    width: 100%;
+    min-height: 54px;
+    padding: 15px 18px;
+    text-align: center;
   }
 
   .topic-choice-section .article-card {
@@ -195,10 +298,20 @@ body {
     padding: 22px;
   }
 
+  .library-group + .library-group {
+    margin-top: 44px;
+  }
+
   .library-group-heading {
+    margin-bottom: 16px;
     align-items: flex-start;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+  }
+
+  .library-group-heading h2 {
+    font-size: clamp(1.85rem, 8vw, 2.55rem);
+    line-height: 1.05;
   }
 
   .library-group-heading .text-link {
@@ -210,16 +323,70 @@ body {
     border-radius: 24px;
   }
 
+  .topic-article-library {
+    min-height: 0;
+    margin-inline: 0;
+    padding: 20px 14px 18px;
+    border-radius: 22px;
+  }
+
+  .topic-library-heading {
+    margin-bottom: 20px;
+    padding-inline: 4px;
+  }
+
+  .topic-library-heading h2 {
+    font-size: 2rem;
+    line-height: 1.05;
+  }
+
+  .topic-library-heading > p:last-child {
+    font-size: .96rem;
+    line-height: 1.5;
+  }
+
+  .topic-library-grid,
+  .lin-picker-list .article-grid {
+    gap: 14px;
+  }
+
+  .topic-library-card,
+  .lin-choice-card {
+    padding: 20px 18px;
+    border-radius: 20px;
+  }
+
+  .topic-library-card h3,
+  .lin-choice-card h3 {
+    margin: 13px 0 10px;
+    font-size: 1.35rem;
+    line-height: 1.15;
+  }
+
+  .topic-library-card p,
+  .lin-choice-card p {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: .94rem;
+    line-height: 1.48;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+  }
+
+  .topic-library-open {
+    margin-top: 15px;
+  }
+
+  .lin-picker-list {
+    padding-top: 0;
+  }
+
   .topic-entry-actions {
     padding: 26px 22px;
   }
 
   .topic-entry-actions .page-actions .button {
     width: 100%;
-  }
-
-  .lin-choice-card {
-    min-height: 220px;
   }
 
   .lin-experiment-article .topic-section-block + .topic-section-block {
