@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+
   "functions": {
     "api/article.mjs": {"includeFiles": "**/*.js"},
     "api/article-final.mjs": {"includeFiles": "**/*.js"},
