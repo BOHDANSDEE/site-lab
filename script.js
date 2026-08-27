@@ -47,6 +47,25 @@ const escapeTopicHtml = (value) => String(value ?? '')
   .replace(/"/g, '&quot;')
   .replace(/'/g, '&#039;');
 
+const motivationGroups = [
+  {
+    title: 'Коли треба запустити мотивацію',
+    intro: 'Початок, відсутність бажання і конкретні сфери, де важко зрушити з місця.'
+  },
+  {
+    title: 'Коли мотивація зникає в процесі',
+    intro: 'Повільний результат, невдачі, побут і довгі цілі, де одного натхнення недостатньо.'
+  },
+  {
+    title: 'Навчання, робота і самомотивація',
+    intro: 'Ситуації, де потрібно продовжувати без постійного зовнішнього контролю.'
+  },
+  {
+    title: 'Довгі цілі та повернення до дії',
+    intro: 'Як не зависати після паузи, доводити почате до кінця і підтримувати особисті проєкти.'
+  }
+];
+
 async function renderMotivationTopicList(canvas) {
   const modules = await Promise.all([
     import('/article-data/motivation-articles-1.mjs'),
@@ -62,25 +81,63 @@ async function renderMotivationTopicList(canvas) {
     ...(modules[3].MOTIVATION_ARTICLES_4 || [])
   ];
 
-  const cards = articles.map((article, index) => `
-    <a class="article-card topic-library-card" href="/statti/motyvatsiia/${escapeTopicHtml(article.slug)}/">
-      <span class="topic-library-meta">${String(index + 1).padStart(2, '0')} · ${escapeTopicHtml(article.readMinutes)} хв</span>
-      <h3>${escapeTopicHtml(article.title)}</h3>
-      <p>${escapeTopicHtml(article.lead)}</p>
-      <strong class="topic-library-open">Читати статтю →</strong>
-    </a>
-  `).join('');
+  const groups = motivationGroups.map((group, groupIndex) => {
+    const groupArticles = articles.slice(groupIndex * 5, groupIndex * 5 + 5);
+    const cards = groupArticles.map((article, itemIndex) => {
+      const globalIndex = groupIndex * 5 + itemIndex + 1;
+      const href = `/statti/motyvatsiia/${escapeTopicHtml(article.slug)}/`;
+      return `
+        <article class="article-card topic-library-card">
+          <span class="topic-library-meta">${String(globalIndex).padStart(2, '0')} · ${escapeTopicHtml(article.readMinutes)} хв</span>
+          <h3>${escapeTopicHtml(article.title)}</h3>
+          <p>${escapeTopicHtml(article.lead)}</p>
+          <a class="topic-library-button" href="${href}">Читати статтю <span aria-hidden="true">→</span></a>
+        </article>
+      `;
+    }).join('');
+
+    return `
+      <section class="topic-library-section" aria-labelledby="motivation-group-${groupIndex + 1}">
+        <div class="topic-library-section-heading">
+          <p class="section-kicker">Розділ ${groupIndex + 1}</p>
+          <h2 id="motivation-group-${groupIndex + 1}">${escapeTopicHtml(group.title)}</h2>
+          <p>${escapeTopicHtml(group.intro)}</p>
+        </div>
+        <div class="article-grid topic-library-grid">${cards}</div>
+      </section>
+    `;
+  }).join('');
 
   canvas.classList.add('topic-article-library');
   canvas.innerHTML = `
     <div class="topic-library-heading">
       <p class="section-kicker">20 статей</p>
       <h2>Обери те, що зараз найближче</h2>
-      <p>Кожна картка — окрема ситуація. Відкрий ту, в якій найбільше впізнаєш свою проблему.</p>
+      <p>Статті розділені на чотири блоки, щоб не шукати потрібну тему в суцільному списку.</p>
     </div>
-    <div class="article-grid topic-library-grid">${cards}</div>
+    ${groups}
   `;
 }
+
+function upgradeLinCatalogCards() {
+  const cards = [...document.querySelectorAll('.lin-picker-list a.lin-choice-card')];
+  if (!cards.length) return;
+
+  cards.forEach((card) => {
+    const href = card.getAttribute('href');
+    const article = document.createElement('article');
+    article.className = 'article-card lin-choice-card topic-library-card';
+
+    const meta = card.querySelector(':scope > span')?.outerHTML || '';
+    const title = card.querySelector('h3')?.outerHTML || '';
+    const description = card.querySelector('p')?.outerHTML || '';
+
+    article.innerHTML = `${meta}${title}${description}<a class="topic-library-button" href="${escapeTopicHtml(href)}">Читати статтю <span aria-hidden="true">→</span></a>`;
+    card.replaceWith(article);
+  });
+}
+
+upgradeLinCatalogCards();
 
 const blankArticleCanvas = document.querySelector('.article-canvas');
 if (blankArticleCanvas) {
