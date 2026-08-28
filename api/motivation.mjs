@@ -4,8 +4,9 @@ import { MOTIVATION_ARTICLES_3 } from '../article-data/motivation-articles-3.mjs
 import { MOTIVATION_ARTICLES_4 } from '../article-data/motivation-articles-4.mjs';
 import { DISCIPLINE_ARTICLES } from '../article-data/discipline-articles-1.mjs';
 import { DISCIPLINE_DEPTH } from '../article-data/discipline-articles-depth.mjs';
+import { DISCIPLINE_DEPTH_2 } from '../article-data/discipline-articles-depth-2.mjs';
 const MOTIVATION_ARTICLES=[...MOTIVATION_ARTICLES_1,...MOTIVATION_ARTICLES_2,...MOTIVATION_ARTICLES_3,...MOTIVATION_ARTICLES_4];
-const DISCIPLINE_LONG=DISCIPLINE_ARTICLES.map(article=>({...article,sections:[...article.sections,...(DISCIPLINE_DEPTH[article.slug]||[])]}));
+const DISCIPLINE_LONG=DISCIPLINE_ARTICLES.map(article=>({...article,sections:[...article.sections,...(DISCIPLINE_DEPTH[article.slug]||[]),...(DISCIPLINE_DEPTH_2[article.slug]||[])]}));
 const SITE='https://xn--k1ae9bxb.online'; const UPDATED_ISO='2026-08-28'; const UPDATED_LABEL='28 серпня 2026 р.';
 const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 const safeJson=v=>JSON.stringify(v).replace(/</g,'\\u003c');
