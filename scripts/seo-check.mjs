@@ -3,7 +3,9 @@ import { readFile } from 'node:fs/promises';
 import articleHandler from '../api/article-final.mjs';
 import libraryHandler from '../api/articles.mjs';
 import linExperimentHandler from '../api/lin-experiment.mjs';
+import motivationHandler from '../api/motivation.mjs';
 import { LIN_ARTICLES } from '../api/lin-experiment-data.mjs';
+import { DISCIPLINE_ARTICLES } from '../article-data/discipline-articles-1.mjs';
 
 const SITE = 'https://xn--k1ae9bxb.online';
 const EXPECTED = {
@@ -12,6 +14,8 @@ const EXPECTED = {
   apatiia: ['vtrata-interesu', 'vysnazhennia-i-perevantazhennia', 'povernennia-pislia-zavysannia', 'viddalennia-vid-liudei-i-zhyttia']
 };
 const ALL = Object.values(EXPECTED).flat();
+const PUBLISHED_TOPIC_SLUGS = new Set(['dystsyplina']);
+const BLANK_TOPICS = ALL.filter((slug) => !PUBLISHED_TOPIC_SLUGS.has(slug));
 
 class MockResponse {
   constructor() {
@@ -22,6 +26,7 @@ class MockResponse {
   status(code) { this.statusCode = code; return this; }
   setHeader(name, value) { this.headers.set(String(name).toLowerCase(), String(value)); return this; }
   send(body) { this.body = String(body); return this; }
+  end(body = '') { this.body = String(body); return this; }
 }
 
 function render(handler, query = {}) {
@@ -61,7 +66,7 @@ assert.equal(discovered.length, 12, 'three categories must expose exactly 12 top
 assert.equal(new Set(discovered).size, 12, 'all 12 topic links must be unique');
 assert.deepEqual(new Set(discovered), new Set(ALL), 'category flow must expose the approved 12 topics');
 
-for (const slug of ALL) {
+for (const slug of BLANK_TOPICS) {
   const response = render(articleHandler, { slug });
   assert.equal(response.statusCode, 200, `${slug}: topic canvas must render`);
   assert.ok(response.body.includes(`${SITE}/statti/${slug}/`), `${slug}: canonical URL is missing`);
@@ -92,14 +97,36 @@ for (const article of LIN_ARTICLES) {
   assert.ok(response.body.includes('Наукові джерела'), `${article.slug}: sources block missing`);
 }
 
+const disciplineCatalog = render(motivationHandler, { category: 'discipline' });
+assert.equal(disciplineCatalog.statusCode, 200, 'discipline catalog must render');
+assert.ok(disciplineCatalog.body.includes(`<link rel="canonical" href="${SITE}/statti/dystsyplina/">`), 'discipline catalog canonical is missing');
+assert.ok(/name="robots" content="index,follow/i.test(disciplineCatalog.body), 'discipline catalog must be indexable');
+assert.equal(DISCIPLINE_ARTICLES.length, 10, 'discipline catalog must expose exactly 10 ready articles');
+assert.equal(new Set(DISCIPLINE_ARTICLES.map((article) => article.slug)).size, 10, 'discipline article slugs must be unique');
+assert.equal(new Set(DISCIPLINE_ARTICLES.map((article) => article.title)).size, 10, 'discipline article titles must be unique');
+for (const article of DISCIPLINE_ARTICLES) {
+  assert.ok(disciplineCatalog.body.includes(`href="/statti/dystsyplina/${article.slug}/"`), `${article.slug}: discipline catalog link missing`);
+  const response = render(motivationHandler, { category: 'discipline', slug: article.slug });
+  const canonical = `${SITE}/statti/dystsyplina/${article.slug}/`;
+  assert.equal(response.statusCode, 200, `${article.slug}: discipline article must render`);
+  assert.ok(response.body.includes(`<link rel="canonical" href="${canonical}">`), `${article.slug}: discipline canonical URL is missing`);
+  assert.ok(/name="robots" content="index,follow/i.test(response.body), `${article.slug}: discipline article must be indexable`);
+  assert.ok(response.body.includes('<h1>'), `${article.slug}: discipline H1 is missing`);
+  assert.ok(response.body.includes('application/ld+json'), `${article.slug}: discipline structured data is missing`);
+}
+
 const sitemap = await readFile(new URL('../sitemap.xml', import.meta.url), 'utf8');
 const locs = sitemapLocs(sitemap);
-for (const slug of ALL) {
+for (const slug of BLANK_TOPICS) {
   assert.ok(!locs.has(`${SITE}/statti/${slug}/`), `${slug}: blank noindex topic must not be an exact sitemap URL`);
 }
 assert.ok(locs.has(`${SITE}/statti/lin-vybir/`), 'lin manual catalog must be in sitemap');
 for (const article of LIN_ARTICLES) {
   assert.ok(locs.has(`${SITE}/statti/lin/${article.slug}/`), `${article.slug}: new lin article must be in sitemap`);
 }
+assert.ok(locs.has(`${SITE}/statti/dystsyplina/`), 'discipline catalog must be in sitemap');
+for (const article of DISCIPLINE_ARTICLES) {
+  assert.ok(locs.has(`${SITE}/statti/dystsyplina/${article.slug}/`), `${article.slug}: discipline article must be in sitemap`);
+}
 
-console.log('✅ SEO check passed: 3×4 guide flow + 20 indexable Lin articles with manual catalog');
+console.log('✅ SEO check passed: 3×4 topic flow + 20 Lin articles + 10 Discipline articles');
