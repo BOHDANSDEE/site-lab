@@ -22,14 +22,34 @@ document.querySelectorAll('.footer-nav strong').forEach((heading) => {
   if (heading.textContent.trim() === 'Напрямки') heading.textContent = 'Розділи';
 });
 
+const topicPath = location.pathname.replace(/\/+$/, '/');
 const blankTopicHero = document.querySelector('.blank-topic-hero');
 if (blankTopicHero) {
   const eyebrow = blankTopicHero.querySelector('.eyebrow');
+  const title = blankTopicHero.querySelector('h1');
   const backLink = blankTopicHero.querySelector('.page-actions a');
   const categoryName = eyebrow?.textContent.replace('· майбутня стаття', '').trim();
 
-  if (eyebrow && categoryName) eyebrow.textContent = categoryName;
-  if (backLink && categoryName) backLink.textContent = `← До розділу «${categoryName}»`;
+  if (topicPath === '/statti/motyvatsiia/') {
+    if (eyebrow) eyebrow.textContent = 'Мотивація · 20 статей';
+    if (title) title.textContent = 'Знайди ситуацію, яка схожа на твою';
+
+    let intro = blankTopicHero.querySelector('.page-intro');
+    if (!intro) {
+      intro = document.createElement('p');
+      intro.className = 'page-intro';
+      title?.insertAdjacentElement('afterend', intro);
+    }
+    intro.textContent = 'Відкрий опис, який найближче передає те, що зараз відбувається з твоєю мотивацією. Статті згруповані за ситуаціями, щоб не шукати потрібну тему в суцільному списку.';
+
+    if (backLink) {
+      backLink.href = '/lin/';
+      backLink.textContent = '← До розділу «Лінь»';
+    }
+  } else {
+    if (eyebrow && categoryName) eyebrow.textContent = categoryName;
+    if (backLink && categoryName) backLink.textContent = `← До розділу «${categoryName}»`;
+  }
 }
 
 // The article-list page for «Лінь» is a subblock page, so its back button must
@@ -83,12 +103,11 @@ async function renderMotivationTopicList(canvas) {
 
   const groups = motivationGroups.map((group, groupIndex) => {
     const groupArticles = articles.slice(groupIndex * 5, groupIndex * 5 + 5);
-    const cards = groupArticles.map((article, itemIndex) => {
-      const globalIndex = groupIndex * 5 + itemIndex + 1;
+    const cards = groupArticles.map((article) => {
       const href = `/statti/motyvatsiia/${escapeTopicHtml(article.slug)}/`;
       return `
-        <article class="article-card topic-library-card">
-          <span class="topic-library-meta">${String(globalIndex).padStart(2, '0')} · ${escapeTopicHtml(article.readMinutes)} хв</span>
+        <article class="article-card lin-choice-card topic-library-card">
+          <span>Мотивація · ${escapeTopicHtml(article.readMinutes)} хв</span>
           <h3>${escapeTopicHtml(article.title)}</h3>
           <p>${escapeTopicHtml(article.lead)}</p>
           <a class="topic-library-button" href="${href}">Читати статтю <span aria-hidden="true">→</span></a>
@@ -97,26 +116,25 @@ async function renderMotivationTopicList(canvas) {
     }).join('');
 
     return `
-      <section class="topic-library-section" aria-labelledby="motivation-group-${groupIndex + 1}">
-        <div class="topic-library-section-heading">
-          <p class="section-kicker">Розділ ${groupIndex + 1}</p>
-          <h2 id="motivation-group-${groupIndex + 1}">${escapeTopicHtml(group.title)}</h2>
-          <p>${escapeTopicHtml(group.intro)}</p>
+      <section class="library-group" aria-labelledby="motivation-group-${groupIndex + 1}">
+        <div class="library-group-heading">
+          <div>
+            <p class="section-kicker">Ситуації ${groupIndex + 1}</p>
+            <h2 id="motivation-group-${groupIndex + 1}">${escapeTopicHtml(group.title)}</h2>
+            <p>${escapeTopicHtml(group.intro)}</p>
+          </div>
         </div>
-        <div class="article-grid topic-library-grid">${cards}</div>
+        <div class="article-grid">${cards}</div>
       </section>
     `;
   }).join('');
 
-  canvas.classList.add('topic-article-library');
-  canvas.innerHTML = `
-    <div class="topic-library-heading">
-      <p class="section-kicker">20 статей</p>
-      <h2>Обери те, що зараз найближче</h2>
-      <p>Статті розділені на чотири блоки, щоб не шукати потрібну тему в суцільному списку.</p>
-    </div>
-    ${groups}
-  `;
+  // The Motivation catalog now uses the same visual hierarchy as the Lin catalog:
+  // hero first, then four separated situation groups, without an extra white canvas.
+  canvas.classList.remove('article-canvas', 'topic-article-library');
+  canvas.classList.add('motivation-picker-list');
+  canvas.removeAttribute('aria-label');
+  canvas.innerHTML = groups;
 }
 
 function upgradeLinCatalogCards() {
@@ -141,8 +159,6 @@ upgradeLinCatalogCards();
 
 const blankArticleCanvas = document.querySelector('.article-canvas');
 if (blankArticleCanvas) {
-  const topicPath = location.pathname.replace(/\/+$/, '/');
-
   if (topicPath === '/statti/motyvatsiia/') {
     renderMotivationTopicList(blankArticleCanvas).catch((error) => {
       console.error('Не вдалося завантажити список статей «Мотивація».', error);
