@@ -18,7 +18,7 @@
     {slug:'ne-khochetsia-spilkuvatysia',cat:'Апатія',cat_slug:'apatiia',title:'Не хочеться спілкуватися',desc:'Як відрізнити потребу у тиші від тривалого віддалення від людей і ширшої втрати інтересу.',time:10},
     {slug:'vtrata-interesu-do-roboty',cat:'Апатія',cat_slug:'apatiia',title:'Втрата інтересу до роботи',desc:'Перевантаження, зміна цілей чи ширша апатія: як зрозуміти, де саме зник інтерес.',time:11},
     {slug:'vtrata-interesu-do-navchannia',cat:'Апатія',cat_slug:'apatiia',title:'Втрата інтересу до навчання',desc:'Перевтома, тиск, втрата сенсу чи загальний спад інтересу — різні причини й різні дії.',time:11},
-    {slug:'apatiia-chy-depresiia',cat:'Апатія',cat_slug:'apatiia',title:'Апатія чи депресія',desc:'Що в цих станах може перетинатися, чим вони не є тотожними і коли потрібна професійна оцінка.',time:11},
+    {slug:'znyk-interes-do-khobi',cat:'Апатія',cat_slug:'apatiia',title:'Зник інтерес до хобі',desc:'Як відрізнити природну зміну інтересів, тиск і виснаження від ширшої втрати задоволення.',time:10},
     {slug:'apatiia-chy-vtoma',cat:'Апатія',cat_slug:'apatiia',title:'Апатія чи втома',desc:'Як відрізнити нестачу сил від втрати самого бажання та інтересу і з чого почати перевірку.',time:10},
     {slug:'yak-vybraty-priorytet-koly-vse-terminove',cat:'Прокрастинація',cat_slug:'prokrastynatsiia',title:'Як вибирати пріоритети',desc:'Як відрізняти важливе від шуму, обирати одну головну дію й не втрачати день на постійне перепланування.',time:10},
     {slug:'sduh-i-prokrastynatsiia',cat:'Прокрастинація',cat_slug:'prokrastynatsiia',title:'Як зосередитися на навчанні',desc:'Як прибрати зайві відволікання, визначити одну навчальну задачу й повертати увагу після перерви.',time:12}
