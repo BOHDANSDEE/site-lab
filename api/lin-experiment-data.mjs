@@ -1,5 +1,5 @@
-import { LIN_ARTICLES_1 } from './lin-experiment-1.mjs';
-import { LIN_ARTICLES_2 } from './lin-experiment-2.mjs';
+import { LIN_ARTICLES_1 } from '../article-data/lin-experiment-1.mjs';
+import { LIN_ARTICLES_2 } from '../article-data/lin-experiment-2.mjs';
 import { LIN_ARTICLES_3 } from './lin-experiment-3.mjs';
 import { LIN_ARTICLES_4 } from './lin-experiment-4.mjs';
 export { LIN_GROUPS, LIN_SOURCES } from '../article-data/lin-experiment-common.mjs';
