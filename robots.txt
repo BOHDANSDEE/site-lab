@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://xn--k1ae9bxb.online/sitemap.xml
+Sitemap: https://xn--k1ae9bxb.online/sitemap-loss-interest.xml
