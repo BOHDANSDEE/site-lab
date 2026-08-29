@@ -20,11 +20,11 @@
     {slug:'vtrata-interesu-do-navchannia',cat:'Апатія',cat_slug:'apatiia',title:'Втрата інтересу до навчання',desc:'Перевтома, тиск, втрата сенсу чи загальний спад інтересу — різні причини й різні дії.',time:11},
     {slug:'znyk-interes-do-khobi',cat:'Апатія',cat_slug:'apatiia',title:'Зник інтерес до хобі',desc:'Як відрізнити природну зміну інтересів, тиск і виснаження від ширшої втрати задоволення.',time:10},
     {slug:'apatiia-chy-vtoma',cat:'Апатія',cat_slug:'apatiia',title:'Апатія чи втома',desc:'Як відрізнити нестачу сил від втрати самого бажання та інтересу і з чого почати перевірку.',time:10},
-    {slug:'yak-buty-shchaslyvym',cat:'Апатія',cat_slug:'apatiia',title:'Як бути щасливим',desc:'Що відомо про благополуччя і як будувати умови для хорошого життя без вимоги бути щасливим постійно.',time:11},
-    {slug:'yak-perestaty-porivniuvaty-sebe-z-inshymy',cat:'Апатія',cat_slug:'apatiia',title:'Як перестати порівнювати себе з іншими',desc:'Як відрізнити корисний орієнтир від самознецінення і повернутися до власних критеріїв хорошого життя.',time:11},
-    {slug:'shcho-robyt-liudynu-shchaslyvoiu',cat:'Апатія',cat_slug:'apatiia',title:'Що робить людину щасливою',desc:'Стосунки, автономія, прогрес, умови життя і сенс як різні складові благополуччя.',time:10},
-    {slug:'yak-radity-zhyttiu',cat:'Апатія',cat_slug:'apatiia',title:'Як радіти життю',desc:'Як помічати приємний досвід без примусу до позитивності та коли варто дивитися на стан ширше.',time:10},
-    {slug:'yak-zhyty-tut-i-zaraz',cat:'Апатія',cat_slug:'apatiia',title:'Як жити тут і зараз',desc:'Як повертати увагу до теперішнього без відмови від планів, складних думок і реальних проблем.',time:11},
+    {slug:'yak-buty-shchaslyvym',cat:'Як бути щасливим',cat_slug:'statti/shchastia',title:'Як бути щасливим',desc:'Що відомо про благополуччя і як будувати умови для хорошого життя без вимоги бути щасливим постійно.',time:11},
+    {slug:'yak-perestaty-porivniuvaty-sebe-z-inshymy',cat:'Як бути щасливим',cat_slug:'statti/shchastia',title:'Як перестати порівнювати себе з іншими',desc:'Як відрізнити корисний орієнтир від самознецінення і повернутися до власних критеріїв хорошого життя.',time:11},
+    {slug:'shcho-robyt-liudynu-shchaslyvoiu',cat:'Як бути щасливим',cat_slug:'statti/shchastia',title:'Що робить людину щасливою',desc:'Стосунки, автономія, прогрес, умови життя і сенс як різні складові благополуччя.',time:10},
+    {slug:'yak-radity-zhyttiu',cat:'Як бути щасливим',cat_slug:'statti/shchastia',title:'Як радіти життю',desc:'Як помічати приємний досвід без примусу до позитивності та коли варто дивитися на стан ширше.',time:10},
+    {slug:'yak-zhyty-tut-i-zaraz',cat:'Як бути щасливим',cat_slug:'statti/shchastia',title:'Як жити тут і зараз',desc:'Як повертати увагу до теперішнього без відмови від планів, складних думок і реальних проблем.',time:11},
     {slug:'yak-vybraty-priorytet-koly-vse-terminove',cat:'Прокрастинація',cat_slug:'prokrastynatsiia',title:'Як вибирати пріоритети',desc:'Як відрізняти важливе від шуму, обирати одну головну дію й не втрачати день на постійне перепланування.',time:10},
     {slug:'sduh-i-prokrastynatsiia',cat:'Прокрастинація',cat_slug:'prokrastynatsiia',title:'Як зосередитися на навчанні',desc:'Як прибрати зайві відволікання, визначити одну навчальну задачу й повертати увагу після перерви.',time:12}
   ];
