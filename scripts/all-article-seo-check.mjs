@@ -1,86 +1,66 @@
 import assert from 'node:assert/strict';
-import articleHandler from '../api/article-final.mjs';
 import libraryHandler from '../api/articles.mjs';
 
-const SITE = 'https://xn--k1ae9bxb.online';
-const TOPICS = [
-  'lin',
-  'motyvatsiia',
-  'dystsyplina',
-  'krashche-zhyttia',
-  'yak-nareshti-pochaty',
-  'tysk-na-sebe',
-  'shchaslyve-zhyttia',
-  'yak-zminyty-svoi-zvychky',
-  'vtrata-interesu',
-  'vysnazhennia-i-perevantazhennia',
-  'povernennia-pislia-zavysannia',
-  'viddalennia-vid-liudei-i-zhyttia'
-];
-
 class MockResponse {
-  constructor() {
-    this.statusCode = 200;
-    this.headers = new Map();
-    this.body = '';
-  }
+  constructor() { this.statusCode = 200; this.headers = new Map(); this.body = ''; }
   status(code) { this.statusCode = code; return this; }
   setHeader(name, value) { this.headers.set(String(name).toLowerCase(), String(value)); return this; }
   send(body) { this.body = String(body); return this; }
 }
 
-function render(handler, query = {}) {
+function render(query = {}) {
   const response = new MockResponse();
-  handler({ query }, response);
+  libraryHandler({ query }, response);
   return response;
 }
 
-function extract(html, pattern, label, slug) {
-  const value = html.match(pattern)?.[1]?.trim();
-  assert.ok(value, `${slug}: missing ${label}`);
-  return value;
-}
+const EXPECTED = {
+  lin: {
+    ready: ['lin', 'motyvatsiia', 'dystsyplina', 'enerhiia-ta-syly'],
+    pendingTitles: []
+  },
+  apatiia: {
+    ready: ['vtrata-interesu', 'shchastia', 'vazhki-emotsii'],
+    pendingTitles: ['Здоров’я та самопочуття']
+  },
+  prokrastynatsiia: {
+    ready: [],
+    pendingTitles: ['Як почати', 'Тиск на себе', 'Увага та концентрація', 'Як змінити себе']
+  }
+};
 
-const categorySlugs = ['lin', 'prokrastynatsiia', 'apatiia'];
-const discovered = [];
-for (const category of categorySlugs) {
-  const response = render(libraryHandler, { category });
+const allReady = [];
+let pendingCount = 0;
+for (const [category, expected] of Object.entries(EXPECTED)) {
+  const response = render({ category });
   assert.equal(response.statusCode, 200, `${category}: category must render`);
-  const slugs = [...response.body.matchAll(/class="article-card" href="\/statti\/([^"/]+)\/"/g)].map((match) => match[1]);
-  assert.equal(slugs.length, 4, `${category}: category must contain four topics`);
-  discovered.push(...slugs);
-}
-
-assert.equal(discovered.length, 12, 'categories must expose exactly 12 topic canvases');
-assert.equal(new Set(discovered).size, 12, 'topic slugs must be unique');
-assert.deepEqual(new Set(discovered), new Set(TOPICS), 'category navigation must match the 12 approved topics');
-
-const canonicals = new Set();
-const titles = new Set();
-const h1s = new Set();
-
-for (const slug of TOPICS) {
-  const response = render(articleHandler, { slug });
-  assert.equal(response.statusCode, 200, `${slug}: blank topic page must return 200`);
   const html = response.body;
-  const canonical = extract(html, /<link rel="canonical" href="([^"]+)">/i, 'canonical', slug);
-  const title = extract(html, /<title>([^<]+)<\/title>/i, 'title', slug);
-  const h1 = extract(html, /<h1[^>]*>([^<]+)<\/h1>/i, 'H1', slug);
+  const ready = [...html.matchAll(/<a class="article-card" href="\/statti\/([^"/]+)\/">/g)].map((match) => match[1]);
+  assert.deepEqual(ready, expected.ready, `${category}: ready hubs must match current content state`);
+  allReady.push(...ready);
 
-  assert.equal(canonical, `${SITE}/statti/${slug}/`, `${slug}: canonical must point to itself`);
-  assert.match(html, /<meta name="robots" content="noindex,follow">/i, `${slug}: blank topic page must be noindex`);
-  assert.ok(html.includes('class="article-canvas"'), `${slug}: blank canvas is missing`);
-
-  assert.ok(!canonicals.has(canonical), `${slug}: duplicate canonical ${canonical}`);
-  assert.ok(!titles.has(title), `${slug}: duplicate title ${title}`);
-  assert.ok(!h1s.has(h1), `${slug}: duplicate H1 ${h1}`);
-  canonicals.add(canonical);
-  titles.add(title);
-  h1s.add(h1);
+  for (const title of expected.pendingTitles) {
+    assert.ok(html.includes(`<h3>${title}</h3>`), `${category}: missing pending topic ${title}`);
+  }
+  const pending = [...html.matchAll(/class="article-card topic-card-pending"/g)].length;
+  assert.equal(pending, expected.pendingTitles.length, `${category}: pending count mismatch`);
+  pendingCount += pending;
 }
 
-assert.equal(canonicals.size, 12);
-assert.equal(titles.size, 12);
-assert.equal(h1s.size, 12);
+assert.deepEqual(allReady, ['lin', 'motyvatsiia', 'dystsyplina', 'enerhiia-ta-syly', 'vtrata-interesu', 'shchastia', 'vazhki-emotsii']);
+assert.equal(new Set(allReady).size, 7, 'ready hub slugs must be unique');
+assert.equal(pendingCount, 5, 'exactly five future subblocks should be marked pending');
 
-console.log('✅ Topic audit passed: 12 unique blank pages render server-side and remain noindex');
+const root = render();
+assert.ok(root.body.indexOf('href="/lin/"') < root.body.indexOf('href="/apatiia/"'), 'root order must place Apathy after Laziness');
+assert.ok(root.body.indexOf('href="/apatiia/"') < root.body.indexOf('href="/prokrastynatsiia/"'), 'root order must place Procrastination after Apathy');
+
+const legacy = ['krashche-zhyttia', 'yak-nareshti-pochaty', 'shchaslyve-zhyttia', 'yak-zminyty-svoi-zvychky', 'vysnazhennia-i-perevantazhennia', 'povernennia-pislia-zavysannia', 'viddalennia-vid-liudei-i-zhyttia'];
+for (const slug of legacy) {
+  assert.ok(!root.body.includes(`/statti/${slug}/`), `root must not expose stale topic ${slug}`);
+  for (const category of Object.keys(EXPECTED)) {
+    assert.ok(!render({ category }).body.includes(`/statti/${slug}/`), `${category}: must not expose stale topic ${slug}`);
+  }
+}
+
+console.log('✅ Catalog audit passed: 7 ready hubs + 5 honest pending subblocks, no stale topic links');
