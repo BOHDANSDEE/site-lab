@@ -11,12 +11,13 @@ import { DISCIPLINE_DEPTH_2 } from '../article-data/discipline-articles-depth-2.
 import { START_ARTICLES } from '../article-data/start-articles.mjs';
 import { FIVE_MINUTE_ARTICLE } from '../article-data/start-five-minute.mjs';
 import { START_DEPTH } from '../article-data/start-depth.mjs';
+import { START_DEPTH_EXTRA } from '../article-data/start-depth-extra.mjs';
 const MOTIVATION_ARTICLES=[...MOTIVATION_ARTICLES_1,...MOTIVATION_ARTICLES_2,...MOTIVATION_ARTICLES_3,...MOTIVATION_ARTICLES_4].filter(a=>a.slug!=='yak-dovodyty-spravy-do-kintsia');
 const DISCIPLINE_BASE=[...DISCIPLINE_ARTICLES,...DISCIPLINE_ARTICLES_2,...DISCIPLINE_ARTICLES_3];
 const DISCIPLINE_LONG=DISCIPLINE_BASE.map(a=>({...a,sections:[...a.sections,...(DISCIPLINE_DEPTH[a.slug]||[]),...(DISCIPLINE_DEPTH_2[a.slug]||[])]}));
-const START_EXCLUDED=new Set(['yak-povernutysia-do-spravy-pislia-zryvu','yak-pochaty-znovu-pislia-kilkoh-nevdalykh-sprob']);
+const START_EXCLUDED=new Set(['yak-povernutysia-do-spravy-pislia-zryvu','yak-pochaty-shukaty-robotu-pislia-perervy']);
 const START_BASE=[...START_ARTICLES.filter(a=>!START_EXCLUDED.has(a.slug)),FIVE_MINUTE_ARTICLE];
-const START_VISIBLE=START_BASE.map(a=>({...a,sections:[...a.sections,...(START_DEPTH[a.slug]||[])]}));
+const START_VISIBLE=START_BASE.map(a=>({...a,sections:[...a.sections,...(START_DEPTH[a.slug]||[]),...(START_DEPTH_EXTRA[a.slug]||[])]}));
 const SITE='https://xn--k1ae9bxb.online'; const UPDATED_ISO='2026-08-30'; const UPDATED_LABEL='30 серпня 2026 р.';
 const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 const safeJson=v=>JSON.stringify(v).replace(/</g,'\\u003c');
