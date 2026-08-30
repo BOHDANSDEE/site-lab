@@ -24,8 +24,8 @@ const EXPECTED = {
     pendingTitles: ['Здоров’я та самопочуття']
   },
   prokrastynatsiia: {
-    ready: ['yak-pochaty'],
-    pendingTitles: ['Тиск на себе', 'Увага та концентрація', 'Як змінити себе']
+    ready: ['yak-pochaty', 'tysk-na-sebe'],
+    pendingTitles: ['Увага та концентрація', 'Як змінити себе']
   }
 };
 
@@ -47,9 +47,9 @@ for (const [category, expected] of Object.entries(EXPECTED)) {
   pendingCount += pending;
 }
 
-assert.deepEqual(allReady, ['lin', 'motyvatsiia', 'dystsyplina', 'enerhiia-ta-syly', 'vtrata-interesu', 'shchastia', 'vazhki-emotsii', 'yak-pochaty']);
-assert.equal(new Set(allReady).size, 8, 'ready hub slugs must be unique');
-assert.equal(pendingCount, 4, 'exactly four future subblocks should be marked pending');
+assert.deepEqual(allReady, ['lin', 'motyvatsiia', 'dystsyplina', 'enerhiia-ta-syly', 'vtrata-interesu', 'shchastia', 'vazhki-emotsii', 'yak-pochaty', 'tysk-na-sebe']);
+assert.equal(new Set(allReady).size, 9, 'ready hub slugs must be unique');
+assert.equal(pendingCount, 3, 'exactly three future subblocks should be marked pending');
 
 const root = render();
 assert.ok(root.body.indexOf('href="/lin/"') < root.body.indexOf('href="/apatiia/"'), 'root order must place Apathy after Laziness');
@@ -63,4 +63,4 @@ for (const slug of legacy) {
   }
 }
 
-console.log('✅ Catalog audit passed: 8 ready hubs + 4 honest pending subblocks, no stale topic links');
+console.log('✅ Catalog audit passed: 9 ready hubs + 3 honest pending subblocks, no stale topic links');
