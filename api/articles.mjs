@@ -4,17 +4,17 @@ const CATEGORIES = {
   lin: {
     name: 'Лінь',
     path: '/lin/',
-    intro: 'Лінь, мотивація, дисципліна та краще повсякденне життя.'
-  },
-  prokrastynatsiia: {
-    name: 'Прокрастинація',
-    path: '/prokrastynatsiia/',
-    intro: 'Складний старт, тиск на себе, швидкі розваги та звички.'
+    intro: 'Лінь, мотивація, дисципліна та енергія і сили.'
   },
   apatiia: {
     name: 'Апатія',
     path: '/apatiia/',
-    intro: 'Втрата інтересу, виснаження, повернення після паузи та віддалення від людей.'
+    intro: 'Втрата інтересу, щастя, важкі емоції та здоров’я і самопочуття.'
+  },
+  prokrastynatsiia: {
+    name: 'Прокрастинація',
+    path: '/prokrastynatsiia/',
+    intro: 'Як почати, зменшити тиск на себе, повернути увагу та змінювати себе.'
   }
 };
 
@@ -22,17 +22,17 @@ const TOPICS = [
   { slug: 'lin', category: 'lin', title: 'Лінь', desc: 'Чому не хочеться діяти навіть тоді, коли справа важлива.' },
   { slug: 'motyvatsiia', category: 'lin', title: 'Мотивація', desc: 'Що робити, коли бажання діяти немає або воно швидко зникає.' },
   { slug: 'dystsyplina', category: 'lin', title: 'Дисципліна', desc: 'Як робити потрібне регулярно без режиму «все або нічого».' },
-  { slug: 'krashche-zhyttia', category: 'lin', title: 'Краще життя', desc: 'Ранок, побут, інформаційний шум, увага та прості зміни в щоденному житті.' },
-
-  { slug: 'yak-nareshti-pochaty', category: 'prokrastynatsiia', title: 'Як нарешті почати', desc: 'Чому ми відкладаємо старт і що відбувається до першої реальної дії.' },
-  { slug: 'tysk-na-sebe', category: 'prokrastynatsiia', title: 'Тиск на себе', desc: 'Страх помилки, перфекціонізм, дедлайни та завищені вимоги до себе.' },
-  { slug: 'shchaslyve-zhyttia', category: 'prokrastynatsiia', title: 'Щасливе життя', desc: 'Телефон, TikTok, YouTube, ігри та баланс між швидкими розвагами й рештою життя.' },
-  { slug: 'yak-zminyty-svoi-zvychky', category: 'prokrastynatsiia', title: 'Як змінити свої звички', desc: 'Як автоматична поведінка закріплюється і як поступово її змінювати.' },
+  { slug: 'enerhiia-ta-syly', category: 'lin', title: 'Енергія та сили', desc: 'Втома, сон, відновлення, навантаження та причини нестачі сил.' },
 
   { slug: 'vtrata-interesu', category: 'apatiia', title: 'Втрата інтересу', desc: 'Чому те, що раніше подобалося, може перестати цікавити.' },
-  { slug: 'vysnazhennia-i-perevantazhennia', category: 'apatiia', title: 'Виснаження і перевантаження', desc: 'Коли справ і напруги стає забагато, а навіть прості дії здаються важкими.' },
-  { slug: 'povernennia-pislia-zavysannia', category: 'apatiia', title: 'Повернення після зависання', desc: 'Як повернутися до звичних справ після кількох днів або довшої паузи.' },
-  { slug: 'viddalennia-vid-liudei-i-zhyttia', category: 'apatiia', title: 'Віддалення від людей і життя', desc: 'Коли дедалі менше хочеться відповідати, виходити з дому й підтримувати контакт.' }
+  { slug: 'shchastia', category: 'apatiia', title: 'Як бути щасливим', desc: 'Що реально допомагає будувати задоволеніше життя без вимоги бути щасливим постійно.' },
+  { slug: 'vazhki-emotsii', category: 'apatiia', title: 'Важкі емоції', desc: 'Тривога, страх, злість, провина, сором, втрата, безсилля та відчай.' },
+  { slug: 'zdorovia-ta-samopochuttia', category: 'apatiia', title: 'Здоров’я та самопочуття', desc: 'Коли самопочуття впливає на сили, бажання діяти й повсякденне функціонування.' },
+
+  { slug: 'yak-pochaty', category: 'prokrastynatsiia', title: 'Як почати', desc: 'Що відбувається до першої реальної дії і як полегшити старт.' },
+  { slug: 'tysk-na-sebe', category: 'prokrastynatsiia', title: 'Тиск на себе', desc: 'Страх помилки, перфекціонізм, дедлайни та завищені вимоги до себе.' },
+  { slug: 'uvaha-ta-kontsentratsiia', category: 'prokrastynatsiia', title: 'Увага та концентрація', desc: 'Телефон, відволікання, фокус і повернення уваги до важливої справи.' },
+  { slug: 'yak-zminyty-sebe', category: 'prokrastynatsiia', title: 'Як змінити себе', desc: 'Як перевіряти звичні пояснення своєї поведінки й поступово будувати інші дії.' }
 ];
 
 function escapeHtml(value) {
@@ -71,15 +71,15 @@ function renderPage(categoryKey = '') {
   const items = category ? TOPICS.filter((item) => item.category === categoryKey) : [];
   const canonicalPath = category ? category.path : '/statti/';
   const canonical = `${SITE}${canonicalPath}`;
-  const pageTitle = category ? `${category.name} — 4 теми | Лінь` : 'Статті | Лінь';
+  const pageTitle = category ? `${category.name} — 4 підблоки | Лінь` : 'Статті | Лінь';
   const description = category
-    ? `${category.name}: чотири основні теми.`
-    : 'Три розділи: лінь, прокрастинація та апатія. У кожному — чотири основні теми.';
+    ? `${category.name}: чотири основні підблоки.`
+    : 'Три розділи: лінь, апатія та прокрастинація. У кожному — чотири основні підблоки.';
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: category ? `${category.name}: теми` : 'Статті сайту «Лінь»',
+    name: category ? `${category.name}: підблоки` : 'Статті сайту «Лінь»',
     url: canonical,
     inLanguage: 'uk-UA',
     hasPart: category
@@ -129,7 +129,7 @@ function renderPage(categoryKey = '') {
     <section class="page-hero shell">
       <p class="eyebrow">${category ? escapeHtml(category.name) : 'Статті'}</p>
       <h1>${category ? escapeHtml(category.name) : 'Оберіть розділ'}</h1>
-      <p class="page-intro">${category ? escapeHtml(category.intro) : 'Лінь, прокрастинація або апатія.'}</p>
+      <p class="page-intro">${category ? escapeHtml(category.intro) : 'Лінь, апатія або прокрастинація.'}</p>
       ${category ? '<div class="page-actions"><a class="button button-secondary" href="/statti/">← До розділів</a></div>' : ''}
     </section>
 
@@ -144,7 +144,7 @@ function renderPage(categoryKey = '') {
     <div class="shell footer-grid">
       <div class="footer-brand"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">Л</span><span>Лінь</span></a><p>Український простір про лінь, прокрастинацію та апатію.</p></div>
       <nav class="footer-nav" aria-label="Навігація"><strong>Сайт</strong><a href="/statti/">Статті</a><a href="/psykholoham/">Психологам</a><a href="/pro-sait/">Про сайт</a><a href="/bezpeka/">Безпека</a></nav>
-      <nav class="footer-nav" aria-label="Розділи"><strong>Розділи</strong><a href="/lin/">Лінь</a><a href="/prokrastynatsiia/">Прокрастинація</a><a href="/apatiia/">Апатія</a></nav>
+      <nav class="footer-nav" aria-label="Розділи"><strong>Розділи</strong><a href="/lin/">Лінь</a><a href="/apatiia/">Апатія</a><a href="/prokrastynatsiia/">Прокрастинація</a></nav>
     </div>
     <div class="shell footer-bottom"><span>© <span data-current-year>2026</span> Лінь</span><span>Матеріали для самоосвіти, а не самодіагностики</span></div>
   </footer>
