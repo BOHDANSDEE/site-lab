@@ -32,7 +32,7 @@ function renderTopicCards(items) {
   return items.map((item) => {
     const content = `<h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.desc)}</p>`;
     return item.ready
-      ? `<a class="article-card" href="/statti/${escapeHtml(item.slug)}/">${content}<span class="topic-status">20 матеріалів →</span></a>`
+      ? `<a class="article-card" href="/statti/${escapeHtml(item.slug)}/">${content}<span class="topic-status">Відкрити матеріали →</span></a>`
       : `<article class="article-card topic-card-pending" aria-label="${escapeHtml(item.title)} — матеріали готуються">${content}<span class="topic-status">Матеріали готуються</span></article>`;
   }).join('\n');
 }
