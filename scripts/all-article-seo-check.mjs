@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import libraryHandler from '../api/articles.mjs';
+import { handlePressure } from '../lib/pressure-render.mjs';
 
 class MockResponse {
   constructor() { this.statusCode = 200; this.headers = new Map(); this.body = ''; }
   status(code) { this.statusCode = code; return this; }
   setHeader(name, value) { this.headers.set(String(name).toLowerCase(), String(value)); return this; }
   send(body) { this.body = String(body); return this; }
+  end(body = '') { this.body = String(body); return this; }
 }
 
 function render(query = {}) {
@@ -63,4 +65,24 @@ for (const slug of legacy) {
   }
 }
 
+const pressureResponse = new MockResponse();
+handlePressure({ query: { audit: '1' } }, pressureResponse);
+assert.equal(pressureResponse.statusCode, 200, 'pressure audit must render');
+const pressureAudit = JSON.parse(pressureResponse.body);
+assert.equal(pressureAudit.count, 15, 'Тиск на себе must contain 15 ready articles');
+const nextFive = new Set([
+  'postiinno-treba-buty-produktyvnym',
+  'znetsiniuiu-vlasni-rezultaty',
+  'samootsinka-zalezhyt-vid-produktyvnosti',
+  'sorom-cherez-nevykonani-spravy',
+  'karaiu-sebe-pislia-zryvu'
+]);
+const checked = pressureAudit.articles.filter(article => nextFive.has(article.slug));
+assert.equal(checked.length, 5, 'all pressure articles 11–15 must be present');
+for (const article of checked) {
+  assert.ok(article.words >= 1400, `${article.slug}: ${article.words} words, expected at least 1400`);
+  assert.ok(article.words <= 1600, `${article.slug}: ${article.words} words, expected at most 1600 for 7–8 min`);
+  assert.ok(article.minutes >= 7 && article.minutes <= 8, `${article.slug}: expected 7–8 min, got ${article.minutes}`);
+}
+console.log('✅ Pressure 11–15:', checked.map(({slug, words, minutes}) => `${slug}=${words}w/${minutes}m`).join(', '));
 console.log('✅ Catalog audit passed: 9 ready hubs + 3 honest pending subblocks, no stale topic links');
