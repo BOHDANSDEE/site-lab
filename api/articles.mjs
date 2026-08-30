@@ -18,7 +18,7 @@ const TOPICS = [
   { slug: 'zdorovia-ta-samopochuttia', category: 'apatiia', title: 'Здоров’я та самопочуття', desc: 'Коли самопочуття впливає на сили, бажання діяти й повсякденне функціонування.', ready: false },
 
   { slug: 'yak-pochaty', category: 'prokrastynatsiia', title: 'Як почати', desc: 'Що відбувається до першої реальної дії і як полегшити старт.', ready: true },
-  { slug: 'tysk-na-sebe', category: 'prokrastynatsiia', title: 'Тиск на себе', desc: 'Страх помилки, перфекціонізм, дедлайни та завищені вимоги до себе.', ready: false },
+  { slug: 'tysk-na-sebe', category: 'prokrastynatsiia', title: 'Тиск на себе', desc: 'Страх помилки, перфекціонізм, дедлайни та завищені вимоги до себе.', ready: true },
   { slug: 'uvaha-ta-kontsentratsiia', category: 'prokrastynatsiia', title: 'Увага та концентрація', desc: 'Телефон, відволікання, фокус і повернення уваги до важливої справи.', ready: false },
   { slug: 'yak-zminyty-sebe', category: 'prokrastynatsiia', title: 'Як змінити себе', desc: 'Як перевіряти звичні пояснення своєї поведінки й поступово будувати інші дії.', ready: false }
 ];
