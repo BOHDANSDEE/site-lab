@@ -1,4 +1,4 @@
-name: GSC content optimization loop
+name: GSC daily content analysis
 
 on:
   pull_request:
@@ -7,16 +7,15 @@ on:
       - 'seo-optimizer/**'
       - '.github/workflows/gsc-content-loop.yml'
   schedule:
-    - cron: '17 3 1,15 * *'
+    - cron: '17 3 * * *'
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
-  group: gsc-content-optimization
-  cancel-in-progress: false
+  group: gsc-daily-content-analysis
+  cancel-in-progress: true
 
 jobs:
   validate:
@@ -28,12 +27,19 @@ jobs:
           node-version: 24
       - name: Syntax
         run: node --check scripts/gsc-content-loop.mjs
-      - name: Parser self-test
+      - name: Self-test
         run: node scripts/gsc-content-loop.mjs --self-test
-      - name: Validate config
-        run: node -e "const c=require('./seo-optimizer/config.json'); if(c.scheduleDays<12||c.scheduleDays>24) throw Error('scheduleDays must stay inside 12–24 day target'); if(c.maxRewritesPerRun<1||c.maxRewritesPerRun>5) throw Error('unsafe rewrite batch size'); console.log('config ok')"
+      - name: Validate campaign config
+        run: |
+          node - <<'NODE'
+          const c=require('./seo-optimizer/config.json');
+          if(c.dailyRewriteTarget!==10) throw Error('dailyRewriteTarget must be 10');
+          if(c.campaignDays!==24) throw Error('campaignDays must be 24');
+          if(c.lookbackDays<14||c.lookbackDays>90) throw Error('unsafe lookbackDays');
+          console.log('config ok');
+          NODE
 
-  optimize:
+  analyze:
     if: github.event_name != 'pull_request'
     needs: validate
     runs-on: ubuntu-latest
@@ -41,60 +47,26 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Check required secrets
+      - name: Check Search Console secrets
         env:
           GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
           GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           test -n "$GSC_SITE_URL"
           test -n "$GSC_SERVICE_ACCOUNT_JSON"
-          test -n "$OPENAI_API_KEY"
-      - name: Avoid overlapping optimizer PRs
-        id: overlap
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          count=$(gh pr list --state open --search 'GSC: optimize weak articles in:title' --json number --jq 'length')
-          echo "count=$count" >> "$GITHUB_OUTPUT"
-      - name: Create working branch
-        if: steps.overlap.outputs.count == '0'
-        id: branch
-        run: |
-          branch="seo/gsc-loop-$(date -u +%Y%m%d)-${GITHUB_RUN_ID}"
-          git checkout -b "$branch"
-          echo "name=$branch" >> "$GITHUB_OUTPUT"
-      - name: Analyze Search Console and rewrite weakest eligible pages
-        if: steps.overlap.outputs.count == '0'
+      - name: Analyze current Google performance
         env:
           GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
           GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
         run: node scripts/gsc-content-loop.mjs
-      - name: Validate edited JavaScript
-        if: steps.overlap.outputs.count == '0'
-        run: |
-          node --check scripts/gsc-content-loop.mjs
-          git diff --name-only -- '*.js' '*.mjs' | while read f; do [ -z "$f" ] || node --check "$f"; done
-      - name: Create review PR, never merge automatically
-        if: steps.overlap.outputs.count == '0'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if git diff --quiet; then
-            echo 'No eligible rewrites this cycle.'
-            exit 0
-          fi
-          git config user.name 'lin-gsc-optimizer'
-          git config user.email 'actions@users.noreply.github.com'
-          git add -A
-          git commit -m 'GSC: оновити найслабші статті за даними пошуку'
-          git push origin "${{ steps.branch.outputs.name }}"
-          body='Автоматичний цикл Search Console: обрано лише сторінки, що пройшли пороги показів, віку та cooldown. Зміни побудовані на реальних GSC clicks/impressions/CTR/position і структурних рисах сильніших сторінок. Slug не змінюються. Автоматичного merge немає.'
-          if [ -f seo-optimizer/latest-report.md ]; then body="$(cat seo-optimizer/latest-report.md)"; fi
-          gh pr create --base main --head "${{ steps.branch.outputs.name }}" --title 'GSC: optimize weak articles' --body "$body"
+      - name: Upload daily report for ChatGPT review
+        uses: actions/upload-artifact@v4
+        with:
+          name: gsc-daily-report-${{ github.run_id }}
+          path: |
+            seo-optimizer/latest-report.json
+            seo-optimizer/latest-report.md
+          retention-days: 35
