@@ -7,6 +7,7 @@ on:
       - 'lib/change-self-finalize.mjs'
       - 'lib/change-self-extra.mjs'
       - 'lib/change-self-extra2.mjs'
+      - 'lib/change-self-extra3.mjs'
       - 'lib/change-self-render.mjs'
       - 'api/motivation.mjs'
       - 'api/articles.mjs'
@@ -30,6 +31,7 @@ jobs:
           node --check lib/change-self-finalize.mjs
           node --check lib/change-self-extra.mjs
           node --check lib/change-self-extra2.mjs
+          node --check lib/change-self-extra3.mjs
           node --check lib/change-self-render.mjs
           node --check api/motivation.mjs
       - name: Editorial and SEO data audit
@@ -40,7 +42,8 @@ jobs:
           import { finalizeChangeSelfArticles } from './lib/change-self-finalize.mjs';
           import { applyChangeSelfExtras } from './lib/change-self-extra.mjs';
           import { applyChangeSelfExtras2 } from './lib/change-self-extra2.mjs';
-          const all=applyChangeSelfExtras2(applyChangeSelfExtras(finalizeChangeSelfArticles([...CHANGE_SELF_ARTICLES_1,...CHANGE_SELF_ARTICLES_2])));
+          import { applyChangeSelfExtras3 } from './lib/change-self-extra3.mjs';
+          const all=applyChangeSelfExtras3(applyChangeSelfExtras2(applyChangeSelfExtras(finalizeChangeSelfArticles([...CHANGE_SELF_ARTICLES_1,...CHANGE_SELF_ARTICLES_2]))));
           const words=a=>[a.title,a.lead,...a.sections.flatMap(s=>[s.heading,...s.paragraphs]),a.cta?.title,a.cta?.text].join(' ').trim().split(/\s+/).filter(Boolean).length;
           const expected=['Проблема','Що відомо','Механізм','Як це проявляється','До чого це призводить','Що робити','Практика'];
           if(all.length!==10) throw new Error(`Expected 10 articles, got ${all.length}`);
