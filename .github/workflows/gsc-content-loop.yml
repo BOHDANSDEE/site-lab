@@ -1,0 +1,72 @@
+name: GSC daily content analysis
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/gsc-content-loop.mjs'
+      - 'seo-optimizer/**'
+      - '.github/workflows/gsc-content-loop.yml'
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gsc-daily-content-analysis
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Syntax
+        run: node --check scripts/gsc-content-loop.mjs
+      - name: Self-test
+        run: node scripts/gsc-content-loop.mjs --self-test
+      - name: Validate campaign config
+        run: |
+          node - <<'NODE'
+          const c=require('./seo-optimizer/config.json');
+          if(c.dailyRewriteTarget!==10) throw Error('dailyRewriteTarget must be 10');
+          if(c.campaignDays!==24) throw Error('campaignDays must be 24');
+          if(c.lookbackDays<14||c.lookbackDays>90) throw Error('unsafe lookbackDays');
+          console.log('config ok');
+          NODE
+
+  analyze:
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check Search Console secrets
+        env:
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+          GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
+        run: |
+          test -n "$GSC_SITE_URL"
+          test -n "$GSC_SERVICE_ACCOUNT_JSON"
+      - name: Analyze current Google performance
+        env:
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+          GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
+        run: node scripts/gsc-content-loop.mjs
+      - name: Upload daily report for ChatGPT review
+        uses: actions/upload-artifact@v4
+        with:
+          name: gsc-daily-report-${{ github.run_id }}
+          path: |
+            seo-optimizer/latest-report.json
+            seo-optimizer/latest-report.md
+          retention-days: 35
