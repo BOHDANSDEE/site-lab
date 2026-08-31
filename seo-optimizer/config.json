@@ -1,16 +1,10 @@
 {
-  "scheduleDays": 14,
   "lookbackDays": 28,
-  "comparisonDays": 28,
+  "trendDays": 7,
   "dataLagDays": 3,
-  "minPageAgeDays": 21,
-  "rewriteCooldownDays": 42,
-  "minImpressions": 60,
-  "maxAveragePosition": 30,
-  "winnerMinClicks": 8,
-  "winnerMaxPosition": 15,
-  "maxRewritesPerRun": 3,
-  "winnerReferenceCount": 3,
-  "articlePathPrefix": "/statti/",
-  "openAiModel": "gpt-5.6-terra"
+  "minImpressions": 20,
+  "winnerReferenceCount": 10,
+  "dailyRewriteTarget": 10,
+  "campaignDays": 24,
+  "articlePathPrefix": "/statti/"
 }
