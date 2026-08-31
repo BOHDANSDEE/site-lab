@@ -1,4 +1,7 @@
 {
-  "version": 1,
-  "rewrites": []
+  "version": 2,
+  "campaignStart": null,
+  "dailyTarget": 10,
+  "campaignDays": 24,
+  "processed": []
 }
