@@ -6,3 +6,4 @@ Sitemap: https://xn--k1ae9bxb.online/sitemap-loss-interest.xml
 Sitemap: https://xn--k1ae9bxb.online/sitemap-happiness.xml
 Sitemap: https://xn--k1ae9bxb.online/sitemap-heavy-emotions.xml
 Sitemap: https://xn--k1ae9bxb.online/sitemap-pressure.xml
+Sitemap: https://xn--k1ae9bxb.online/sitemap-focus.xml
