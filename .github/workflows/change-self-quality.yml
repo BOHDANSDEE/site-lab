@@ -1,0 +1,72 @@
+name: Change-self quality check
+
+on:
+  pull_request:
+    paths:
+      - 'article-data/change-self-articles-*.mjs'
+      - 'lib/change-self-finalize.mjs'
+      - 'lib/change-self-extra.mjs'
+      - 'lib/change-self-extra2.mjs'
+      - 'lib/change-self-extra3.mjs'
+      - 'lib/change-self-render.mjs'
+      - 'api/motivation.mjs'
+      - 'api/articles.mjs'
+      - 'vercel.json'
+      - 'sitemap-change-self.xml'
+      - 'robots.txt'
+      - '.github/workflows/change-self-quality.yml'
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax check
+        run: |
+          node --check article-data/change-self-articles-1.mjs
+          node --check article-data/change-self-articles-2.mjs
+          node --check lib/change-self-finalize.mjs
+          node --check lib/change-self-extra.mjs
+          node --check lib/change-self-extra2.mjs
+          node --check lib/change-self-extra3.mjs
+          node --check lib/change-self-render.mjs
+          node --check api/motivation.mjs
+      - name: Editorial and SEO data audit
+        run: |
+          node --input-type=module <<'NODE'
+          import { CHANGE_SELF_ARTICLES_1 } from './article-data/change-self-articles-1.mjs';
+          import { CHANGE_SELF_ARTICLES_2 } from './article-data/change-self-articles-2.mjs';
+          import { finalizeChangeSelfArticles } from './lib/change-self-finalize.mjs';
+          import { applyChangeSelfExtras } from './lib/change-self-extra.mjs';
+          import { applyChangeSelfExtras2 } from './lib/change-self-extra2.mjs';
+          import { applyChangeSelfExtras3 } from './lib/change-self-extra3.mjs';
+          const all=applyChangeSelfExtras3(applyChangeSelfExtras2(applyChangeSelfExtras(finalizeChangeSelfArticles([...CHANGE_SELF_ARTICLES_1,...CHANGE_SELF_ARTICLES_2]))));
+          const words=a=>[a.title,a.lead,...a.sections.flatMap(s=>[s.heading,...s.paragraphs]),a.cta?.title,a.cta?.text].join(' ').trim().split(/\s+/).filter(Boolean).length;
+          const expected=['Проблема','Що відомо','Механізм','Як це проявляється','До чого це призводить','Що робити','Практика'];
+          if(all.length!==10) throw new Error(`Expected 10 articles, got ${all.length}`);
+          const slugs=new Set(); let failed=false;
+          for(const a of all){
+            const wc=words(a), headings=a.sections.map(s=>s.heading), errors=[];
+            if(slugs.has(a.slug)) errors.push('duplicate slug'); slugs.add(a.slug);
+            if(!/^[a-z0-9-]+$/.test(a.slug)) errors.push('slug not ASCII');
+            if(wc<1400||wc>2000) errors.push(`word count ${wc} outside 1400–2000`);
+            if(a.sections.length<7) errors.push(`only ${a.sections.length} sections`);
+            let last=-1;
+            for(const prefix of expected){const i=headings.findIndex(h=>h.startsWith(prefix)); if(i<0) errors.push(`missing Lin macro step: ${prefix}`); else if(i<=last) errors.push(`wrong Lin macro order: ${prefix}`); else last=i;}
+            if(!a.metaDescription||a.metaDescription.length<90||a.metaDescription.length>180) errors.push(`meta length ${a.metaDescription?.length||0}`);
+            if(!a.cta?.title||!a.cta?.text) errors.push('missing article-specific CTA');
+            if(!a.links||a.links.length<2) errors.push('missing cross-subblock internal links');
+            if(errors.length){failed=true;console.error(`FAIL ${a.slug}: ${errors.join('; ')}`)}else console.log(`PASS ${a.slug}: ${wc} words, ${Math.ceil(wc/200)} min`);
+          }
+          if(failed) process.exit(1);
+          NODE
+      - name: Routing and sitemap audit
+        run: |
+          grep -q 'category=change-self' vercel.json
+          grep -q 'handleChangeSelf' api/motivation.mjs
+          grep -q 'yak-zminyty-sebe.*ready: true' api/articles.mjs
+          test "$(grep -c '<url>' sitemap-change-self.xml)" -eq 11
+          grep -q 'sitemap-change-self.xml' robots.txt
