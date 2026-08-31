@@ -33,19 +33,16 @@ jobs:
           import { CHANGE_SELF_ARTICLES_2 } from './article-data/change-self-articles-2.mjs';
           const all=[...CHANGE_SELF_ARTICLES_1,...CHANGE_SELF_ARTICLES_2];
           const words=a=>[a.title,a.lead,...a.sections.flatMap(s=>[s.heading,...s.paragraphs]),a.cta?.title,a.cta?.text].join(' ').trim().split(/\s+/).filter(Boolean).length;
-          const expected=['Звичне пояснення','Чому це пояснення неповне','Інша гіпотеза','Що відомо','Перевірка на собі','Практика'];
+          const expected=['Проблема','Що відомо','Механізм','Як це проявляється','До чого це призводить','Що робити','Практика'];
           if(all.length!==10) throw new Error(`Expected 10 articles, got ${all.length}`);
-          const slugs=new Set();
-          let failed=false;
+          const slugs=new Set(); let failed=false;
           for(const a of all){
-            const wc=words(a);
-            const headings=a.sections.map(s=>s.heading);
-            const errors=[];
+            const wc=words(a), headings=a.sections.map(s=>s.heading), errors=[];
             if(slugs.has(a.slug)) errors.push('duplicate slug'); slugs.add(a.slug);
             if(!/^[a-z0-9-]+$/.test(a.slug)) errors.push('slug not ASCII');
             if(wc<1400||wc>2000) errors.push(`word count ${wc} outside 1400–2000`);
             if(a.sections.length<7) errors.push(`only ${a.sections.length} sections`);
-            for(const prefix of expected){if(!headings.some(h=>h.startsWith(prefix))) errors.push(`missing macro step: ${prefix}`)}
+            for(const prefix of expected){if(!headings.some(h=>h.startsWith(prefix))) errors.push(`missing Lin macro step: ${prefix}`)}
             if(!a.metaDescription||a.metaDescription.length<90||a.metaDescription.length>180) errors.push(`meta length ${a.metaDescription?.length||0}`);
             if(!a.cta?.title||!a.cta?.text) errors.push('missing article-specific CTA');
             if(!a.links||a.links.length<2) errors.push('missing cross-subblock internal links');
