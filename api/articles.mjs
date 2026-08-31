@@ -18,7 +18,7 @@ const TOPICS = [
   { slug: 'yak-pochaty', category: 'prokrastynatsiia', title: 'Як почати', desc: 'Що відбувається до першої реальної дії і як полегшити старт.', ready: true },
   { slug: 'tysk-na-sebe', category: 'prokrastynatsiia', title: 'Тиск на себе', desc: 'Страх помилки, перфекціонізм, дедлайни та завищені вимоги до себе.', ready: true },
   { slug: 'uvaha-ta-kontsentratsiia', category: 'prokrastynatsiia', title: 'Увага та концентрація', desc: 'Телефон, відволікання, фокус і повернення уваги до важливої справи.', ready: true },
-  { slug: 'yak-zminyty-sebe', category: 'prokrastynatsiia', title: 'Як змінити себе', desc: 'Як перевіряти звичні пояснення своєї поведінки й поступово будувати інші дії.', ready: false }
+  { slug: 'yak-zminyty-sebe', category: 'prokrastynatsiia', title: 'Як змінити себе', desc: 'Як перевіряти звичні пояснення своєї поведінки й поступово будувати інші дії.', ready: true }
 ];
 function escapeHtml(value){return String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
 function safeJson(value){return JSON.stringify(value).replace(/</g,'\\u003c')}
