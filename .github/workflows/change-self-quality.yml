@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'article-data/change-self-articles-*.mjs'
+      - 'lib/change-self-finalize.mjs'
       - 'lib/change-self-render.mjs'
       - 'api/motivation.mjs'
       - 'api/articles.mjs'
@@ -24,6 +25,7 @@ jobs:
         run: |
           node --check article-data/change-self-articles-1.mjs
           node --check article-data/change-self-articles-2.mjs
+          node --check lib/change-self-finalize.mjs
           node --check lib/change-self-render.mjs
           node --check api/motivation.mjs
       - name: Editorial and SEO data audit
@@ -31,7 +33,8 @@ jobs:
           node --input-type=module <<'NODE'
           import { CHANGE_SELF_ARTICLES_1 } from './article-data/change-self-articles-1.mjs';
           import { CHANGE_SELF_ARTICLES_2 } from './article-data/change-self-articles-2.mjs';
-          const all=[...CHANGE_SELF_ARTICLES_1,...CHANGE_SELF_ARTICLES_2];
+          import { finalizeChangeSelfArticles } from './lib/change-self-finalize.mjs';
+          const all=finalizeChangeSelfArticles([...CHANGE_SELF_ARTICLES_1,...CHANGE_SELF_ARTICLES_2]);
           const words=a=>[a.title,a.lead,...a.sections.flatMap(s=>[s.heading,...s.paragraphs]),a.cta?.title,a.cta?.text].join(' ').trim().split(/\s+/).filter(Boolean).length;
           const expected=['Проблема','Що відомо','Механізм','Як це проявляється','До чого це призводить','Що робити','Практика'];
           if(all.length!==10) throw new Error(`Expected 10 articles, got ${all.length}`);
@@ -42,7 +45,8 @@ jobs:
             if(!/^[a-z0-9-]+$/.test(a.slug)) errors.push('slug not ASCII');
             if(wc<1400||wc>2000) errors.push(`word count ${wc} outside 1400–2000`);
             if(a.sections.length<7) errors.push(`only ${a.sections.length} sections`);
-            for(const prefix of expected){if(!headings.some(h=>h.startsWith(prefix))) errors.push(`missing Lin macro step: ${prefix}`)}
+            let last=-1;
+            for(const prefix of expected){const i=headings.findIndex(h=>h.startsWith(prefix)); if(i<0) errors.push(`missing Lin macro step: ${prefix}`); else if(i<=last) errors.push(`wrong Lin macro order: ${prefix}`); else last=i;}
             if(!a.metaDescription||a.metaDescription.length<90||a.metaDescription.length>180) errors.push(`meta length ${a.metaDescription?.length||0}`);
             if(!a.cta?.title||!a.cta?.text) errors.push('missing article-specific CTA');
             if(!a.links||a.links.length<2) errors.push('missing cross-subblock internal links');
