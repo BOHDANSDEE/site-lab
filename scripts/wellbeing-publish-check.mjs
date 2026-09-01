@@ -2,8 +2,7 @@ import { WELLBEING_ARTICLES } from '../article-data/wellbeing-articles-1.mjs';
 import { WELLBEING_ARTICLES_2 } from '../article-data/wellbeing-articles-2.mjs';
 import { WELLBEING_ARTICLES_3 } from '../article-data/wellbeing-articles-3.mjs';
 import { WELLBEING_ARTICLES_4 } from '../article-data/wellbeing-articles-4.mjs';
-import wellbeingHandler from '../api/wellbeing.mjs';
-import sitemapHandler from '../api/wellbeing-sitemap.mjs';
+import { handleWellbeing, handleWellbeingSitemap } from '../lib/wellbeing-render.mjs';
 import { readFileSync } from 'node:fs';
 
 const ARTICLES = [...WELLBEING_ARTICLES, ...WELLBEING_ARTICLES_2, ...WELLBEING_ARTICLES_3, ...WELLBEING_ARTICLES_4];
@@ -34,14 +33,14 @@ function run(handler, query = {}) {
   return { statusCode, body, headers };
 }
 
-const catalog = run(wellbeingHandler);
+const catalog = run(handleWellbeing);
 if (catalog.statusCode !== 200) throw new Error('Wellbeing catalog did not render 200');
 if (!catalog.body.includes(`<link rel="canonical" href="${SITE}${BASE}">`)) throw new Error('Catalog canonical missing');
 if (!catalog.body.includes('CollectionPage')) throw new Error('Catalog JSON-LD missing');
 if ((catalog.body.match(/class="article-card"/g) || []).length < 20) throw new Error('Catalog does not expose all articles');
 
 for (const article of ARTICLES) {
-  const page = run(wellbeingHandler, { slug: article.slug });
+  const page = run(handleWellbeing, { slug: article.slug });
   const canonical = `${SITE}${BASE}${article.slug}/`;
   if (page.statusCode !== 200) throw new Error(`Article render failed: ${article.slug}`);
   if (!page.body.includes(`<link rel="canonical" href="${canonical}">`)) throw new Error(`Canonical missing: ${article.slug}`);
@@ -49,7 +48,7 @@ for (const article of ARTICLES) {
   if (!page.body.includes('index,follow')) throw new Error(`Index rule missing: ${article.slug}`);
 }
 
-const sitemap = run(sitemapHandler);
+const sitemap = run(handleWellbeingSitemap);
 if (sitemap.statusCode !== 200) throw new Error('Wellbeing sitemap failed');
 const locs = [...sitemap.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 if (locs.length !== 21) throw new Error(`Expected 21 wellbeing sitemap URLs, got ${locs.length}`);
@@ -65,8 +64,7 @@ for (const source of ['/sitemap-wellbeing.xml', '/statti/zdorovia-ta-samopochutt
   if (!rewrites.some((rule) => rule.source === source)) throw new Error(`Missing rewrite ${source}`);
 }
 const articlesApi = readFileSync('api/articles.mjs', 'utf8');
-if (!articlesApi.includes("slug: 'zdorovia-ta-samopochuttia'") || !articlesApi.includes("slug: 'zdorovia-ta-samopochuttia', category: 'apatiia', title: 'Здоров’я та самопочуття', desc: 'Коли самопочуття впливає на сили, бажання діяти й повсякденне функціонування.', ready: true")) {
-  throw new Error('Wellbeing topic is not marked ready');
-}
+if (!articlesApi.includes("slug: 'zdorovia-ta-samopochuttia'") || !articlesApi.includes("slug: 'zdorovia-ta-samopochuttia', category: 'apatiia', title: 'Здоров’я та самопочуття', desc: 'Коли самопочуття впливає на сили, бажання діяти й повсякденне функціонування.', ready: true")) throw new Error('Wellbeing topic is not marked ready');
+if (!articlesApi.includes("categoryKey==='wellbeing'")) throw new Error('Existing articles function does not dispatch wellbeing');
 
 console.log(`✅ Wellbeing publish check passed: ${ARTICLES.length} articles + hub, all in sitemap`);
