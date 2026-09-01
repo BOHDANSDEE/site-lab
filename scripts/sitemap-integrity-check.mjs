@@ -13,13 +13,14 @@ const requiredPaths = [
 
 for (const path of requiredPaths) {
   const url = `https://xn--k1ae9bxb.online${path}`;
-  const count = sitemap.split(url).length - 1;
+  const entry = `<loc>${url}</loc>`;
+  const count = sitemap.split(entry).length - 1;
   if (count !== 1) {
     throw new Error(`Expected exactly one sitemap entry for ${url}, found ${count}`);
   }
 }
 
-if (sitemap.includes('https://xn--k1ae9bxb.online/statti/lin-vybir/')) {
+if (sitemap.includes('<loc>https://xn--k1ae9bxb.online/statti/lin-vybir/</loc>')) {
   throw new Error('Redirected /statti/lin-vybir/ must not be present in sitemap.xml');
 }
 
