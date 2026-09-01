@@ -23,9 +23,12 @@ jobs:
           node --check scripts/seo-check.mjs
           node --check scripts/all-article-seo-check.mjs
           node --check scripts/sitemap-integrity-check.mjs
+          node --check scripts/full-sitemap-coverage-check.mjs
       - name: Verify 12-topic navigation and indexing rules
         run: node scripts/seo-check.mjs
       - name: Verify 12 blank topic canvases
         run: node scripts/all-article-seo-check.mjs
       - name: Verify sitemap and canonical integrity
         run: node scripts/sitemap-integrity-check.mjs
+      - name: Verify full sitemap coverage
+        run: node scripts/full-sitemap-coverage-check.mjs
