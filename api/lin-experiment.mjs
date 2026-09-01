@@ -68,7 +68,7 @@ function shellFooter() {
 }
 
 function renderCatalog() {
-  const canonical = `${SITE}/statti/lin-vybir/`;
+  const canonical = `${SITE}/statti/lin/`;
   const description = '20 конкретних ситуацій про лінь, складний старт, невпевненість, зусилля та швидку винагороду. Оберіть ту, що найближча до вашої ситуації.';
   const groups = LIN_GROUPS.map((group, groupIndex) => {
     const cards = LIN_ARTICLES
@@ -169,8 +169,7 @@ function renderArticle(article) {
           { '@type': 'ListItem', position: 1, name: 'Головна', item: `${SITE}/` },
           { '@type': 'ListItem', position: 2, name: 'Статті', item: `${SITE}/statti/` },
           { '@type': 'ListItem', position: 3, name: 'Лінь', item: `${SITE}/statti/lin/` },
-          { '@type': 'ListItem', position: 4, name: 'Обрати вручну', item: `${SITE}/statti/lin-vybir/` },
-          { '@type': 'ListItem', position: 5, name: article.title, item: canonical }
+          { '@type': 'ListItem', position: 4, name: article.title, item: canonical }
         ]
       }
     ]
@@ -215,7 +214,7 @@ function renderArticle(article) {
   <main id="content">
     <article class="article-page lin-experiment-article">
       <header class="article-header shell">
-        <nav aria-label="Хлібні крихти"><a class="back-link" href="/statti/lin-vybir/">← До вибору ситуації</a></nav>
+        <nav aria-label="Хлібні крихти"><a class="back-link" href="/statti/lin/">← До вибору ситуації</a></nav>
         <div class="article-meta"><span>Лінь</span><span>${escapeHtml(article.readMinutes)} хв читання</span><span>Оновлено ${UPDATED_LABEL}</span></div>
         <h1>${escapeHtml(article.title)}</h1>
         <p class="article-lead">${escapeHtml(article.lead)}</p>
@@ -242,7 +241,7 @@ function renderArticle(article) {
 }
 
 function notFound() {
-  return `<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow"><title>Матеріал не знайдено | Лінь</title></head><body><main><h1>Матеріал не знайдено</h1><p><a href="/statti/lin-vybir/">Повернутися до вибору</a></p></main></body></html>`;
+  return `<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow"><title>Матеріал не знайдено | Лінь</title></head><body><main><h1>Матеріал не знайдено</h1><p><a href="/statti/lin/">Повернутися до вибору</a></p></main></body></html>`;
 }
 
 export default function handler(request, response) {
