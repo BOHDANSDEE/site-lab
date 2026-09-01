@@ -14,8 +14,8 @@ jobs:
           node-version: 22
       - name: Check syntax
         run: |
-          node --check api/wellbeing.mjs
-          node --check api/wellbeing-sitemap.mjs
+          node --check lib/wellbeing-render.mjs
+          node --check api/articles.mjs
           node --check scripts/wellbeing-publish-check.mjs
       - name: Verify 20 published wellbeing articles and sitemap
         run: node scripts/wellbeing-publish-check.mjs
