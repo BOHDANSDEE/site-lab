@@ -8,3 +8,4 @@ Sitemap: https://xn--k1ae9bxb.online/sitemap-heavy-emotions.xml
 Sitemap: https://xn--k1ae9bxb.online/sitemap-pressure.xml
 Sitemap: https://xn--k1ae9bxb.online/sitemap-focus.xml
 Sitemap: https://xn--k1ae9bxb.online/sitemap-change-self.xml
+Sitemap: https://xn--k1ae9bxb.online/sitemap-wellbeing.xml
