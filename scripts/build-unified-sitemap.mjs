@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 
 const SITE = 'https://xn--k1ae9bxb.online';
 const SOURCE_SITEMAPS = [
@@ -52,7 +52,10 @@ if (ordered.length !== 259) {
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${ordered.map(url => `  <url><loc>${url}</loc></url>`).join('\n')}\n</urlset>\n`;
 
-if (process.argv.includes('--print')) {
+if (process.argv.includes('--write')) {
+  writeFileSync('sitemap.xml', xml);
+  console.log(`Wrote sitemap.xml with ${ordered.length} unique URLs`);
+} else if (process.argv.includes('--print')) {
   process.stdout.write(xml);
 } else if (process.argv.includes('--check')) {
   const current = readFileSync('sitemap.xml', 'utf8');
