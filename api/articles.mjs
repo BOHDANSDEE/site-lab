@@ -14,7 +14,7 @@ const TOPICS = [
   { slug: 'vtrata-interesu', category: 'apatiia', title: 'Втрата інтересу', desc: 'Чому те, що раніше подобалося, може перестати цікавити.', ready: true },
   { slug: 'shchastia', category: 'apatiia', title: 'Як бути щасливим', desc: 'Що реально допомагає будувати задоволеніше життя без вимоги бути щасливим постійно.', ready: true },
   { slug: 'vazhki-emotsii', category: 'apatiia', title: 'Важкі емоції', desc: 'Тривога, страх, злість, провина, сором, втрата, безсилля та відчай.', ready: true },
-  { slug: 'zdorovia-ta-samopochuttia', category: 'apatiia', title: 'Здоров’я та самопочуття', desc: 'Коли самопочуття впливає на сили, бажання діяти й повсякденне функціонування.', ready: false },
+  { slug: 'zdorovia-ta-samopochuttia', category: 'apatiia', title: 'Здоров’я та самопочуття', desc: 'Коли самопочуття впливає на сили, бажання діяти й повсякденне функціонування.', ready: true },
   { slug: 'yak-pochaty', category: 'prokrastynatsiia', title: 'Як почати', desc: 'Що відбувається до першої реальної дії і як полегшити старт.', ready: true },
   { slug: 'tysk-na-sebe', category: 'prokrastynatsiia', title: 'Тиск на себе', desc: 'Страх помилки, перфекціонізм, дедлайни та завищені вимоги до себе.', ready: true },
   { slug: 'uvaha-ta-kontsentratsiia', category: 'prokrastynatsiia', title: 'Увага та концентрація', desc: 'Телефон, відволікання, фокус і повернення уваги до важливої справи.', ready: true },
