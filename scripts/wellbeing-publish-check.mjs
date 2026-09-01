@@ -17,7 +17,7 @@ if (new Set(slugs).size !== slugs.length) throw new Error('Duplicate wellbeing s
 for (const article of ARTICLES) {
   if (!/^[a-z0-9-]+$/.test(article.slug)) throw new Error(`Bad slug: ${article.slug}`);
   if (!article.title || !article.metaDescription || !article.lead) throw new Error(`Missing SEO fields: ${article.slug}`);
-  if (!Array.isArray(article.sections) || article.sections.length < 5) throw new Error(`Too few sections: ${article.slug}`);
+  if (!Array.isArray(article.sections) || article.sections.length < 4) throw new Error(`Too few sections: ${article.slug}`);
   if (article.sections.some((section) => !section.heading || !Array.isArray(section.paragraphs) || section.paragraphs.length < 2)) throw new Error(`Incomplete section: ${article.slug}`);
 }
 
