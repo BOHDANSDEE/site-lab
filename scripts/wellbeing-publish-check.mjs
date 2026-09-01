@@ -53,11 +53,16 @@ if (sitemap.statusCode !== 200) throw new Error('Wellbeing sitemap failed');
 const locs = [...sitemap.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 if (locs.length !== 21) throw new Error(`Expected 21 wellbeing sitemap URLs, got ${locs.length}`);
 for (const url of [`${SITE}${BASE}`, ...ARTICLES.map((article) => `${SITE}${BASE}${article.slug}/`)]) {
-  if (!locs.includes(url)) throw new Error(`Sitemap missing ${url}`);
+  if (!locs.includes(url)) throw new Error(`Wellbeing source sitemap missing ${url}`);
 }
 
+const rootSitemap = readFileSync('sitemap.xml', 'utf8');
+const rootLocs = new Set([...rootSitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
+for (const url of [`${SITE}${BASE}`, ...ARTICLES.map((article) => `${SITE}${BASE}${article.slug}/`)]) {
+  if (!rootLocs.has(url)) throw new Error(`Unified root sitemap missing ${url}`);
+}
 const robots = readFileSync('robots.txt', 'utf8');
-if (!robots.includes('Sitemap: https://xn--k1ae9bxb.online/sitemap-wellbeing.xml')) throw new Error('robots.txt does not expose wellbeing sitemap');
+if (robots.trim().split(/\r?\n/).filter((line) => line.startsWith('Sitemap:')).join('\n') !== 'Sitemap: https://xn--k1ae9bxb.online/sitemap.xml') throw new Error('robots.txt must expose only unified root sitemap');
 const vercel = JSON.parse(readFileSync('vercel.json', 'utf8'));
 const rewrites = vercel.rewrites || [];
 for (const source of ['/sitemap-wellbeing.xml', '/statti/zdorovia-ta-samopochuttia/', '/statti/zdorovia-ta-samopochuttia/:slug/']) {
@@ -67,4 +72,4 @@ const articlesApi = readFileSync('api/articles.mjs', 'utf8');
 if (!articlesApi.includes("slug: 'zdorovia-ta-samopochuttia'") || !articlesApi.includes("slug: 'zdorovia-ta-samopochuttia', category: 'apatiia', title: 'Здоров’я та самопочуття', desc: 'Коли самопочуття впливає на сили, бажання діяти й повсякденне функціонування.', ready: true")) throw new Error('Wellbeing topic is not marked ready');
 if (!articlesApi.includes("categoryKey==='wellbeing'")) throw new Error('Existing articles function does not dispatch wellbeing');
 
-console.log(`✅ Wellbeing publish check passed: ${ARTICLES.length} articles + hub, all in sitemap`);
+console.log(`✅ Wellbeing publish check passed: ${ARTICLES.length} articles + hub, all in unified sitemap`);

@@ -13,6 +13,7 @@ on:
       - 'api/articles.mjs'
       - 'vercel.json'
       - 'sitemap-change-self.xml'
+      - 'sitemap.xml'
       - 'robots.txt'
       - '.github/workflows/change-self-quality.yml'
 
@@ -69,4 +70,6 @@ jobs:
           grep -q 'handleChangeSelf' api/motivation.mjs
           grep -q 'yak-zminyty-sebe.*ready: true' api/articles.mjs
           test "$(grep -c '<url>' sitemap-change-self.xml)" -eq 11
-          grep -q 'sitemap-change-self.xml' robots.txt
+          grep -q '<loc>https://xn--k1ae9bxb.online/statti/yak-zminyty-sebe/</loc>' sitemap.xml
+          test "$(grep -c '^Sitemap:' robots.txt)" -eq 1
+          grep -q '^Sitemap: https://xn--k1ae9bxb.online/sitemap.xml$' robots.txt
