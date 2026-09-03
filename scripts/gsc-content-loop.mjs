@@ -16,6 +16,7 @@ function isArticleUrl(url){try{return new URL(url).pathname.startsWith(CONFIG.ar
 function normalizeUrl(url){try{const u=new URL(url);u.hash='';u.search='';return u.toString()}catch{return url}}
 
 async function serviceAccountToken(){
+  if(process.env.GSC_ACCESS_TOKEN)return process.env.GSC_ACCESS_TOKEN;
   const sa=JSON.parse(req('GSC_SERVICE_ACCOUNT_JSON'));
   const now=Math.floor(Date.now()/1000);
   const header=b64url(JSON.stringify({alg:'RS256',typ:'JWT'}));
