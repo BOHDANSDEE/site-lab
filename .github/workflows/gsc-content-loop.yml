@@ -18,6 +18,11 @@ concurrency:
   group: gsc-daily-content-analysis
   cancel-in-progress: true
 
+env:
+  GSC_SITE_URL: 'https://лінь.online/'
+  GCP_WORKLOAD_IDENTITY_PROVIDER: 'projects/594300534246/locations/global/workloadIdentityPools/github-site-lab/providers/github'
+  GCP_SERVICE_ACCOUNT: 'gsc-content-loop@project-cf9b62af-0eca-41eb-b0d.iam.gserviceaccount.com'
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -52,10 +57,6 @@ jobs:
         with:
           node-version: 24
       - name: Check GSC/OIDC configuration
-        env:
-          GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
-          GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
         run: |
           test -n "$GSC_SITE_URL"
           test -n "$GCP_WORKLOAD_IDENTITY_PROVIDER"
@@ -64,14 +65,13 @@ jobs:
         name: Authenticate to Google Cloud with GitHub OIDC
         uses: google-github-actions/auth@v3
         with:
-          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
           token_format: access_token
           access_token_scopes: https://www.googleapis.com/auth/webmasters.readonly
           create_credentials_file: false
       - name: Analyze current Google performance
         env:
-          GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
           GSC_ACCESS_TOKEN: ${{ steps.google-auth.outputs.access_token }}
         run: node scripts/gsc-content-loop.mjs
       - name: Upload daily report for ChatGPT review
