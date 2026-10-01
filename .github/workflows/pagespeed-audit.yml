@@ -1,0 +1,287 @@
+name: Lighthouse local comparison
+
+on:
+  push:
+    branches:
+      - audit/pagespeed-20260810
+  workflow_dispatch:
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout main baseline
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: baseline
+
+      - name: Checkout performance candidate
+        uses: actions/checkout@v4
+        with:
+          ref: perf/article-speed-20260810
+          path: candidate
+
+      - name: Validate changed JavaScript
+        run: |
+          node --check candidate/script.js
+          node --check candidate/article-deduplicate.js
+          node --check candidate/article-toc-fix.js
+          node --check candidate/article-router.js
+
+      - name: Install Lighthouse
+        run: |
+          google-chrome --version
+          npm install --global lighthouse
+          lighthouse --version
+
+      - name: Start identical local servers
+        shell: bash
+        run: |
+          cat > /tmp/static-server.mjs <<'NODE'
+          import http from 'node:http';
+          import fs from 'node:fs';
+          import path from 'node:path';
+
+          const root = path.resolve(process.argv[2]);
+          const port = Number(process.argv[3]);
+          const mime = {
+            '.html': 'text/html; charset=utf-8',
+            '.js': 'application/javascript; charset=utf-8',
+            '.css': 'text/css; charset=utf-8',
+            '.xml': 'application/xml; charset=utf-8',
+            '.json': 'application/json; charset=utf-8',
+            '.svg': 'image/svg+xml',
+            '.png': 'image/png',
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.webp': 'image/webp',
+            '.ico': 'image/x-icon'
+          };
+
+          const safeFile = (pathname) => {
+            const decoded = decodeURIComponent(pathname);
+            const relative = decoded.replace(/^\/+/, '');
+            const resolved = path.resolve(root, relative);
+            return resolved.startsWith(root) ? resolved : null;
+          };
+
+          const server = http.createServer((req, res) => {
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const pathname = url.pathname;
+            let file = safeFile(pathname);
+
+            if (file && pathname.endsWith('/')) file = path.join(file, 'index.html');
+            if ((!file || !fs.existsSync(file)) && /^\/statti\/[^/]+\/?$/.test(pathname)) {
+              file = path.join(root, 'statti', 'article', 'index.html');
+            }
+
+            if (!file || !fs.existsSync(file) || !fs.statSync(file).isFile()) {
+              res.writeHead(404, {'content-type': 'text/plain; charset=utf-8'});
+              res.end('Not found');
+              return;
+            }
+
+            const ext = path.extname(file).toLowerCase();
+            res.writeHead(200, {
+              'content-type': mime[ext] || 'application/octet-stream',
+              'cache-control': 'no-store'
+            });
+            fs.createReadStream(file).pipe(res);
+          });
+
+          server.listen(port, '127.0.0.1', () => console.log(`Serving ${root} at ${port}`));
+          NODE
+
+          node /tmp/static-server.mjs baseline 4173 >/tmp/baseline-server.log 2>&1 &
+          echo $! >/tmp/baseline-server.pid
+          node /tmp/static-server.mjs candidate 4174 >/tmp/candidate-server.log 2>&1 &
+          echo $! >/tmp/candidate-server.pid
+
+          for i in {1..20}; do
+            if curl --fail --silent http://127.0.0.1:4173/statti/ >/dev/null && curl --fail --silent http://127.0.0.1:4174/statti/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/baseline-server.log /tmp/candidate-server.log
+          exit 1
+
+      - name: Build article path list
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import re, urllib.parse
+          xml = open('baseline/sitemap.xml', encoding='utf-8').read()
+          urls = re.findall(r'<loc>(https://[^<]+/statti/[^<]+/)</loc>', xml)
+          assert len(urls) == 30, f'Expected 30 article URLs, got {len(urls)}'
+          with open('article-paths.txt', 'w', encoding='utf-8') as f:
+              for url in urls:
+                  f.write(urllib.parse.urlparse(url).path + '\n')
+          print(f'Found {len(urls)} article paths')
+          PY
+
+      - name: Functional smoke checks
+        shell: bash
+        run: |
+          for path in \
+            /statti/yak-zmusyty-sebe-vchytysia/ \
+            /statti/yak-dopomohty-liudyni-z-apatiieiu/ \
+            /statti/metod-pomodoro/ \
+            /statti/yak-poboroty-lin/
+          do
+            echo "Checking $path"
+            google-chrome \
+              --headless \
+              --no-sandbox \
+              --disable-dev-shm-usage \
+              --virtual-time-budget=4000 \
+              --dump-dom "http://127.0.0.1:4174$path" \
+              > /tmp/dom.html 2>/dev/null
+            grep -q 'class="article-page"' /tmp/dom.html
+            grep -q 'Поширені запитання' /tmp/dom.html
+            cta_count="$(grep -o 'article-bot-cta article-bot-cta-' /tmp/dom.html | wc -l)"
+            echo "Telegram CTA count: $cta_count"
+            test "$cta_count" -eq 2
+            ! grep -q 'Готуємо матеріал…' /tmp/dom.html
+          done
+
+      - name: Run baseline Lighthouse audits
+        shell: bash
+        run: |
+          mkdir -p baseline-json
+          python3 - <<'PY'
+          import pathlib
+          paths = pathlib.Path('article-paths.txt').read_text().splitlines()
+          with open('/tmp/baseline-jobs.txt', 'w') as f:
+              for i, p in enumerate(paths, 1):
+                  slug = p.rstrip('/').split('/')[-1]
+                  f.write(f'{i}\t{slug}\thttp://127.0.0.1:4173{p}\n')
+          PY
+          cat /tmp/baseline-jobs.txt | xargs -P 3 -n 3 bash -c '
+            index="$0"; slug="$1"; url="$2";
+            echo "[baseline $index/30] $url";
+            lighthouse "$url" \
+              --only-categories=performance \
+              --form-factor=mobile \
+              --output=json \
+              --output-path="baseline-json/${slug}.json" \
+              --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+              --quiet
+          '
+
+      - name: Run candidate Lighthouse audits
+        shell: bash
+        run: |
+          mkdir -p candidate-json
+          python3 - <<'PY'
+          import pathlib
+          paths = pathlib.Path('article-paths.txt').read_text().splitlines()
+          with open('/tmp/candidate-jobs.txt', 'w') as f:
+              for i, p in enumerate(paths, 1):
+                  slug = p.rstrip('/').split('/')[-1]
+                  f.write(f'{i}\t{slug}\thttp://127.0.0.1:4174{p}\n')
+          PY
+          cat /tmp/candidate-jobs.txt | xargs -P 3 -n 3 bash -c '
+            index="$0"; slug="$1"; url="$2";
+            echo "[candidate $index/30] $url";
+            lighthouse "$url" \
+              --only-categories=performance \
+              --form-factor=mobile \
+              --output=json \
+              --output-path="candidate-json/${slug}.json" \
+              --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+              --quiet
+          '
+
+      - name: Compare results
+        shell: bash
+        run: |
+          cat > /tmp/compare.mjs <<'NODE'
+          import fs from 'node:fs/promises';
+          import path from 'node:path';
+
+          const paths = (await fs.readFile('article-paths.txt', 'utf8')).trim().split(/\n+/);
+          const metric = async (dir, slug) => {
+            const data = JSON.parse(await fs.readFile(path.join(dir, `${slug}.json`), 'utf8'));
+            const audits = data.audits || {};
+            return {
+              score: Math.round((data.categories?.performance?.score ?? 0) * 100),
+              fcp: audits['first-contentful-paint']?.numericValue ?? 0,
+              lcp: audits['largest-contentful-paint']?.numericValue ?? 0,
+              tbt: audits['total-blocking-time']?.numericValue ?? 0,
+              cls: audits['cumulative-layout-shift']?.numericValue ?? 0,
+              si: audits['speed-index']?.numericValue ?? 0,
+              mainThread: audits['mainthread-work-breakdown']?.numericValue ?? 0,
+              requests: audits['diagnostics']?.details?.items?.[0]?.numRequests ?? 0,
+              scripts: audits['diagnostics']?.details?.items?.[0]?.numScripts ?? 0,
+              runtimeError: data.runtimeError?.message || ''
+            };
+          };
+
+          const rows = [];
+          for (const articlePath of paths) {
+            const slug = articlePath.replace(/\/$/, '').split('/').pop();
+            const baseline = await metric('baseline-json', slug);
+            const candidate = await metric('candidate-json', slug);
+            rows.push({path: articlePath, baseline, candidate});
+          }
+
+          const avg = (key, side) => rows.reduce((sum, row) => sum + row[side][key], 0) / rows.length;
+          const zeroCls = (side) => rows.filter((row) => row[side].cls === 0).length;
+          const medianScore = (side) => {
+            const values = rows.map((row) => row[side].score).sort((a,b) => a-b);
+            return values[Math.floor(values.length / 2)];
+          };
+          const changed = [...rows].sort((a,b) => (b.candidate.score - b.baseline.score) - (a.candidate.score - a.baseline.score));
+
+          const summary = [
+            '# Lighthouse local comparison',
+            '',
+            `Pages: ${rows.length}/30`,
+            `Baseline average score: ${avg('score','baseline').toFixed(1)}`,
+            `Candidate average score: ${avg('score','candidate').toFixed(1)}`,
+            `Baseline median score: ${medianScore('baseline')}`,
+            `Candidate median score: ${medianScore('candidate')}`,
+            `Baseline CLS 0: ${zeroCls('baseline')}/30`,
+            `Candidate CLS 0: ${zeroCls('candidate')}/30`,
+            `Baseline average TBT: ${Math.round(avg('tbt','baseline'))} ms`,
+            `Candidate average TBT: ${Math.round(avg('tbt','candidate'))} ms`,
+            `Baseline average main-thread work: ${Math.round(avg('mainThread','baseline'))} ms`,
+            `Candidate average main-thread work: ${Math.round(avg('mainThread','candidate'))} ms`,
+            `Baseline average scripts: ${avg('scripts','baseline').toFixed(1)}`,
+            `Candidate average scripts: ${avg('scripts','candidate').toFixed(1)}`,
+            '',
+            '## Largest score improvements',
+            ...changed.slice(0, 10).map((r) => `- ${r.path}: ${r.baseline.score} → ${r.candidate.score}; CLS ${r.baseline.cls.toFixed(3)} → ${r.candidate.cls.toFixed(3)}; TBT ${Math.round(r.baseline.tbt)} → ${Math.round(r.candidate.tbt)} ms`),
+            '',
+            '## Lowest candidate scores',
+            ...[...rows].sort((a,b) => a.candidate.score - b.candidate.score).slice(0, 10).map((r) => `- ${r.candidate.score} — ${r.path}; LCP ${(r.candidate.lcp/1000).toFixed(2)} s; TBT ${Math.round(r.candidate.tbt)} ms; CLS ${r.candidate.cls.toFixed(3)}`),
+            ''
+          ].join('\n');
+          await fs.writeFile('lighthouse-comparison.md', summary);
+
+          const esc = (value) => `"${String(value ?? '').replaceAll('"','""')}"`;
+          const header = ['path','baselineScore','candidateScore','baselineFcpMs','candidateFcpMs','baselineLcpMs','candidateLcpMs','baselineTbtMs','candidateTbtMs','baselineCls','candidateCls','baselineMainThreadMs','candidateMainThreadMs','baselineScripts','candidateScripts'];
+          const csvRows = rows.map((r) => [r.path,r.baseline.score,r.candidate.score,r.baseline.fcp,r.candidate.fcp,r.baseline.lcp,r.candidate.lcp,r.baseline.tbt,r.candidate.tbt,r.baseline.cls,r.candidate.cls,r.baseline.mainThread,r.candidate.mainThread,r.baseline.scripts,r.candidate.scripts].map(esc).join(','));
+          await fs.writeFile('lighthouse-comparison.csv', [header.join(','), ...csvRows].join('\n'));
+          console.log(summary);
+
+          if (rows.some((r) => r.candidate.runtimeError)) process.exit(2);
+          NODE
+          node /tmp/compare.mjs
+
+      - name: Upload comparison
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-local-comparison
+          path: |
+            lighthouse-comparison.md
+            lighthouse-comparison.csv
+            baseline-json/
+            candidate-json/
+          if-no-files-found: warn
